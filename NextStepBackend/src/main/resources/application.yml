@@ -1,0 +1,97 @@
+# =============================================================================
+# SERVER CONFIGURATION - Cấu hình máy chủ chung
+# =============================================================================
+server:
+  port: ${SERVER_PORT:8080}
+  servlet:
+    context-path: /next-step
+    encoding:           # Bat moi req/res deu dung UTF-8
+      charset: UTF-8
+      enabled: true
+      force: true
+    compression:       # Bat Gzip
+      enabled: true
+      mime-types: application/json,text/html,text/xml,text/css,text/plain
+      min-response-size: 1024
+    session:
+      cookie:
+        http-only: true
+        same-site: strict
+
+# =============================================================================
+# SPRING CONFIGURATION
+# =============================================================================
+spring:
+  application:
+    name: NextStepBackend #Ten ung dung
+
+  jackson:            # Khi tra ve JSON, hien thi ngay thang dang ISO
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      fail-on-unknown-properties: false
+    time-zone: Asia/Ho_Chi_Minh # Dat toan bo  timezone vn
+    date-format: yyyy-MM-dd HH:mm:ss # format date chuan
+
+  servlet:          # Cho phep upload file(anh,pdf,txt,..)
+    multipart:
+      enabled: true
+      max-file-size: 5MB
+      max-request-size: 10MB
+
+  task:            # ThreadPool cho async tasks( gui email, notification, xu ly nen)
+    execution:
+      pool:
+        core-size: 4
+        max-size: 8
+        queue-capacity: 50
+    scheduling:
+      pool:
+        size: 2
+    profiles:
+      active: ${SPRING_PROFILES_ACTIVE:dev}
+
+# =============================================================================
+# LOGGING FORMAT (level sẽ được cấu hình theo từng profile)
+# =============================================================================
+logging:      # Tuy chinh format log
+  pattern:
+    console: "%clr(%d{HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+
+# =============================================================================
+# ACTUATOR CONFIG - Xem cau hinh app
+# =============================================================================
+management:
+  endpoints:
+    web:
+      base-path: /actuator
+  info:
+    env:
+      enabled: true
+
+# =============================================================================
+# CUSTOM NEXTSTEP APPLICATION PROPERTIES
+# =============================================================================
+app:      # Metadata cho ứng dụng
+  name: NextStep Application
+  version: 1.0.0
+  description: Simple NextStep API for Vue.js Frontend
+
+  api:    # Api config. co the build route
+    version: v1
+
+  todo: # custom config
+    max-todos-per-user: 1000
+    auto-archive-completed-days: 30
+    reminder:
+      enabled: true
+      check-interval-minutes: 15
+    categories:
+      default-categories: [Personal, Work, Shopping, Health]
+  cors:     # Cho phep frontend goi all tu origin
+    allowed-origins: ${ALLOWED_ORIGINS:http://localhost:3000,https://yourdomain.com}
+    allowed-methods: GET,POST,PUT,DELETE,OPTIONS,PATCH
+    allow-credentials: true
+    max-age: 3600
+    allowed-headers: "*"

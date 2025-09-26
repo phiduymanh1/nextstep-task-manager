@@ -1,0 +1,74 @@
+spring:
+  profiles:
+    active: dev
+
+  # Redis Cache Configuration for DEV
+  cache:
+    type: redis
+    redis:
+      time-to-live: 600000  # 10 minutes
+      cache-null-values: false
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      database: 0
+      timeout: 2000ms
+      jedis:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms
+
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/nextstep_dev}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:dev_password_123}
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 20000
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
+        show_sql: true
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+
+server:
+  error:
+    include-message: always
+    include-stacktrace: always
+
+logging:
+  level:
+    root: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:dev-my-super-secret-key-minimum-256-bits-for-security}
+    header: Authorization
+    token-prefix: "Bearer "
+    access-token-expiration: 86400000
+    refresh-token-expiration: 604800000
+
+  notification:
+    email:
+      enabled: false
+    push:
+      enabled: false
+
+  rate-limit:
+    enabled: false
