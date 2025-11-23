@@ -48,8 +48,10 @@ spring:
     scheduling:
       pool:
         size: 2
-    profiles:
-      active: ${SPRING_PROFILES_ACTIVE:dev}
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+  jpa:
+    open-in-view: false
 
 # =============================================================================
 # LOGGING FORMAT (level sẽ được cấu hình theo từng profile)

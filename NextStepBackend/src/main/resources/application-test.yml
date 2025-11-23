@@ -1,6 +1,4 @@
 spring: # Kich hoat profile test
-  profiles:
-    active: test
 
   # Redis Cache Configuration for TEST - dung Redis lam cache
   cache:
@@ -37,7 +35,6 @@ spring: # Kich hoat profile test
       ddl-auto: create-drop
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MySQL8Dialect
         format_sql: false
         show_sql: false
         jdbc:
