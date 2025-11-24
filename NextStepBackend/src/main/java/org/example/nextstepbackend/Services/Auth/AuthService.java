@@ -21,8 +21,8 @@ public class AuthService {
                 new UsernamePasswordAuthenticationToken(userEmail, password)
         );
         // If authenticate success, create JWT
-        String accessToken = jwtUtil.generationAccessToken(auth.getName());
-        String refreshToken = jwtUtil.generationRefreshToken(auth.getName());
+        String accessToken = jwtUtil.generateAccessToken(auth.getName());
+        String refreshToken = jwtUtil.generateRefreshToken(auth.getName());
 
         // Return both tokens, controller will set cookies
         return Map.of(
@@ -35,6 +35,6 @@ public class AuthService {
     public String refreshToken(String refreshToken){
         String username = jwtUtil.extractUserName(refreshToken);
 
-        return jwtUtil.generationAccessToken(username);
+        return jwtUtil.generateAccessToken(username);
     }
 }

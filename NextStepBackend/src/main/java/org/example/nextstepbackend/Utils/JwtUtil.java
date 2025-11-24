@@ -28,11 +28,11 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(secret.getBytes());
     }
 
-    public String generationAccessToken(String username){
+    public String generateAccessToken(String username){
         return buildToken(username,expirationAccessToken);
     }
 
-    public String generationRefreshToken(String username){
+    public String generateRefreshToken(String username){
         return buildToken(username,expirationRefreshToken);
     }
 
@@ -46,11 +46,11 @@ public class JwtUtil {
     }
 
     public String extractUserName(String token){
-        try {
-            return parseClaims(token).getSubject();
-        }catch (JwtException e) {
+        Claims claims = parseClaims(token);
+        if (claims == null) {
             return null;
         }
+        return claims.getSubject();
     }
 
     public boolean isAccessTokenValid(String token, UserDetails userDetails) {
