@@ -497,3 +497,147 @@ Caused by: java.lang.ClassNotFoundException: org.example.nextstepbackend.Config.
 2025-11-25 00:43:27.074 [restartedMain] INFO  [36mo.s.b.w.e.tomcat.TomcatWebServer[0;39m - Tomcat started on port 8080 (http) with context path '/next-step'
 2025-11-25 00:43:27.079 [restartedMain] INFO  [36mo.e.n.NextStepBackendApplication[0;39m - Started NextStepBackendApplication in 1.548 seconds (process running for 621.784)
 2025-11-25 00:43:27.082 [restartedMain] INFO  [36mo.s.b.d.a.ConditionEvaluationDeltaLoggingListener[0;39m - Condition evaluation unchanged
+2025-11-25 00:44:35.626 [File Watcher] INFO  [36mo.s.b.d.a.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener[0;39m - Restarting due to 1 class path change (0 additions, 1 deletion, 0 modifications)
+2025-11-25 00:44:35.627 [Thread-73] INFO  [36mo.s.b.w.e.tomcat.GracefulShutdown[0;39m - Commencing graceful shutdown. Waiting for active requests to complete
+2025-11-25 00:44:35.633 [tomcat-shutdown] INFO  [36mo.s.b.w.e.tomcat.GracefulShutdown[0;39m - Graceful shutdown complete
+2025-11-25 00:44:35.636 [Thread-73] INFO  [36mo.s.o.j.LocalContainerEntityManagerFactoryBean[0;39m - Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-11-25 00:44:35.714 [restartedMain] INFO  [36mo.e.n.NextStepBackendApplication[0;39m - Starting NextStepBackendApplication using Java 21.0.5 with PID 8768 (E:\DuAnCaNhan\nextstep-task-manager\NextStepBackend\target\classes started by manhp in E:\DuAnCaNhan\nextstep-task-manager\NextStepBackend)
+2025-11-25 00:44:35.714 [restartedMain] DEBUG [36mo.e.n.NextStepBackendApplication[0;39m - Running with Spring Boot v3.5.5, Spring v6.2.10
+2025-11-25 00:44:35.714 [restartedMain] INFO  [36mo.e.n.NextStepBackendApplication[0;39m - The following 1 profile is active: "dev"
+2025-11-25 00:44:35.890 [restartedMain] INFO  [36mo.s.d.r.c.RepositoryConfigurationDelegate[0;39m - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-11-25 00:44:35.894 [restartedMain] INFO  [36mo.s.d.r.c.RepositoryConfigurationDelegate[0;39m - Finished Spring Data repository scanning in 4 ms. Found 1 JPA repository interface.
+2025-11-25 00:44:35.959 [restartedMain] INFO  [36mo.s.b.w.e.tomcat.TomcatWebServer[0;39m - Tomcat initialized with port 8080 (http)
+2025-11-25 00:44:35.976 [restartedMain] INFO  [36mo.s.b.w.s.c.ServletWebServerApplicationContext[0;39m - Root WebApplicationContext: initialization completed in 261 ms
+2025-11-25 00:44:36.052 [restartedMain] INFO  [36mo.s.o.j.p.SpringPersistenceUnitInfo[0;39m - No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-11-25 00:44:36.302 [restartedMain] INFO  [36mo.s.o.j.LocalContainerEntityManagerFactoryBean[0;39m - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-11-25 00:44:36.354 [restartedMain] DEBUG [36mo.e.nextstepbackend.Config.JwtFilter[0;39m - Filter 'jwtFilter' configured for use
+2025-11-25 00:44:36.359 [restartedMain] WARN  [36mo.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext[0;39m - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'authController' defined in file [E:\DuAnCaNhan\nextstep-task-manager\NextStepBackend\target\classes\org\example\nextstepbackend\Controller\AuthController.class]: Unsatisfied dependency expressed through constructor parameter 0: Error creating bean with name 'authService' defined in file [E:\DuAnCaNhan\nextstep-task-manager\NextStepBackend\target\classes\org\example\nextstepbackend\Services\Auth\AuthService.class]: Unsatisfied dependency expressed through constructor parameter 0: No qualifying bean of type 'org.springframework.security.authentication.AuthenticationManager' available: expected at least 1 bean which qualifies as autowire candidate. Dependency annotations: {}
+2025-11-25 00:44:36.359 [restartedMain] INFO  [36mo.s.o.j.LocalContainerEntityManagerFactoryBean[0;39m - Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-11-25 00:44:36.391 [restartedMain] INFO  [36mo.s.b.a.l.ConditionEvaluationReportLogger[0;39m - 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2025-11-25 00:44:36.395 [restartedMain] ERROR [36mo.s.b.d.LoggingFailureAnalysisReporter[0;39m - 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Parameter 0 of constructor in org.example.nextstepbackend.Services.Auth.AuthService required a bean of type 'org.springframework.security.authentication.AuthenticationManager' that could not be found.
+
+
+Action:
+
+Consider defining a bean of type 'org.springframework.security.authentication.AuthenticationManager' in your configuration.
+
+2025-11-25 00:44:37.861 [restartedMain] INFO  [36mo.e.n.NextStepBackendApplication[0;39m - Starting NextStepBackendApplication using Java 21.0.5 with PID 8768 (E:\DuAnCaNhan\nextstep-task-manager\NextStepBackend\target\classes started by manhp in E:\DuAnCaNhan\nextstep-task-manager\NextStepBackend)
+2025-11-25 00:44:37.861 [restartedMain] DEBUG [36mo.e.n.NextStepBackendApplication[0;39m - Running with Spring Boot v3.5.5, Spring v6.2.10
+2025-11-25 00:44:37.861 [restartedMain] INFO  [36mo.e.n.NextStepBackendApplication[0;39m - The following 1 profile is active: "dev"
+2025-11-25 00:44:38.129 [restartedMain] INFO  [36mo.s.d.r.c.RepositoryConfigurationDelegate[0;39m - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-11-25 00:44:38.138 [restartedMain] INFO  [36mo.s.d.r.c.RepositoryConfigurationDelegate[0;39m - Finished Spring Data repository scanning in 8 ms. Found 1 JPA repository interface.
+2025-11-25 00:44:38.246 [restartedMain] INFO  [36mo.s.b.w.e.tomcat.TomcatWebServer[0;39m - Tomcat initialized with port 8080 (http)
+2025-11-25 00:44:38.262 [restartedMain] INFO  [36mo.s.b.w.s.c.ServletWebServerApplicationContext[0;39m - Root WebApplicationContext: initialization completed in 399 ms
+2025-11-25 00:44:38.357 [restartedMain] INFO  [36mo.s.o.j.p.SpringPersistenceUnitInfo[0;39m - No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-11-25 00:44:38.610 [restartedMain] INFO  [36mo.s.o.j.LocalContainerEntityManagerFactoryBean[0;39m - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-11-25 00:44:38.683 [restartedMain] DEBUG [36mo.e.nextstepbackend.Config.JwtFilter[0;39m - Filter 'jwtFilter' configured for use
+2025-11-25 00:44:38.709 [restartedMain] INFO  [36mo.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer[0;39m - Global AuthenticationManager configured with UserDetailsService bean with name customerUserDetailService
+2025-11-25 00:44:38.900 [restartedMain] INFO  [36mo.s.b.a.e.web.EndpointLinksResolver[0;39m - Exposing 1 endpoint beneath base path '/actuator'
+2025-11-25 00:44:38.955 [restartedMain] DEBUG [36mo.s.s.web.DefaultSecurityFilterChain[0;39m - Will secure any request with filters: DisableEncodeUrlFilter, WebAsyncManagerIntegrationFilter, SecurityContextHolderFilter, HeaderWriterFilter, LogoutFilter, JwtFilter, RequestCacheAwareFilter, SecurityContextHolderAwareRequestFilter, AnonymousAuthenticationFilter, SessionManagementFilter, ExceptionTranslationFilter, AuthorizationFilter
+2025-11-25 00:44:39.095 [restartedMain] INFO  [36mo.s.b.d.a.OptionalLiveReloadServer[0;39m - LiveReload server is running on port 35729
+2025-11-25 00:44:39.113 [restartedMain] INFO  [36mo.s.b.w.e.tomcat.TomcatWebServer[0;39m - Tomcat started on port 8080 (http) with context path '/next-step'
+2025-11-25 00:44:39.118 [restartedMain] INFO  [36mo.e.n.NextStepBackendApplication[0;39m - Started NextStepBackendApplication in 1.281 seconds (process running for 693.821)
+2025-11-25 00:44:39.119 [restartedMain] INFO  [36mo.s.b.d.a.ConditionEvaluationDeltaLoggingListener[0;39m - Condition evaluation unchanged
+2025-11-25 00:45:15.101 [File Watcher] INFO  [36mo.s.b.d.a.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener[0;39m - Restarting due to 1 class path change (0 additions, 1 deletion, 0 modifications)
+2025-11-25 00:45:15.102 [Thread-84] INFO  [36mo.s.b.w.e.tomcat.GracefulShutdown[0;39m - Commencing graceful shutdown. Waiting for active requests to complete
+2025-11-25 00:45:15.107 [tomcat-shutdown] INFO  [36mo.s.b.w.e.tomcat.GracefulShutdown[0;39m - Graceful shutdown complete
+2025-11-25 00:45:15.109 [Thread-84] INFO  [36mo.s.o.j.LocalContainerEntityManagerFactoryBean[0;39m - Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-11-25 00:45:15.182 [restartedMain] INFO  [36mo.e.n.NextStepBackendApplication[0;39m - Starting NextStepBackendApplication using Java 21.0.5 with PID 8768 (E:\DuAnCaNhan\nextstep-task-manager\NextStepBackend\target\classes started by manhp in E:\DuAnCaNhan\nextstep-task-manager\NextStepBackend)
+2025-11-25 00:45:15.182 [restartedMain] DEBUG [36mo.e.n.NextStepBackendApplication[0;39m - Running with Spring Boot v3.5.5, Spring v6.2.10
+2025-11-25 00:45:15.182 [restartedMain] INFO  [36mo.e.n.NextStepBackendApplication[0;39m - The following 1 profile is active: "dev"
+2025-11-25 00:45:15.457 [restartedMain] INFO  [36mo.s.d.r.c.RepositoryConfigurationDelegate[0;39m - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-11-25 00:45:15.469 [restartedMain] INFO  [36mo.s.d.r.c.RepositoryConfigurationDelegate[0;39m - Finished Spring Data repository scanning in 10 ms. Found 1 JPA repository interface.
+2025-11-25 00:45:15.575 [restartedMain] INFO  [36mo.s.b.w.e.tomcat.TomcatWebServer[0;39m - Tomcat initialized with port 8080 (http)
+2025-11-25 00:45:15.595 [restartedMain] INFO  [36mo.s.b.w.s.c.ServletWebServerApplicationContext[0;39m - Root WebApplicationContext: initialization completed in 412 ms
+2025-11-25 00:45:15.668 [restartedMain] INFO  [36mo.s.o.j.p.SpringPersistenceUnitInfo[0;39m - No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-11-25 00:45:16.156 [restartedMain] INFO  [36mo.s.o.j.LocalContainerEntityManagerFactoryBean[0;39m - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-11-25 00:45:16.242 [restartedMain] DEBUG [36mo.e.nextstepbackend.Config.JwtFilter[0;39m - Filter 'jwtFilter' configured for use
+2025-11-25 00:45:16.254 [restartedMain] WARN  [36mo.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext[0;39m - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'authController' defined in file [E:\DuAnCaNhan\nextstep-task-manager\NextStepBackend\target\classes\org\example\nextstepbackend\Controller\AuthController.class]: Unsatisfied dependency expressed through constructor parameter 0: Error creating bean with name 'authService' defined in file [E:\DuAnCaNhan\nextstep-task-manager\NextStepBackend\target\classes\org\example\nextstepbackend\Services\Auth\AuthService.class]: Unsatisfied dependency expressed through constructor parameter 0: No qualifying bean of type 'org.springframework.security.authentication.AuthenticationManager' available: expected at least 1 bean which qualifies as autowire candidate. Dependency annotations: {}
+2025-11-25 00:45:16.254 [restartedMain] INFO  [36mo.s.o.j.LocalContainerEntityManagerFactoryBean[0;39m - Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-11-25 00:45:16.270 [restartedMain] INFO  [36mo.s.b.a.l.ConditionEvaluationReportLogger[0;39m - 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2025-11-25 00:45:16.275 [restartedMain] ERROR [36mo.s.b.d.LoggingFailureAnalysisReporter[0;39m - 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Parameter 0 of constructor in org.example.nextstepbackend.Services.Auth.AuthService required a bean of type 'org.springframework.security.authentication.AuthenticationManager' that could not be found.
+
+
+Action:
+
+Consider defining a bean of type 'org.springframework.security.authentication.AuthenticationManager' in your configuration.
+
+2025-11-25 00:46:17.894 [restartedMain] INFO  [36mo.e.n.NextStepBackendApplication[0;39m - Starting NextStepBackendApplication using Java 21.0.5 with PID 8768 (E:\DuAnCaNhan\nextstep-task-manager\NextStepBackend\target\classes started by manhp in E:\DuAnCaNhan\nextstep-task-manager\NextStepBackend)
+2025-11-25 00:46:17.894 [restartedMain] DEBUG [36mo.e.n.NextStepBackendApplication[0;39m - Running with Spring Boot v3.5.5, Spring v6.2.10
+2025-11-25 00:46:17.894 [restartedMain] INFO  [36mo.e.n.NextStepBackendApplication[0;39m - The following 1 profile is active: "dev"
+2025-11-25 00:46:18.302 [restartedMain] INFO  [36mo.s.d.r.c.RepositoryConfigurationDelegate[0;39m - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-11-25 00:46:18.318 [restartedMain] INFO  [36mo.s.d.r.c.RepositoryConfigurationDelegate[0;39m - Finished Spring Data repository scanning in 16 ms. Found 1 JPA repository interface.
+2025-11-25 00:46:18.519 [restartedMain] INFO  [36mo.s.b.w.e.tomcat.TomcatWebServer[0;39m - Tomcat initialized with port 8080 (http)
+2025-11-25 00:46:18.547 [restartedMain] INFO  [36mo.s.b.w.s.c.ServletWebServerApplicationContext[0;39m - Root WebApplicationContext: initialization completed in 652 ms
+2025-11-25 00:46:18.708 [restartedMain] INFO  [36mo.s.o.j.p.SpringPersistenceUnitInfo[0;39m - No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-11-25 00:46:19.091 [restartedMain] INFO  [36mo.s.o.j.LocalContainerEntityManagerFactoryBean[0;39m - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-11-25 00:46:19.226 [restartedMain] DEBUG [36mo.e.nextstepbackend.Config.JwtFilter[0;39m - Filter 'jwtFilter' configured for use
+2025-11-25 00:46:19.269 [restartedMain] INFO  [36mo.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer[0;39m - Global AuthenticationManager configured with UserDetailsService bean with name customerUserDetailService
+2025-11-25 00:46:19.567 [restartedMain] INFO  [36mo.s.b.a.e.web.EndpointLinksResolver[0;39m - Exposing 1 endpoint beneath base path '/actuator'
+2025-11-25 00:46:19.644 [restartedMain] DEBUG [36mo.s.s.web.DefaultSecurityFilterChain[0;39m - Will secure any request with filters: DisableEncodeUrlFilter, WebAsyncManagerIntegrationFilter, SecurityContextHolderFilter, HeaderWriterFilter, LogoutFilter, JwtFilter, RequestCacheAwareFilter, SecurityContextHolderAwareRequestFilter, AnonymousAuthenticationFilter, SessionManagementFilter, ExceptionTranslationFilter, AuthorizationFilter
+2025-11-25 00:46:19.800 [restartedMain] INFO  [36mo.s.b.d.a.OptionalLiveReloadServer[0;39m - LiveReload server is running on port 35729
+2025-11-25 00:46:19.820 [restartedMain] INFO  [36mo.s.b.w.e.tomcat.TomcatWebServer[0;39m - Tomcat started on port 8080 (http) with context path '/next-step'
+2025-11-25 00:46:19.825 [restartedMain] INFO  [36mo.e.n.NextStepBackendApplication[0;39m - Started NextStepBackendApplication in 1.957 seconds (process running for 794.529)
+2025-11-25 00:46:19.827 [restartedMain] INFO  [36mo.s.b.d.a.ConditionEvaluationDeltaLoggingListener[0;39m - Condition evaluation unchanged
+2025-11-25 00:47:41.704 [File Watcher] INFO  [36mo.s.b.d.a.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener[0;39m - Restarting due to 1 class path change (0 additions, 1 deletion, 0 modifications)
+2025-11-25 00:47:41.705 [Thread-95] INFO  [36mo.s.b.w.e.tomcat.GracefulShutdown[0;39m - Commencing graceful shutdown. Waiting for active requests to complete
+2025-11-25 00:47:41.711 [tomcat-shutdown] INFO  [36mo.s.b.w.e.tomcat.GracefulShutdown[0;39m - Graceful shutdown complete
+2025-11-25 00:47:41.713 [Thread-95] INFO  [36mo.s.o.j.LocalContainerEntityManagerFactoryBean[0;39m - Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-11-25 00:47:41.808 [restartedMain] INFO  [36mo.e.n.NextStepBackendApplication[0;39m - Starting NextStepBackendApplication using Java 21.0.5 with PID 8768 (E:\DuAnCaNhan\nextstep-task-manager\NextStepBackend\target\classes started by manhp in E:\DuAnCaNhan\nextstep-task-manager\NextStepBackend)
+2025-11-25 00:47:41.808 [restartedMain] DEBUG [36mo.e.n.NextStepBackendApplication[0;39m - Running with Spring Boot v3.5.5, Spring v6.2.10
+2025-11-25 00:47:41.808 [restartedMain] INFO  [36mo.e.n.NextStepBackendApplication[0;39m - The following 1 profile is active: "dev"
+2025-11-25 00:47:42.010 [restartedMain] INFO  [36mo.s.d.r.c.RepositoryConfigurationDelegate[0;39m - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-11-25 00:47:42.017 [restartedMain] INFO  [36mo.s.d.r.c.RepositoryConfigurationDelegate[0;39m - Finished Spring Data repository scanning in 5 ms. Found 1 JPA repository interface.
+2025-11-25 00:47:42.075 [restartedMain] INFO  [36mo.s.b.w.e.tomcat.TomcatWebServer[0;39m - Tomcat initialized with port 8080 (http)
+2025-11-25 00:47:42.090 [restartedMain] INFO  [36mo.s.b.w.s.c.ServletWebServerApplicationContext[0;39m - Root WebApplicationContext: initialization completed in 278 ms
+2025-11-25 00:47:42.171 [restartedMain] INFO  [36mo.s.o.j.p.SpringPersistenceUnitInfo[0;39m - No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-11-25 00:47:42.442 [restartedMain] INFO  [36mo.s.o.j.LocalContainerEntityManagerFactoryBean[0;39m - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-11-25 00:47:42.475 [restartedMain] DEBUG [36mo.e.nextstepbackend.Config.JwtFilter[0;39m - Filter 'jwtFilter' configured for use
+2025-11-25 00:47:42.484 [restartedMain] WARN  [36mo.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext[0;39m - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'authController' defined in file [E:\DuAnCaNhan\nextstep-task-manager\NextStepBackend\target\classes\org\example\nextstepbackend\Controller\AuthController.class]: Unsatisfied dependency expressed through constructor parameter 0: Error creating bean with name 'authService' defined in file [E:\DuAnCaNhan\nextstep-task-manager\NextStepBackend\target\classes\org\example\nextstepbackend\Services\Auth\AuthService.class]: Unsatisfied dependency expressed through constructor parameter 0: No qualifying bean of type 'org.springframework.security.authentication.AuthenticationManager' available: expected at least 1 bean which qualifies as autowire candidate. Dependency annotations: {}
+2025-11-25 00:47:42.484 [restartedMain] INFO  [36mo.s.o.j.LocalContainerEntityManagerFactoryBean[0;39m - Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-11-25 00:47:42.529 [restartedMain] INFO  [36mo.s.b.a.l.ConditionEvaluationReportLogger[0;39m - 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2025-11-25 00:47:42.533 [restartedMain] ERROR [36mo.s.b.d.LoggingFailureAnalysisReporter[0;39m - 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Parameter 0 of constructor in org.example.nextstepbackend.Services.Auth.AuthService required a bean of type 'org.springframework.security.authentication.AuthenticationManager' that could not be found.
+
+
+Action:
+
+Consider defining a bean of type 'org.springframework.security.authentication.AuthenticationManager' in your configuration.
+
+2025-11-25 00:47:43.976 [restartedMain] INFO  [36mo.e.n.NextStepBackendApplication[0;39m - Starting NextStepBackendApplication using Java 21.0.5 with PID 8768 (E:\DuAnCaNhan\nextstep-task-manager\NextStepBackend\target\classes started by manhp in E:\DuAnCaNhan\nextstep-task-manager\NextStepBackend)
+2025-11-25 00:47:43.976 [restartedMain] DEBUG [36mo.e.n.NextStepBackendApplication[0;39m - Running with Spring Boot v3.5.5, Spring v6.2.10
+2025-11-25 00:47:43.976 [restartedMain] INFO  [36mo.e.n.NextStepBackendApplication[0;39m - The following 1 profile is active: "dev"
+2025-11-25 00:47:44.121 [restartedMain] INFO  [36mo.s.d.r.c.RepositoryConfigurationDelegate[0;39m - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-11-25 00:47:44.126 [restartedMain] INFO  [36mo.s.d.r.c.RepositoryConfigurationDelegate[0;39m - Finished Spring Data repository scanning in 4 ms. Found 1 JPA repository interface.
+2025-11-25 00:47:44.200 [restartedMain] INFO  [36mo.s.b.w.e.tomcat.TomcatWebServer[0;39m - Tomcat initialized with port 8080 (http)
+2025-11-25 00:47:44.209 [restartedMain] INFO  [36mo.s.b.w.s.c.ServletWebServerApplicationContext[0;39m - Root WebApplicationContext: initialization completed in 232 ms
+2025-11-25 00:47:44.258 [restartedMain] INFO  [36mo.s.o.j.p.SpringPersistenceUnitInfo[0;39m - No LoadTimeWeaver setup: ignoring JPA class transformer
