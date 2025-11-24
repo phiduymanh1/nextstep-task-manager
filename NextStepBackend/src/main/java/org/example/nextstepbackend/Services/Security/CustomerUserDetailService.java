@@ -1,7 +1,6 @@
 package org.example.nextstepbackend.Services.Security;
 
 import lombok.RequiredArgsConstructor;
-import org.example.nextstepbackend.Mappers.UserMapper;
 import org.example.nextstepbackend.Repositorys.UserRepository;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -18,7 +17,6 @@ import java.util.List;
 public class CustomerUserDetailService implements UserDetailsService {
 
     private final UserRepository userRepository;
-    private final UserMapper userMapper;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
@@ -26,7 +24,7 @@ public class CustomerUserDetailService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
 
         String role = user.getUserRole();
-        GrantedAuthority grantedAuthority = new SimpleGrantedAuthority("ROLE_"+user.getUserEmail());
+        GrantedAuthority grantedAuthority = new SimpleGrantedAuthority("ROLE_"+role);
 
         return User.builder().username(user.getUserEmail())  // username in Spring Security = email here
                 .password(user.getPasswordHash()) // encoded password stored in DB
