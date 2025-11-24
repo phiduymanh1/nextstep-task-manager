@@ -22,17 +22,17 @@ public class Group {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "group_name", length = 100)
+    @Column(length = 100)
     private String groupName;
 
     @Column(columnDefinition = "TEXT")
     private String description;
 
     @ManyToOne
-    @JoinColumn(name = "created_by", nullable = false)
+    @JoinColumn(nullable = false)
     private User createdBy;
 
-    @Column(name = "created_at", updatable = false)
+    @Column(updatable = false)
     private LocalDateTime createdAt;
 
     // Relationships

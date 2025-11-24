@@ -26,7 +26,7 @@ public class AuthToken {
     @Column(name = "expired_at", nullable = false)
     private LocalDateTime expiredAt;
 
-    @Column(name = "created_at", updatable = false)
+    @Column(updatable = false)
     private LocalDateTime createdAt;
 
     @PrePersist

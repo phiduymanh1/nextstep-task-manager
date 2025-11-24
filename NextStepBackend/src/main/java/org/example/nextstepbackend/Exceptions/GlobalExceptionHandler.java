@@ -28,28 +28,28 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(body, status);
     }
 
-    // Sai email / password
+    // wrong email / password
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<?> handleBadCredentials(BadCredentialsException ex) {
         log.warn("Bad credentials: {}", ex.getMessage());
         return build(HttpStatus.UNAUTHORIZED, "Email hoặc mật khẩu không chính xác");
     }
 
-    // Email không tồn tại
+    // Email does not exist
     @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<?> handleNotFound(UsernameNotFoundException ex) {
         log.warn("User not found: {}", ex.getMessage());
         return build(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
-    // Không có quyền truy cập
+    // No access
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<?> handleAccessDenied(AccessDeniedException ex) {
         log.warn("Access denied: {}", ex.getMessage());
         return build(HttpStatus.FORBIDDEN, "Bạn không có quyền thực hiện thao tác này");
     }
 
-    // Lỗi @Valid (validate input)
+    // Error @Valid (validate input)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<?> handleValidation(MethodArgumentNotValidException ex) {
         FieldError fieldError = ex.getBindingResult().getFieldError();
@@ -59,14 +59,14 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.BAD_REQUEST, message);
     }
 
-    // Lỗi custom từ hệ thống: (ví dụ bạn tự throw new AppException())
+    // Error custom from system: (for example you yourself throw new AppException())
     @ExceptionHandler(AppException.class)
     public ResponseEntity<?> handleAppException(AppException ex) {
         log.error("App exception: {}", ex.getMessage());
         return build(ex.getStatus(), ex.getMessage());
     }
 
-    // Lỗi không xác định (500)
+    // unknown error
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handleGeneral(Exception ex) {
         log.error("Unexpected error", ex);
