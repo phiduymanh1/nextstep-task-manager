@@ -1,65 +1,20 @@
-2025-11-23 20:56:42.075 [restartedMain] INFO  [36mo.e.n.NextStepBackendApplication[0;39m - Starting NextStepBackendApplication using Java 21.0.5 with PID 25740 (E:\DuAnCaNhan\nextstep-task-manager\NextStepBackend\target\classes started by manhp in E:\DuAnCaNhan\nextstep-task-manager\NextStepBackend)
-2025-11-23 20:56:42.076 [restartedMain] DEBUG [36mo.e.n.NextStepBackendApplication[0;39m - Running with Spring Boot v3.5.5, Spring v6.2.10
-2025-11-23 20:56:42.077 [restartedMain] INFO  [36mo.e.n.NextStepBackendApplication[0;39m - The following 1 profile is active: "dev"
-2025-11-23 20:56:42.109 [restartedMain] INFO  [36mo.s.b.d.e.DevToolsPropertyDefaultsPostProcessor[0;39m - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
-2025-11-23 20:56:42.109 [restartedMain] INFO  [36mo.s.b.d.e.DevToolsPropertyDefaultsPostProcessor[0;39m - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
-2025-11-23 20:56:42.790 [restartedMain] INFO  [36mo.s.d.r.c.RepositoryConfigurationDelegate[0;39m - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2025-11-23 20:56:42.823 [restartedMain] INFO  [36mo.s.d.r.c.RepositoryConfigurationDelegate[0;39m - Finished Spring Data repository scanning in 25 ms. Found 1 JPA repository interface.
-2025-11-23 20:56:43.262 [restartedMain] INFO  [36mo.s.b.w.e.tomcat.TomcatWebServer[0;39m - Tomcat initialized with port 8080 (http)
-2025-11-23 20:56:43.310 [restartedMain] INFO  [36mo.s.b.w.s.c.ServletWebServerApplicationContext[0;39m - Root WebApplicationContext: initialization completed in 1201 ms
-2025-11-23 20:56:43.746 [restartedMain] INFO  [36mo.s.o.j.p.SpringPersistenceUnitInfo[0;39m - No LoadTimeWeaver setup: ignoring JPA class transformer
-2025-11-23 20:56:44.940 [restartedMain] INFO  [36mo.s.o.j.LocalContainerEntityManagerFactoryBean[0;39m - Initialized JPA EntityManagerFactory for persistence unit 'default'
-2025-11-23 20:56:45.142 [restartedMain] DEBUG [36mo.e.nextstepbackend.Config.JwtFilter[0;39m - Filter 'jwtFilter' configured for use
-2025-11-23 20:56:45.182 [restartedMain] INFO  [36mo.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer[0;39m - Global AuthenticationManager configured with UserDetailsService bean with name customerUserDetailService
-2025-11-23 20:56:45.445 [restartedMain] INFO  [36mo.s.b.a.e.web.EndpointLinksResolver[0;39m - Exposing 1 endpoint beneath base path '/actuator'
-2025-11-23 20:56:45.529 [restartedMain] DEBUG [36mo.s.s.web.DefaultSecurityFilterChain[0;39m - Will secure any request with filters: DisableEncodeUrlFilter, WebAsyncManagerIntegrationFilter, SecurityContextHolderFilter, HeaderWriterFilter, LogoutFilter, JwtFilter, RequestCacheAwareFilter, SecurityContextHolderAwareRequestFilter, AnonymousAuthenticationFilter, SessionManagementFilter, ExceptionTranslationFilter, AuthorizationFilter
-2025-11-23 20:56:45.761 [restartedMain] INFO  [36mo.s.b.d.a.OptionalLiveReloadServer[0;39m - LiveReload server is running on port 35729
-2025-11-23 20:56:45.810 [restartedMain] INFO  [36mo.s.b.w.e.tomcat.TomcatWebServer[0;39m - Tomcat started on port 8080 (http) with context path '/next-step'
-2025-11-23 20:56:45.818 [restartedMain] INFO  [36mo.e.n.NextStepBackendApplication[0;39m - Started NextStepBackendApplication in 4.187 seconds (process running for 4.891)
-2025-11-23 20:56:46.242 [RMI TCP Connection(3)-192.168.1.6] INFO  [36mo.s.web.servlet.DispatcherServlet[0;39m - Initializing Servlet 'dispatcherServlet'
-2025-11-23 20:56:46.243 [RMI TCP Connection(3)-192.168.1.6] INFO  [36mo.s.web.servlet.DispatcherServlet[0;39m - Completed initialization in 1 ms
-2025-11-23 20:58:15.836 [File Watcher] INFO  [36mo.s.b.d.a.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener[0;39m - Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
-2025-11-23 20:58:15.838 [Thread-7] INFO  [36mo.s.b.w.e.tomcat.GracefulShutdown[0;39m - Commencing graceful shutdown. Waiting for active requests to complete
-2025-11-23 20:58:15.842 [tomcat-shutdown] INFO  [36mo.s.b.w.e.tomcat.GracefulShutdown[0;39m - Graceful shutdown complete
-2025-11-23 20:58:15.848 [Thread-7] INFO  [36mo.s.o.j.LocalContainerEntityManagerFactoryBean[0;39m - Closing JPA EntityManagerFactory for persistence unit 'default'
-2025-11-23 20:58:15.997 [restartedMain] INFO  [36mo.e.n.NextStepBackendApplication[0;39m - Starting NextStepBackendApplication using Java 21.0.5 with PID 25740 (E:\DuAnCaNhan\nextstep-task-manager\NextStepBackend\target\classes started by manhp in E:\DuAnCaNhan\nextstep-task-manager\NextStepBackend)
-2025-11-23 20:58:15.997 [restartedMain] DEBUG [36mo.e.n.NextStepBackendApplication[0;39m - Running with Spring Boot v3.5.5, Spring v6.2.10
-2025-11-23 20:58:15.997 [restartedMain] INFO  [36mo.e.n.NextStepBackendApplication[0;39m - The following 1 profile is active: "dev"
-2025-11-23 20:58:16.222 [restartedMain] INFO  [36mo.s.d.r.c.RepositoryConfigurationDelegate[0;39m - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2025-11-23 20:58:16.228 [restartedMain] INFO  [36mo.s.d.r.c.RepositoryConfigurationDelegate[0;39m - Finished Spring Data repository scanning in 5 ms. Found 1 JPA repository interface.
-2025-11-23 20:58:16.337 [restartedMain] INFO  [36mo.s.b.w.e.tomcat.TomcatWebServer[0;39m - Tomcat initialized with port 8080 (http)
-2025-11-23 20:58:16.350 [restartedMain] INFO  [36mo.s.b.w.s.c.ServletWebServerApplicationContext[0;39m - Root WebApplicationContext: initialization completed in 351 ms
-2025-11-23 20:58:16.426 [restartedMain] INFO  [36mo.s.o.j.p.SpringPersistenceUnitInfo[0;39m - No LoadTimeWeaver setup: ignoring JPA class transformer
-2025-11-23 20:58:16.732 [restartedMain] INFO  [36mo.s.o.j.LocalContainerEntityManagerFactoryBean[0;39m - Initialized JPA EntityManagerFactory for persistence unit 'default'
-2025-11-23 20:58:16.788 [restartedMain] DEBUG [36mo.e.nextstepbackend.Config.JwtFilter[0;39m - Filter 'jwtFilter' configured for use
-2025-11-23 20:58:16.810 [restartedMain] INFO  [36mo.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer[0;39m - Global AuthenticationManager configured with UserDetailsService bean with name customerUserDetailService
-2025-11-23 20:58:16.948 [restartedMain] INFO  [36mo.s.b.a.e.web.EndpointLinksResolver[0;39m - Exposing 1 endpoint beneath base path '/actuator'
-2025-11-23 20:58:16.989 [restartedMain] DEBUG [36mo.s.s.web.DefaultSecurityFilterChain[0;39m - Will secure any request with filters: DisableEncodeUrlFilter, WebAsyncManagerIntegrationFilter, SecurityContextHolderFilter, HeaderWriterFilter, LogoutFilter, JwtFilter, RequestCacheAwareFilter, SecurityContextHolderAwareRequestFilter, AnonymousAuthenticationFilter, SessionManagementFilter, ExceptionTranslationFilter, AuthorizationFilter
-2025-11-23 20:58:17.124 [restartedMain] INFO  [36mo.s.b.d.a.OptionalLiveReloadServer[0;39m - LiveReload server is running on port 35729
-2025-11-23 20:58:17.144 [restartedMain] INFO  [36mo.s.b.w.e.tomcat.TomcatWebServer[0;39m - Tomcat started on port 8080 (http) with context path '/next-step'
-2025-11-23 20:58:17.148 [restartedMain] INFO  [36mo.e.n.NextStepBackendApplication[0;39m - Started NextStepBackendApplication in 1.235 seconds (process running for 96.222)
-2025-11-23 20:58:17.152 [restartedMain] INFO  [36mo.s.b.d.a.ConditionEvaluationDeltaLoggingListener[0;39m - Condition evaluation unchanged
-2025-11-23 20:58:59.249 [File Watcher] INFO  [36mo.s.b.d.a.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener[0;39m - Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
-2025-11-23 20:58:59.250 [Thread-9] INFO  [36mo.s.b.w.e.tomcat.GracefulShutdown[0;39m - Commencing graceful shutdown. Waiting for active requests to complete
-2025-11-23 20:58:59.256 [tomcat-shutdown] INFO  [36mo.s.b.w.e.tomcat.GracefulShutdown[0;39m - Graceful shutdown complete
-2025-11-23 20:58:59.258 [Thread-9] INFO  [36mo.s.o.j.LocalContainerEntityManagerFactoryBean[0;39m - Closing JPA EntityManagerFactory for persistence unit 'default'
-2025-11-23 20:58:59.343 [restartedMain] INFO  [36mo.e.n.NextStepBackendApplication[0;39m - Starting NextStepBackendApplication using Java 21.0.5 with PID 25740 (E:\DuAnCaNhan\nextstep-task-manager\NextStepBackend\target\classes started by manhp in E:\DuAnCaNhan\nextstep-task-manager\NextStepBackend)
-2025-11-23 20:58:59.343 [restartedMain] DEBUG [36mo.e.n.NextStepBackendApplication[0;39m - Running with Spring Boot v3.5.5, Spring v6.2.10
-2025-11-23 20:58:59.343 [restartedMain] INFO  [36mo.e.n.NextStepBackendApplication[0;39m - The following 1 profile is active: "dev"
-2025-11-23 20:58:59.492 [restartedMain] INFO  [36mo.s.d.r.c.RepositoryConfigurationDelegate[0;39m - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2025-11-23 20:58:59.501 [restartedMain] INFO  [36mo.s.d.r.c.RepositoryConfigurationDelegate[0;39m - Finished Spring Data repository scanning in 5 ms. Found 1 JPA repository interface.
-2025-11-23 20:58:59.575 [restartedMain] INFO  [36mo.s.b.w.e.tomcat.TomcatWebServer[0;39m - Tomcat initialized with port 8080 (http)
-2025-11-23 20:58:59.585 [restartedMain] INFO  [36mo.s.b.w.s.c.ServletWebServerApplicationContext[0;39m - Root WebApplicationContext: initialization completed in 241 ms
-2025-11-23 20:58:59.657 [restartedMain] INFO  [36mo.s.o.j.p.SpringPersistenceUnitInfo[0;39m - No LoadTimeWeaver setup: ignoring JPA class transformer
-2025-11-23 20:58:59.858 [restartedMain] INFO  [36mo.s.o.j.LocalContainerEntityManagerFactoryBean[0;39m - Initialized JPA EntityManagerFactory for persistence unit 'default'
-2025-11-23 20:58:59.906 [restartedMain] DEBUG [36mo.e.nextstepbackend.Config.JwtFilter[0;39m - Filter 'jwtFilter' configured for use
-2025-11-23 20:58:59.922 [restartedMain] INFO  [36mo.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer[0;39m - Global AuthenticationManager configured with UserDetailsService bean with name customerUserDetailService
-2025-11-23 20:59:00.038 [restartedMain] INFO  [36mo.s.b.a.e.web.EndpointLinksResolver[0;39m - Exposing 1 endpoint beneath base path '/actuator'
-2025-11-23 20:59:00.078 [restartedMain] DEBUG [36mo.s.s.web.DefaultSecurityFilterChain[0;39m - Will secure any request with filters: DisableEncodeUrlFilter, WebAsyncManagerIntegrationFilter, SecurityContextHolderFilter, HeaderWriterFilter, LogoutFilter, JwtFilter, RequestCacheAwareFilter, SecurityContextHolderAwareRequestFilter, AnonymousAuthenticationFilter, SessionManagementFilter, ExceptionTranslationFilter, AuthorizationFilter
-2025-11-23 20:59:00.178 [restartedMain] INFO  [36mo.s.b.d.a.OptionalLiveReloadServer[0;39m - LiveReload server is running on port 35729
-2025-11-23 20:59:00.194 [restartedMain] INFO  [36mo.s.b.w.e.tomcat.TomcatWebServer[0;39m - Tomcat started on port 8080 (http) with context path '/next-step'
-2025-11-23 20:59:00.198 [restartedMain] INFO  [36mo.e.n.NextStepBackendApplication[0;39m - Started NextStepBackendApplication in 0.898 seconds (process running for 139.272)
-2025-11-23 20:59:00.200 [restartedMain] INFO  [36mo.s.b.d.a.ConditionEvaluationDeltaLoggingListener[0;39m - Condition evaluation unchanged
-2025-11-23 20:59:00.861 [SpringApplicationShutdownHook] INFO  [36mo.s.b.w.e.tomcat.GracefulShutdown[0;39m - Commencing graceful shutdown. Waiting for active requests to complete
-2025-11-23 20:59:00.864 [tomcat-shutdown] INFO  [36mo.s.b.w.e.tomcat.GracefulShutdown[0;39m - Graceful shutdown complete
-2025-11-23 20:59:00.867 [SpringApplicationShutdownHook] INFO  [36mo.s.o.j.LocalContainerEntityManagerFactoryBean[0;39m - Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-11-25 00:00:06.818 [restartedMain] INFO  [36mo.e.n.NextStepBackendApplication[0;39m - Starting NextStepBackendApplication using Java 21.0.5 with PID 22288 (E:\DuAnCaNhan\nextstep-task-manager\NextStepBackend\target\classes started by manhp in E:\DuAnCaNhan\nextstep-task-manager\NextStepBackend)
+2025-11-25 00:00:06.819 [restartedMain] DEBUG [36mo.e.n.NextStepBackendApplication[0;39m - Running with Spring Boot v3.5.5, Spring v6.2.10
+2025-11-25 00:00:06.819 [restartedMain] INFO  [36mo.e.n.NextStepBackendApplication[0;39m - The following 1 profile is active: "dev"
+2025-11-25 00:00:06.887 [restartedMain] INFO  [36mo.s.b.d.e.DevToolsPropertyDefaultsPostProcessor[0;39m - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2025-11-25 00:00:06.887 [restartedMain] INFO  [36mo.s.b.d.e.DevToolsPropertyDefaultsPostProcessor[0;39m - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2025-11-25 00:00:08.536 [restartedMain] INFO  [36mo.s.d.r.c.RepositoryConfigurationDelegate[0;39m - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-11-25 00:00:08.628 [restartedMain] INFO  [36mo.s.d.r.c.RepositoryConfigurationDelegate[0;39m - Finished Spring Data repository scanning in 77 ms. Found 1 JPA repository interface.
+2025-11-25 00:00:09.565 [restartedMain] INFO  [36mo.s.b.w.e.tomcat.TomcatWebServer[0;39m - Tomcat initialized with port 8080 (http)
+2025-11-25 00:00:09.684 [restartedMain] INFO  [36mo.s.b.w.s.c.ServletWebServerApplicationContext[0;39m - Root WebApplicationContext: initialization completed in 2796 ms
+2025-11-25 00:00:10.691 [restartedMain] INFO  [36mo.s.o.j.p.SpringPersistenceUnitInfo[0;39m - No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-11-25 00:00:13.231 [restartedMain] INFO  [36mo.s.o.j.LocalContainerEntityManagerFactoryBean[0;39m - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-11-25 00:00:13.750 [restartedMain] DEBUG [36mo.e.nextstepbackend.Config.JwtFilter[0;39m - Filter 'jwtFilter' configured for use
+2025-11-25 00:00:13.837 [restartedMain] INFO  [36mo.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer[0;39m - Global AuthenticationManager configured with UserDetailsService bean with name customerUserDetailService
+2025-11-25 00:00:14.343 [restartedMain] INFO  [36mo.s.b.a.e.web.EndpointLinksResolver[0;39m - Exposing 1 endpoint beneath base path '/actuator'
+2025-11-25 00:00:14.527 [restartedMain] DEBUG [36mo.s.s.web.DefaultSecurityFilterChain[0;39m - Will secure any request with filters: DisableEncodeUrlFilter, WebAsyncManagerIntegrationFilter, SecurityContextHolderFilter, HeaderWriterFilter, LogoutFilter, JwtFilter, RequestCacheAwareFilter, SecurityContextHolderAwareRequestFilter, AnonymousAuthenticationFilter, SessionManagementFilter, ExceptionTranslationFilter, AuthorizationFilter
+2025-11-25 00:00:15.039 [restartedMain] INFO  [36mo.s.b.d.a.OptionalLiveReloadServer[0;39m - LiveReload server is running on port 35729
+2025-11-25 00:00:15.142 [restartedMain] INFO  [36mo.s.b.w.e.tomcat.TomcatWebServer[0;39m - Tomcat started on port 8080 (http) with context path '/next-step'
+2025-11-25 00:00:15.156 [restartedMain] INFO  [36mo.e.n.NextStepBackendApplication[0;39m - Started NextStepBackendApplication in 9.184 seconds (process running for 10.121)
+2025-11-25 00:00:15.745 [RMI TCP Connection(2)-192.168.1.6] INFO  [36mo.s.web.servlet.DispatcherServlet[0;39m - Initializing Servlet 'dispatcherServlet'
+2025-11-25 00:00:15.757 [RMI TCP Connection(2)-192.168.1.6] INFO  [36mo.s.web.servlet.DispatcherServlet[0;39m - Completed initialization in 12 ms
