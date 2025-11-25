@@ -1,4 +1,4 @@
-name: CI Pipeline
+name: CI/CD Pipeline
 
 on:
   push:
@@ -12,9 +12,12 @@ on:
       - main
       - develop
 
+env:
+  DOCKER_IMAGE: phiduymanh1/nextstep-backend:latest
+
 jobs:
   build-test:
-    name: Build, Test, Check & Docker
+    name: Build, Test & Check
     runs-on: ubuntu-latest
 
     steps:
@@ -31,33 +34,49 @@ jobs:
       - name: Cache Maven packages
         uses: actions/cache@v4
         with:
-          path: |
-            ~/.m2/repository
+          path: ~/.m2/repository
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-m2-
+          restore-keys: ${{ runner.os }}-m2-
 
-      # 1️⃣ Spotless check
+      # Spotless
       - name: Spotless Check
         run: mvn spotless:check
 
-      # 2️⃣ Build & test
-      - name: Build project with Maven
+      # Build & Test
+      - name: Build & Test
         run: mvn -B clean verify
 
-      # 3️⃣ OWASP Dependency Check (tuỳ chọn)
+      # OWASP Dependency Check - chỉ chạy trên main
       - name: OWASP Dependency Check
-        if: false   # đổi thành 'true' nếu muốn chạy
+        if: github.ref == 'refs/heads/main'
         run: mvn org.owasp:dependency-check-maven:check
 
-      # 4️⃣ Build Docker image
-      - name: Build Docker image
-        run: docker build -t nextstep-backend:latest .
-
-      # 5️⃣ Archive test reports
+      # Archive test reports
       - name: Archive test reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: junit-report
           path: target/surefire-reports/
+
+  docker:
+    name: Build & Push Docker
+    runs-on: ubuntu-latest
+    needs: build-test
+    if: github.ref == 'refs/heads/main'   # chỉ push khi merge vào main
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build Docker image
+        run: docker build -t ${{ env.DOCKER_IMAGE }} .
+
+      - name: Push Docker image
+        run: docker push ${{ env.DOCKER_IMAGE }}
