@@ -1,0 +1,67 @@
+spring: # Kich hoat profile test
+
+  # Redis Cache Configuration for TEST - dung Redis lam cache
+  cache:
+    type: redis
+    redis:
+      time-to-live: 300000  # 5 minutes for faster testing
+      cache-null-values: false
+
+  data:
+    redis: # redis connection config
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      database: 1  # Different database for test
+      timeout: 2000ms
+      jedis:
+        pool:
+          max-active: 4
+          max-idle: 4
+          min-idle: 0
+          max-wait: -1ms
+
+  datasource:  #ket noi my sql rieng cho dev
+    url: ${DB_URL:jdbc:mysql://localhost:3306/nextstep_test}
+    username: ${DB_USERNAME:test_user}
+    password: ${DB_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  sql:   # moi lan start test thi spring script SQL
+    init:
+      mode: always
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        format_sql: false
+        show_sql: false
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+
+server:
+  error: # luon tra ve message loi trong response
+    include-message: always
+    include-stacktrace: on_param
+
+logging:
+  level: # chi log INFO tro nen cho test
+    root: INFO
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:test-my-super-secret-key-minimum-256-bits-for-security}             # JWT secret cho test
+    access-token-expiration: 3600000  # Access token het han sau 1h
+    refresh-token-expiration: 86400000 #Refresh token het han sau 24h
+
+  notification:                       # Disable email & push notification khi test (tránh gửi nhầm).
+    email:
+      enabled: false
+    push:
+      enabled: false
+
+  rate-limit:  # han che request cua 1 client co the gui tranh spam
+    enabled: false

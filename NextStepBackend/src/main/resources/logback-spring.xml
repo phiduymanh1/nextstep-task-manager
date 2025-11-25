@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true">
+
+    <!--1. GLOBAL VARIABLES-->
+    <property name="LOG_PATH" value="logs"/>
+    <property name="FILE_NAME" value="app"/>
+    <property name="PATTERN"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %cyan(%logger{36}) - %msg%n"/>
+
+    <!--2. CONSOLE APPENDER (MÀU, NHANH)-->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!--3. FILE APPENDER (Rolling + tối ưu IO)-->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/${FILE_NAME}.log</file>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/${FILE_NAME}-%d{yyyy-MM-dd}.gz</fileNamePattern>
+            <!-- Giữ log 21 ngày -->
+            <maxHistory>21</maxHistory>
+            <!-- Giảm dung lượng log -->
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
+        </rollingPolicy>
+
+        <encoder>
+            <pattern>${PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!--4. ASYNC WRAPPER (tối ưu hiệu năng) Console async -->
+    <appender name="ASYNC_CONSOLE" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="CONSOLE"/>
+        <queueSize>5000</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+    </appender>
+
+    <!-- File async -->
+    <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="FILE"/>
+        <queueSize>10000</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+    </appender>
+
+    <!-- 5. LOG LEVEL TINH CHỈNH -->
+
+    <!-- Log Spring -->
+    <logger name="org.springframework" level="INFO"/>
+
+    <!-- Log Security -->
+    <logger name="org.springframework.security" level="DEBUG"/>
+
+    <!-- Log Hibernate (giảm cực mạnh log thừa) -->
+    <logger name="org.hibernate.SQL" level="WARN"/>
+    <logger name="org.hibernate.type.descriptor.sql" level="ERROR"/>
+
+    <!-- Log application của bạn -->
+    <logger name="org.example" level="DEBUG"/>
+
+
+    <!-- 6. ROOT LOGGER -->
+    <root level="DEBUG">
+        <appender-ref ref="ASYNC_CONSOLE"/>
+        <appender-ref ref="ASYNC_FILE"/>
+    </root>
+
+</configuration>
