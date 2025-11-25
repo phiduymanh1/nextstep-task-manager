@@ -14,7 +14,7 @@ on:
 
 jobs:
   build-test:
-    name: Build & Test
+    name: Build, Test, Check & Docker
     runs-on: ubuntu-latest
 
     steps:
@@ -37,9 +37,24 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-m2-
 
+      # 1️⃣ Spotless check
+      - name: Spotless Check
+        run: mvn spotless:check
+
+      # 2️⃣ Build & test
       - name: Build project with Maven
         run: mvn -B clean verify
 
+      # 3️⃣ OWASP Dependency Check (tuỳ chọn)
+      - name: OWASP Dependency Check
+        if: false   # đổi thành 'true' nếu muốn chạy
+        run: mvn org.owasp:dependency-check-maven:check
+
+      # 4️⃣ Build Docker image
+      - name: Build Docker image
+        run: docker build -t nextstep-backend:latest .
+
+      # 5️⃣ Archive test reports
       - name: Archive test reports
         if: always()
         uses: actions/upload-artifact@v4
