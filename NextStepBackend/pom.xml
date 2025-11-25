@@ -111,13 +111,6 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- logback-core -->
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-core</artifactId>
-            <version>1.5.11</version> <!-- phiên bản mới nhất -->
-        </dependency>
-
         <!-- spring-core -->
         <dependency>
             <groupId>org.springframework</groupId>
