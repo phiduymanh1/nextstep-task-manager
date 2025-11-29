@@ -27,7 +27,7 @@ public class AuthController {
                                    , HttpServletResponse response
     ) {
         try {
-            Map<String,String> tokens = authService.login(req.userEmail(), req.password());
+            Map<String,String> tokens = authService.login(req.email(), req.password());
 
             // Set refresh token cookie
             Cookie cookie = new Cookie("refreshToken", tokens.get("refreshToken"));
