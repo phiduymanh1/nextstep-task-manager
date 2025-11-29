@@ -1,11 +1,11 @@
-package org.example.nextstepbackend.Repositorys;
+package org.example.nextstepbackend.Repository;
 
-import org.example.nextstepbackend.Entitys.User;
+import org.example.nextstepbackend.Entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User,Integer> {
 
-    Optional<User> findByUserEmail(String email);
+    Optional<User> findByEmail(String email);
 }

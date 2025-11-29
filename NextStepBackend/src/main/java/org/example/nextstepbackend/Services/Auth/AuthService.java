@@ -1,6 +1,8 @@
 package org.example.nextstepbackend.Services.Auth;
 
 import lombok.RequiredArgsConstructor;
+import org.example.nextstepbackend.Dto.Request.RegisterRequest;
+import org.example.nextstepbackend.Entity.User;
 import org.example.nextstepbackend.Utils.JwtUtil;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -37,4 +39,10 @@ public class AuthService {
 
         return jwtUtil.generateAccessToken(username);
     }
+
+    public void register(RegisterRequest request){
+
+    }
+
+
 }
