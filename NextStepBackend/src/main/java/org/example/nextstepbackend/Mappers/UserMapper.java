@@ -1,6 +1,7 @@
 package org.example.nextstepbackend.Mappers;
 
 import org.example.nextstepbackend.Dto.Request.LoginRequest;
+import org.example.nextstepbackend.Dto.Request.RegisterRequest;
 import org.example.nextstepbackend.Entity.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -12,5 +13,5 @@ public interface UserMapper {
     LoginRequest toLoginRequest(User user);
 
     @Mapping(target = "passwordHash", ignore = true)
-    User toUser(LoginRequest loginRequest);
+    User toUser(RegisterRequest request);
 }

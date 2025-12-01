@@ -4,8 +4,11 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.example.nextstepbackend.Dto.Request.LoginRequest;
+import org.example.nextstepbackend.Dto.Request.RegisterRequest;
+import org.example.nextstepbackend.Dto.Response.AuthResponse;
 import org.example.nextstepbackend.Services.Auth.AuthService;
 import org.example.nextstepbackend.Utils.JwtUtil;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
@@ -19,8 +22,6 @@ public class AuthController {
 
     private final AuthService authService;
     private final JwtUtil jwtUtil;
-
-    public record JwtResponse(String accessToken){}
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest req
@@ -38,7 +39,7 @@ public class AuthController {
             cookie.setAttribute("SameSite", "Strict");
             response.addCookie(cookie);
 
-            return ResponseEntity.ok(new JwtResponse(tokens.get("accessToken")));
+            return ResponseEntity.ok(new AuthResponse(tokens.get("accessToken"), tokens.get("refreshToken")));
         } catch (AuthenticationException ex) {
             return ResponseEntity.status(401).body("Invalid credentials");
         }
@@ -52,6 +53,13 @@ public class AuthController {
 
         String newAccessToken = authService.refreshToken(refreshToken);
 
-        return ResponseEntity.ok(new JwtResponse(newAccessToken));
+        return ResponseEntity.ok(new AuthResponse(newAccessToken, refreshToken));
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody RegisterRequest req){
+        authService.register(req);
+
+        return ResponseEntity.ok("Successfully registered");
     }
 }

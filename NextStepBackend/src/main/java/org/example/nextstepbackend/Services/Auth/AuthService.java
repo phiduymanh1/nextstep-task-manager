@@ -3,10 +3,13 @@ package org.example.nextstepbackend.Services.Auth;
 import lombok.RequiredArgsConstructor;
 import org.example.nextstepbackend.Dto.Request.RegisterRequest;
 import org.example.nextstepbackend.Entity.User;
+import org.example.nextstepbackend.Mappers.UserMapper;
+import org.example.nextstepbackend.Repository.UserRepository;
 import org.example.nextstepbackend.Utils.JwtUtil;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -17,6 +20,9 @@ public class AuthService {
 
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
+    private final UserMapper userMapper;
+    private final BCryptPasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
 
     public Map<String,String> login(String userEmail,String password){
         Authentication auth = authenticationManager.authenticate(
@@ -41,8 +47,15 @@ public class AuthService {
     }
 
     public void register(RegisterRequest request){
+        User user = userMapper.toUser(request);
 
+        String passwordHash = passwordEncoder.encode(request.password());
+        user.setPasswordHash(passwordHash);
+
+        userRepository.save(user);
     }
+
+
 
 
 }
