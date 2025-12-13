@@ -2,11 +2,15 @@ package org.example.nextstepbackend.Controller;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.nextstepbackend.Dto.Request.LoginRequest;
 import org.example.nextstepbackend.Dto.Request.RegisterRequest;
+import org.example.nextstepbackend.Dto.Response.ApiResponse;
 import org.example.nextstepbackend.Dto.Response.AuthResponse;
+import org.example.nextstepbackend.Dto.Response.ResponseMetaData;
 import org.example.nextstepbackend.Services.Auth.AuthService;
+import org.example.nextstepbackend.Utils.ApiResponseUtil;
 import org.example.nextstepbackend.Utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -39,27 +43,40 @@ public class AuthController {
             cookie.setAttribute("SameSite", "Strict");
             response.addCookie(cookie);
 
-            return ResponseEntity.ok(new AuthResponse(tokens.get("accessToken"), tokens.get("refreshToken")));
+            AuthResponse authResponse = new AuthResponse(tokens.get("accessToken"));
+
+            return ResponseEntity.ok(
+                    ApiResponseUtil.success("API-I0001", "Login Successfully", authResponse)
+            );
         } catch (AuthenticationException ex) {
-            return ResponseEntity.status(401).body("Invalid credentials");
+            return ResponseEntity.status(401).body(
+                    ApiResponseUtil.error("API-E0001", "Invalid credentials")
+            );
         }
     }
 
     @PostMapping("/refresh")
     public ResponseEntity<?> refresh(@CookieValue(value = "refreshToken", required = false) String refreshToken) {
         if (refreshToken == null || !jwtUtil.isRefreshTokenValid(refreshToken)) {
-            return ResponseEntity.status(401).body("Refresh token invalid or missing");
+            return ResponseEntity.status(401)
+                    .body(ApiResponseUtil.error("REFRESH_TOKEN_INVALID", "Refresh token invalid or missing"));
         }
 
         String newAccessToken = authService.refreshToken(refreshToken);
 
-        return ResponseEntity.ok(new AuthResponse(newAccessToken, refreshToken));
+        AuthResponse authResponse = new AuthResponse(newAccessToken);
+
+        return ResponseEntity.ok(
+                ApiResponseUtil.success("REFRESH_SUCCESS", "Refresh token successful", authResponse)
+        );
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequest req){
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest req){
         authService.register(req);
 
-        return ResponseEntity.ok("Successfully registered");
+        return ResponseEntity.ok(
+                ApiResponseUtil.success("REGISTER_SUCCESS", "Successfully registered", null)
+        );
     }
 }
