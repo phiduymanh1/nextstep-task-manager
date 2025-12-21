@@ -53,11 +53,11 @@
     <!-- Log Security -->
     <logger name="org.springframework.security" level="DEBUG"/>
 
-    <!-- Log Hibernate (giảm cực mạnh log thừa) -->
+    <!-- Log Hibernate-->
     <logger name="org.hibernate.SQL" level="WARN"/>
     <logger name="org.hibernate.type.descriptor.sql" level="ERROR"/>
 
-    <!-- Log application của bạn -->
+    <!-- Log application-->
     <logger name="org.example" level="DEBUG"/>
 
 

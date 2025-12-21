@@ -1,0 +1,79 @@
+package org.example.nextstepbackend.exceptions;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.example.nextstepbackend.enums.MessageConst;
+import org.example.nextstepbackend.utils.ApiResponseUtil;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.nio.file.AccessDeniedException;
+import java.util.List;
+
+@Slf4j
+@RestControllerAdvice
+@RequiredArgsConstructor
+public class GlobalExceptionHandler{
+
+    private final ApiResponseUtil responseUtil;
+
+    // wrong email / password
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<?> handleBadCredentials(BadCredentialsException ex) {
+        log.warn("Bad credentials: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(responseUtil.error(MessageConst.AUTH_FAILED));
+    }
+
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity<?> handleNotFound(UsernameNotFoundException ex) {
+        log.warn("User not found: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(responseUtil.error(MessageConst.USER_NOT_FOUND));
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<?> handleAccessDenied(AccessDeniedException ex) {
+        log.warn("Access denied: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(responseUtil.error(MessageConst.ACCESS_DENIED));
+    }
+
+    // ------------------- Validation errors -------------------
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<?> handleValidation(MethodArgumentNotValidException ex) {
+        List<String> errors = ex.getBindingResult().getFieldErrors()
+                .stream()
+                .map(FieldError::getDefaultMessage)
+                .toList();
+
+        String message = errors.isEmpty() ? "Invalid input" : "Validation failed";
+
+        log.warn("Validation errors: {}", errors);
+
+        return ResponseEntity.badRequest()
+                .body(responseUtil.error("VALIDATION_ERROR", message, errors));
+    }
+
+    // ------------------- Custom AppException -------------------
+    @ExceptionHandler(AppException.class)
+    public ResponseEntity<?> handleAppException(AppException ex) {
+        log.error("App exception: {}", ex.getMessage());
+        return ResponseEntity.status(ex.getStatus())
+                .body(responseUtil.error("APP_ERROR", ex.getMessage()));
+    }
+
+    // ------------------- General / Unknown errors -------------------
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<?> handleGeneral(Exception ex) {
+        log.error("Unexpected error", ex);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(responseUtil.error(MessageConst.INTERNAL_ERROR));
+    }
+}
