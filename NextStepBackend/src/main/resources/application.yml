@@ -52,6 +52,17 @@ spring:
     active: ${SPRING_PROFILES_ACTIVE:dev}
   jpa:
     open-in-view: false
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: phiduymanh.dev@gmail.com
+    password: gualicneqjqqeldi
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
 # =============================================================================
 # LOGGING FORMAT (level sẽ được cấu hình theo từng profile)
