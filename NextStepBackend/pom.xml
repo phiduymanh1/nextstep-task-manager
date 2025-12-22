@@ -28,6 +28,7 @@
     </scm>
     <properties>
         <java.version>21</java.version>
+        <tomcat.version>10.1.50</tomcat.version>
     </properties>
     <dependencies>
         <dependency>
@@ -151,6 +152,25 @@
     <build>
             <plugins>
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>properties-maven-plugin</artifactId>
+                <version>1.2.1</version> <!-- version mới nhất ổn định -->
+                <executions>
+                    <execution>
+                        <id>load-env</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>read-project-properties</goal>
+                        </goals>
+                        <configuration>
+                            <files>
+                                <file>${project.basedir}/.env</file>
+                            </files>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
@@ -200,27 +220,32 @@
                 </configuration>
             </plugin>
             <!--OWASP Dependency Check Plugin: Dùng để quét lỗ hổng thư viện.-->
-            <plugin>
-                <groupId>org.owasp</groupId>
-                <artifactId>dependency-check-maven</artifactId>
-                <version>12.1.9</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <!-- Fail build nếu có lỗ hổng CVSS >= 7 (có thể đổi thành 8 nếu muốn ít nghiêm ngặt hơn) -->
-                    <failBuildOnCVSS>7</failBuildOnCVSS>
-                    <!-- Tạo report HTML + XML dễ xem và upload -->
-                    <formats>
-                        <format>HTML</format>
-                        <format>XML</format>
-                    </formats>
-                </configuration>
-            </plugin>
+                <plugin>
+                    <groupId>org.owasp</groupId>
+                    <artifactId>dependency-check-maven</artifactId>
+                    <version>12.1.9</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <!-- Fail build nếu có lỗ hổng CVSS >= 7 -->
+                        <failBuildOnCVSS>7</failBuildOnCVSS>
+
+                        <!-- Tạo report HTML + XML -->
+                        <formats>
+                            <format>HTML</format>
+                            <format>XML</format>
+                        </formats>
+
+                        <nvdApiKeyEnvironmentVariable>NVD_API_KEY</nvdApiKeyEnvironmentVariable>
+
+                        <nvdApiDelay>1000</nvdApiDelay>
+                    </configuration>
+                </plugin>
         </plugins>
     </build>
 
