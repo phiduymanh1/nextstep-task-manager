@@ -80,6 +80,7 @@ public class AuthService {
     userRepository.save(user);
   }
 
+  // forgot password
   public void forgotPassword(String email) {
     userRepository
         .findByEmail(email)
