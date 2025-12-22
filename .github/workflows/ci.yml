@@ -44,12 +44,15 @@ jobs:
       - name: Spotless Check
         run: mvn spotless:check
 
-      - name: Build & Test
+      - name: Build, Test & OWASP Dependency Check
         run: mvn -B clean verify
 
-      - name: OWASP Dependency Check
-        if: github.ref == 'refs/heads/main'
-        run: mvn org.owasp:dependency-check-maven:check
+      - name: Upload OWASP Dependency-Check Report
+        if: always()  # Chạy ngay cả khi fail
+        uses: actions/upload-artifact@v4
+        with:
+          name: owasp-dependency-check-report
+          path: NextStepBackend/target/dependency-check-report.html
 
       - name: Archive test reports
         if: always()
