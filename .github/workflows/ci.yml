@@ -14,6 +14,7 @@ on:
 
 env:
   DOCKER_IMAGE: phiduymanh1/nextstep-backend:latest
+  NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
 
 jobs:
   build-test:
