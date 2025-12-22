@@ -33,14 +33,14 @@ public class GlobalExceptionHandler{
 
     @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<?> handleNotFound(UsernameNotFoundException ex) {
-        log.warn("User not found: {}", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(responseUtil.error(MessageConst.USER_NOT_FOUND));
+        log.warn("Username not found");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(responseUtil.error(MessageConst.AUTH_FAILED));
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<?> handleAccessDenied(AccessDeniedException ex) {
-        log.warn("Access denied: {}", ex.getMessage());
+        log.warn("Access denied");
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(responseUtil.error(MessageConst.ACCESS_DENIED));
     }
@@ -53,20 +53,18 @@ public class GlobalExceptionHandler{
                 .map(FieldError::getDefaultMessage)
                 .toList();
 
-        String message = errors.isEmpty() ? "Invalid input" : "Validation failed";
-
         log.warn("Validation errors: {}", errors);
 
         return ResponseEntity.badRequest()
-                .body(responseUtil.error("VALIDATION_ERROR", message, errors));
+                .body(responseUtil.error("VALIDATION_ERROR", "Validation failed", errors));
     }
 
     // ------------------- Custom AppException -------------------
     @ExceptionHandler(AppException.class)
     public ResponseEntity<?> handleAppException(AppException ex) {
-        log.error("App exception: {}", ex.getMessage());
+        log.warn("AppException [{}]: {}", ex.getErrorCode(), ex.getMessage());
         return ResponseEntity.status(ex.getStatus())
-                .body(responseUtil.error("APP_ERROR", ex.getMessage()));
+                .body(responseUtil.error(ex.getErrorCode(), ex.getMessage()));
     }
 
     // ------------------- General / Unknown errors -------------------

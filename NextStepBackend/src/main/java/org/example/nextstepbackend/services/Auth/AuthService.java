@@ -4,11 +4,14 @@ import lombok.RequiredArgsConstructor;
 import org.example.nextstepbackend.dto.request.RegisterRequest;
 import org.example.nextstepbackend.entity.PasswordResetToken;
 import org.example.nextstepbackend.entity.User;
+import org.example.nextstepbackend.exceptions.AuthException;
+import org.example.nextstepbackend.exceptions.InvalidTokenException;
 import org.example.nextstepbackend.mappers.UserMapper;
 import org.example.nextstepbackend.repository.PasswordResetTokenRepository;
 import org.example.nextstepbackend.repository.UserRepository;
 import org.example.nextstepbackend.services.Mail.MailService;
 import org.example.nextstepbackend.utils.JwtUtil;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -33,6 +36,12 @@ public class AuthService {
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final MailService mailService;
 
+    @Value("${app.frontend.base-url:http://localhost:8080}")
+    private String frontendBaseUrl;
+
+    @Value("${app.password-reset.token-ttl-minutes:15}")
+    private long tokenTtlMinutes;
+
     public Map<String,String> login(String userEmail,String password){
         Authentication auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(userEmail, password)
@@ -50,12 +59,22 @@ public class AuthService {
 
 
     public String refreshToken(String refreshToken){
+        if (!jwtUtil.isRefreshTokenValid(refreshToken)) {
+            throw new RuntimeException("Invalid or expired refresh token");
+        }
         String username = jwtUtil.extractUserName(refreshToken);
+
+        if (!userRepository.existsByEmail(username)) {
+            throw new AuthException("User not found");
+        }
 
         return jwtUtil.generateAccessToken(username);
     }
 
     public void register(RegisterRequest request){
+        if (userRepository.existsByEmail(request.email())) {
+            throw new IllegalArgumentException("Email already in use");
+        }
         User user = userMapper.toUser(request);
 
         String passwordHash = passwordEncoder.encode(request.password());
@@ -65,34 +84,28 @@ public class AuthService {
     }
 
     public void forgotPassword(String email){
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        userRepository.findByEmail(email).ifPresent(user -> {
 
-        //1. gen token
-        String rawToken = UUID.randomUUID().toString();
-        String tokenHash = passwordEncoder.encode(rawToken);
+            String rawToken = UUID.randomUUID().toString();
+            String tokenHash = passwordEncoder.encode(rawToken);
 
-        //2. save token
-        PasswordResetToken resetToken = PasswordResetToken.builder()
-                .user(user)
-                .token(tokenHash)
-                .expiresAt(LocalDateTime.now().plusMinutes(15))
-                .used(false)
-                .build();
+            PasswordResetToken resetToken = PasswordResetToken.builder()
+                    .user(user)
+                    .token(tokenHash)
+                    .expiresAt(LocalDateTime.now().plusMinutes(tokenTtlMinutes))
+                    .used(false)
+                    .build();
 
-        passwordResetTokenRepository.save(resetToken);
+            passwordResetTokenRepository.save(resetToken);
 
-        // 3. Build reset link
-        String resetLink =
-                "http://localhost:8080/reset-password?token=" + rawToken;
+            String resetLink = frontendBaseUrl + "/reset-password?token=" + rawToken;
 
-        // 4. Gửi mail (ASYNC + RETRY)
-        mailService.sendMail(
-                user.getEmail(),
-                "Reset your password",
-                "Click link to reset password:\n\n" + resetLink +
-                        "\n\nLink het han sau 15 phut"
-        );
+            mailService.sendMail(
+                    user.getEmail(),
+                    "Reset your password",
+                    "Click link:\n" + resetLink
+            );
+        });
     }
 
     @Transactional
@@ -106,10 +119,10 @@ public class AuthService {
         PasswordResetToken resetToken = tokens.stream()
                 .filter(t -> passwordEncoder.matches(rawToken, t.getToken()))
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("Invalid token"));
+                .orElseThrow(() -> new InvalidTokenException("Invalid or expired token"));
 
         if (resetToken.getUsed()) {
-            throw new RuntimeException("Token already used");
+            throw new IllegalStateException("Token already used");
         }
 
         User user = resetToken.getUser();

@@ -69,3 +69,7 @@ app:
 
   rate-limit:
     enabled: false
+  frontend:
+    base-url: http://localhost:8080
+  password-reset:
+    token-ttl-minutes: 300000
