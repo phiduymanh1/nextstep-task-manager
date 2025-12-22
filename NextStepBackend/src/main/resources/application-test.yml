@@ -1,34 +1,15 @@
-spring: # Kich hoat profile test
-
-  # Redis Cache Configuration for TEST - dung Redis lam cache
+spring:
   cache:
-    type: redis
-    redis:
-      time-to-live: 300000  # 5 minutes for faster testing
-      cache-null-values: false
+    type: none
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:   # ← Để trống hoàn toàn
 
-  data:
-    redis: # redis connection config
-      host: ${REDIS_HOST:localhost}
-      port: ${REDIS_PORT:6379}
-      database: 1  # Different database for test
-      timeout: 2000ms
-      jedis:
-        pool:
-          max-active: 4
-          max-idle: 4
-          min-idle: 0
-          max-wait: -1ms
-
-  datasource:  #ket noi my sql rieng cho dev
-    url: ${DB_URL:jdbc:mysql://localhost:3306/nextstep_test}
-    username: ${DB_USERNAME:test_user}
-    password: ${DB_PASSWORD:}
-    driver-class-name: com.mysql.cj.jdbc.Driver
-
-  sql:   # moi lan start test thi spring script SQL
+  sql:
     init:
-      mode: always
+      mode: always   # Chạy schema.sql / data.sql nếu bạn có
 
   jpa:
     hibernate:
@@ -43,25 +24,25 @@ spring: # Kich hoat profile test
         order_updates: true
 
 server:
-  error: # luon tra ve message loi trong response
+  error:
     include-message: always
     include-stacktrace: on_param
 
 logging:
-  level: # chi log INFO tro nen cho test
+  level:
     root: INFO
 
 app:
   jwt:
-    secret: ${JWT_SECRET:test-my-super-secret-key-minimum-256-bits-for-security}             # JWT secret cho test
-    access-token-expiration: 3600000  # Access token het han sau 1h
-    refresh-token-expiration: 86400000 #Refresh token het han sau 24h
+    secret: test-my-super-secret-key-minimum-256-bits-for-security
+    access-token-expiration: 3600000
+    refresh-token-expiration: 86400000
 
-  notification:                       # Disable email & push notification khi test (tránh gửi nhầm).
+  notification:
     email:
       enabled: false
     push:
       enabled: false
 
-  rate-limit:  # han che request cua 1 client co the gui tranh spam
+  rate-limit:
     enabled: false
