@@ -9,9 +9,9 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface UserMapper {
 
-    @Mapping(source = "passwordHash", target = "password")
-    LoginRequest toLoginRequest(User user);
+  @Mapping(source = "passwordHash", target = "password")
+  LoginRequest toLoginRequest(User user);
 
-    @Mapping(target = "passwordHash", ignore = true)
-    User toUser(RegisterRequest request);
+  @Mapping(target = "passwordHash", ignore = true)
+  User toUser(RegisterRequest request);
 }
