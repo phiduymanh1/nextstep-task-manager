@@ -41,6 +41,7 @@ public class AuthService {
   @Value("${app.password-reset.token-ttl-minutes:15}")
   private long tokenTtlMinutes;
 
+  // login
   public Map<String, String> login(String userEmail, String password) {
     Authentication auth =
         authenticationManager.authenticate(
