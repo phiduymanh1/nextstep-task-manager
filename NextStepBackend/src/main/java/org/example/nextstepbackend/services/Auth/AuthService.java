@@ -107,6 +107,7 @@ public class AuthService {
             });
   }
 
+  // reset password
   @Transactional
   public void resetPassword(String rawToken, String newPassword) {
 
