@@ -3,9 +3,11 @@ package org.example.nextstepbackend.controller;
 import org.example.nextstepbackend.controller.base.BaseController;
 import org.example.nextstepbackend.dto.response.common.ApiResponse;
 import org.example.nextstepbackend.dto.response.user.UserResponse;
+import org.example.nextstepbackend.exceptions.InvalidInputException;
 import org.example.nextstepbackend.services.user.UserService;
 import org.example.nextstepbackend.utils.ApiResponseUtil;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,7 +26,13 @@ public class UserController extends BaseController {
 
   @GetMapping("/me")
   public ResponseEntity<ApiResponse<UserResponse>> getUserMe(@RequestParam String email) {
+    if (!StringUtils.hasText(email)) {
+      throw new InvalidInputException("Email parameter is required");
+    }
     UserResponse userResponse = userService.getUserMe(email);
+    if (userResponse == null) {
+      return ResponseEntity.notFound().build();
+    }
     return ResponseEntity.ok(success(null, userResponse));
   }
 }
