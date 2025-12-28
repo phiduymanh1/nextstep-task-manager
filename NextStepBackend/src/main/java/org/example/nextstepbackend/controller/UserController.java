@@ -4,13 +4,15 @@ import org.example.nextstepbackend.controller.base.BaseController;
 import org.example.nextstepbackend.dto.response.common.ApiResponse;
 import org.example.nextstepbackend.dto.response.user.UserResponse;
 import org.example.nextstepbackend.exceptions.InvalidInputException;
+import org.example.nextstepbackend.exceptions.ResourceNotFoundException;
 import org.example.nextstepbackend.services.user.UserService;
 import org.example.nextstepbackend.utils.ApiResponseUtil;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -25,13 +27,14 @@ public class UserController extends BaseController {
   }
 
   @GetMapping("/me")
-  public ResponseEntity<ApiResponse<UserResponse>> getUserMe(@RequestParam String email) {
-    if (!StringUtils.hasText(email)) {
+  public ResponseEntity<ApiResponse<UserResponse>> getUserMe(
+      @AuthenticationPrincipal UserDetails userDetails) {
+    if (!StringUtils.hasText(userDetails.getUsername())) {
       throw new InvalidInputException("Email parameter is required");
     }
-    UserResponse userResponse = userService.getUserMe(email);
+    UserResponse userResponse = userService.getUserMe(userDetails.getUsername());
     if (userResponse == null) {
-      return ResponseEntity.notFound().build();
+      throw new ResourceNotFoundException("User not found");
     }
     return ResponseEntity.ok(success(null, userResponse));
   }
