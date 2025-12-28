@@ -1,6 +1,7 @@
 package org.example.nextstepbackend.entity;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -16,7 +17,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
+import org.example.nextstepbackend.entity.embedded.CreateAudit;
 
 @Entity
 @Table(
@@ -56,9 +57,7 @@ public class AuthToken {
   @Column(name = "expires_at", nullable = false)
   private LocalDateTime expiresAt;
 
-  @CreationTimestamp
-  @Column(name = "created_at", updatable = false)
-  private LocalDateTime createdAt;
+  @Embedded private CreateAudit createAudit;
 
   // Business methods
   public boolean isExpired() {

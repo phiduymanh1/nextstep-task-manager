@@ -67,8 +67,4 @@ public class CardCustomFieldValue {
   public Boolean getCheckboxValue() {
     return value != null ? Boolean.parseBoolean(value) : null;
   }
-
-  public String getDropdownValue() {
-    return value;
-  }
 }

@@ -61,6 +61,7 @@ public class CustomField {
   private BigDecimal position;
 
   // Relationships
+  @Builder.Default
   @OneToMany(mappedBy = "customField", cascade = CascadeType.ALL, orphanRemoval = true)
   private Set<CardCustomFieldValue> cardValues = new HashSet<>();
 }

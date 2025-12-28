@@ -6,18 +6,24 @@ import org.springframework.http.HttpStatus;
 @Getter
 public enum MessageConst {
 
-  // Info message
-  REFRESH_SUCCESS("I0001", HttpStatus.OK),
-  REGISTER_SUCCESS("I0002", HttpStatus.OK),
-  SEND_LINK_FORGOT_PASSWORD("I0003", HttpStatus.OK),
+  // Auth - info messages
+  AUTH_REFRESH_SUCCESS("I-AUTH-001", HttpStatus.OK),
+  AUTH_REGISTER_SUCCESS("I-AUTH-002", HttpStatus.OK),
+  AUTH_FORGOT_PASSWORD_SENT("I-AUTH-003", HttpStatus.OK),
 
-  // Error messages
-  INVALID_CREDENTIALS("E0001", HttpStatus.UNAUTHORIZED),
-  REFRESH_TOKEN_INVALID("E0002", HttpStatus.UNAUTHORIZED),
-  AUTH_FAILED("E0003", HttpStatus.UNAUTHORIZED),
-  USER_NOT_FOUND("E0004", HttpStatus.NOT_FOUND),
-  ACCESS_DENIED("E0005", HttpStatus.FORBIDDEN),
-  INTERNAL_ERROR("E0006", HttpStatus.INTERNAL_SERVER_ERROR);
+  // User - info messages
+  USER_FETCH_SUCCESS("I-USER-001", HttpStatus.OK),
+
+  // Auth - error messages
+  AUTH_INVALID_CREDENTIALS("E-AUTH-001", HttpStatus.UNAUTHORIZED),
+  AUTH_REFRESH_TOKEN_INVALID("E-AUTH-002", HttpStatus.UNAUTHORIZED),
+
+  // User - error messages
+  USER_NOT_FOUND("E-USER-001", HttpStatus.NOT_FOUND),
+  USER_ACCESS_DENIED("E-USER-002", HttpStatus.FORBIDDEN),
+
+  // System - error messages
+  SYSTEM_INTERNAL_ERROR("E-SYS-001", HttpStatus.INTERNAL_SERVER_ERROR);
 
   private final String code;
   private final HttpStatus httpStatus;

@@ -1,4 +1,4 @@
-package org.example.nextstepbackend.services.Auth;
+package org.example.nextstepbackend.services.auth;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -13,7 +13,7 @@ import org.example.nextstepbackend.exceptions.InvalidTokenException;
 import org.example.nextstepbackend.mappers.UserMapper;
 import org.example.nextstepbackend.repository.PasswordResetTokenRepository;
 import org.example.nextstepbackend.repository.UserRepository;
-import org.example.nextstepbackend.services.Mail.MailService;
+import org.example.nextstepbackend.services.mail.MailService;
 import org.example.nextstepbackend.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -58,8 +58,8 @@ public class AuthService {
 
   // refresh token
   public String refreshToken(String refreshToken) {
-    if (!jwtUtil.isRefreshTokenValid(refreshToken)) {
-      throw new RuntimeException("Invalid or expired refresh token");
+    if (refreshToken == null || !jwtUtil.isRefreshTokenValid(refreshToken)) {
+      throw new AuthException("Invalid refresh token");
     }
     String username = jwtUtil.extractUserName(refreshToken);
 
@@ -122,7 +122,7 @@ public class AuthService {
             .findFirst()
             .orElseThrow(() -> new InvalidTokenException("Invalid or expired token"));
 
-    if (resetToken.getUsed()) {
+    if (resetToken.isUsed()) {
       throw new IllegalStateException("Token already used");
     }
 

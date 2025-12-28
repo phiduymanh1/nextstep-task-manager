@@ -1,4 +1,4 @@
-package org.example.nextstepbackend.services.Security;
+package org.example.nextstepbackend.services.security;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
