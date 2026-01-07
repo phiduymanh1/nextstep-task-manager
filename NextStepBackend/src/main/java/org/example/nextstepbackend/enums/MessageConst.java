@@ -13,6 +13,8 @@ public enum MessageConst {
 
   // User - info messages
   USER_FETCH_SUCCESS("I-USER-001", HttpStatus.OK),
+  USER_UPDATE_SUCCESS("I-USER-002", HttpStatus.OK),
+  USER_AVATAR_UPDATE_SUCCESS("I-USER-003", HttpStatus.OK),
 
   // Auth - error messages
   AUTH_INVALID_CREDENTIALS("E-AUTH-001", HttpStatus.UNAUTHORIZED),

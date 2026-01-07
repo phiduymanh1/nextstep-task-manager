@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import org.example.nextstepbackend.repository.UserRepository;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -18,24 +17,15 @@ public class CustomerUserDetailService implements UserDetailsService {
   private final UserRepository userRepository;
 
   @Override
-  public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+  public UserDetails loadUserByUsername(String email) {
     var user =
         userRepository
             .findByEmail(email)
-            .orElseThrow(
-                () -> new UsernameNotFoundException("User not found with email: " + email));
+            .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-    String role = user.getRole().name();
-    GrantedAuthority grantedAuthority = new SimpleGrantedAuthority("ROLE_" + role);
+    GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + user.getRole().name());
 
-    return User.builder()
-        .username(user.getEmail()) // username in Spring Security = email here
-        .password(user.getPasswordHash()) // encoded password stored in DB
-        .authorities(List.of(grantedAuthority))
-        .accountExpired(false)
-        .accountLocked(false) // example: treat inactive as locked (adjust to your entity)
-        .credentialsExpired(false)
-        .disabled(false)
-        .build();
+    return new CustomUserDetails(
+        user.getId(), user.getEmail(), user.getPasswordHash(), List.of(authority));
   }
 }

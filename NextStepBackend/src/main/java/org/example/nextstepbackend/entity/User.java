@@ -1,7 +1,19 @@
 package org.example.nextstepbackend.entity;
 
-import jakarta.persistence.*;
-
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.AllArgsConstructor;
@@ -44,6 +56,9 @@ public class User {
 
   @Column(name = "avatar_url", length = 500)
   private String avatarUrl;
+
+  @Column(name = "avatar_public_id", length = 255)
+  private String avatarPublicId;
 
   @Column(unique = true, length = 15)
   private String phone;

@@ -36,8 +36,8 @@ spring:
   servlet:          # Cho phep upload file(anh,pdf,txt,..)
     multipart:
       enabled: true
-      max-file-size: 5MB
-      max-request-size: 10MB
+      max-file-size: 2MB
+      max-request-size: 2MB
 
   task:            # ThreadPool cho async tasks( gui email, notification, xu ly nen)
     execution:
@@ -108,3 +108,7 @@ app:      # Metadata cho ứng dụng
     allow-credentials: true
     max-age: 3600
     allowed-headers: "*"
+cloudinary:
+  cloud-name: ${CLOUDINARY_CLOUD_NAME}
+  api-key: ${CLOUDINARY_API_KEY}
+  api-secret: ${CLOUDINARY_API_SECRET}

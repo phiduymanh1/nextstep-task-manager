@@ -1,5 +1,6 @@
 package org.example.nextstepbackend.services.auth;
 
+import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -8,17 +9,21 @@ import lombok.RequiredArgsConstructor;
 import org.example.nextstepbackend.dto.request.RegisterRequest;
 import org.example.nextstepbackend.entity.PasswordResetToken;
 import org.example.nextstepbackend.entity.User;
+import org.example.nextstepbackend.exceptions.AppException;
 import org.example.nextstepbackend.exceptions.AuthException;
 import org.example.nextstepbackend.exceptions.InvalidTokenException;
 import org.example.nextstepbackend.mappers.UserMapper;
 import org.example.nextstepbackend.repository.PasswordResetTokenRepository;
 import org.example.nextstepbackend.repository.UserRepository;
 import org.example.nextstepbackend.services.mail.MailService;
+import org.example.nextstepbackend.services.security.CustomUserDetails;
 import org.example.nextstepbackend.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -132,5 +137,21 @@ public class AuthService {
 
     resetToken.setUsed(true);
     passwordResetTokenRepository.save(resetToken);
+  }
+
+  public User getCurrentUser() {
+    Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+    if (!(principal instanceof CustomUserDetails userDetails)) {
+      throw new AppException(HttpStatus.UNAUTHORIZED, "Unauthorized", "UNAUTHORIZED-FAILED");
+    }
+
+    return userRepository
+        .findById(userDetails.getId())
+        .orElseThrow(() -> new EntityNotFoundException("User not found"));
+  }
+
+  public Integer getCurrentUserId() {
+    return getCurrentUser().getId();
   }
 }

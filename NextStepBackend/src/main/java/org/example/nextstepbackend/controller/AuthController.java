@@ -11,7 +11,7 @@ import org.example.nextstepbackend.dto.request.RegisterRequest;
 import org.example.nextstepbackend.dto.request.ResetPasswordRequest;
 import org.example.nextstepbackend.dto.response.auth.AuthResponse;
 import org.example.nextstepbackend.dto.response.common.ApiResponse;
-import org.example.nextstepbackend.enums.MessageConst;
+import org.example.nextstepbackend.enums.;
 import org.example.nextstepbackend.services.auth.AuthService;
 import org.example.nextstepbackend.utils.ApiResponseUtil;
 import org.springframework.http.ResponseEntity;
