@@ -1,7 +1,6 @@
 package org.example.nextstepbackend.controller.base;
 
 import java.util.List;
-
 import lombok.RequiredArgsConstructor;
 import org.example.nextstepbackend.dto.response.common.ApiResponse;
 import org.example.nextstepbackend.enums.MessageConst;

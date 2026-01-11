@@ -6,7 +6,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -19,12 +18,7 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
-@Table(
-    name = "attachments",
-    indexes = {
-      @Index(name = "idx_card_id", columnList = "card_id"),
-      @Index(name = "idx_uploaded_by", columnList = "uploaded_by")
-    })
+@Table(name = "attachments")
 @Getter
 @Setter
 @NoArgsConstructor

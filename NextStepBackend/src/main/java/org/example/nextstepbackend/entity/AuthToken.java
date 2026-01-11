@@ -7,7 +7,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -20,13 +19,7 @@ import lombok.Setter;
 import org.example.nextstepbackend.entity.embedded.CreateAudit;
 
 @Entity
-@Table(
-    name = "auth_tokens",
-    indexes = {
-      @Index(name = "idx_user_id", columnList = "user_id"),
-      @Index(name = "idx_token", columnList = "token"),
-      @Index(name = "idx_expires_at", columnList = "expires_at")
-    })
+@Table(name = "auth_tokens")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -42,13 +35,13 @@ public class AuthToken {
   @JoinColumn(name = "user_id", nullable = false)
   private User user;
 
-  @Column(nullable = false, unique = true, length = 500)
+  @Column(nullable = false, unique = true, length = 255)
   private String token;
 
   @Column(name = "refresh_token", unique = true, length = 500)
   private String refreshToken;
 
-  @Column(name = "device_info")
+  @Column(name = "device_info", columnDefinition = "TEXT")
   private String deviceInfo;
 
   @Column(name = "ip_address", length = 45)

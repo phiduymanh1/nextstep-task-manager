@@ -1,7 +1,15 @@
 package org.example.nextstepbackend.entity;
 
-import jakarta.persistence.*;
-
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,13 +18,7 @@ import lombok.Setter;
 import org.example.nextstepbackend.entity.embedded.FullAudit;
 
 @Entity
-@Table(
-    name = "comments",
-    indexes = {
-      @Index(name = "idx_card_id", columnList = "card_id"),
-      @Index(name = "idx_user_id", columnList = "user_id"),
-      @Index(name = "idx_created_at", columnList = "created_at")
-    })
+@Table(name = "comments")
 @Getter
 @Setter
 @NoArgsConstructor

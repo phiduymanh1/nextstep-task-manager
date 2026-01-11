@@ -2,18 +2,20 @@ spring:
   cache:
     type: none
   datasource:
-    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL
+    url: jdbc:h2:mem:testdb;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL
     driver-class-name: org.h2.Driver
     username: sa
-    password:   # ← Để trống hoàn toàn
+    password:   # Để trống hoàn toàn
 
   sql:
     init:
-      mode: always   # Chạy schema.sql / data.sql nếu bạn có
+      mode: always
 
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: validate
+    flyway:
+      enabled: true
     properties:
       hibernate:
         format_sql: false
@@ -22,6 +24,9 @@ spring:
           batch_size: 20
         order_inserts: true
         order_updates: true
+  devtools:
+    restart:
+      enabled: false
 
 server:
   error:

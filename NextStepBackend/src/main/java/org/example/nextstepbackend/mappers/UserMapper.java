@@ -28,8 +28,5 @@ public interface UserMapper {
   @Mapping(target = "email", ignore = true)
   @Mapping(target = "role", ignore = true)
   @Mapping(target = "passwordHash", ignore = true)
-  void updateUserFromRequest(
-          UserUpdateRequest request,
-          @MappingTarget User user
-  );
+  void updateUserFromRequest(UserUpdateRequest request, @MappingTarget User user);
 }

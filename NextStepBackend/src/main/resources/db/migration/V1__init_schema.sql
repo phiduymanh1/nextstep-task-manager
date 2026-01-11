@@ -1,68 +1,73 @@
--- Create database
-CREATE DATABASE IF NOT EXISTS nextstep
-    CHARACTER SET utf8mb4
-    COLLATE utf8mb4_unicode_ci;
-
--- Select database
-USE nextstep;
-
 -- 1. BẢNG USERS - Quản lý người dùng
 CREATE TABLE users (
                        id INT AUTO_INCREMENT PRIMARY KEY,
-                       username VARCHAR(50) UNIQUE NOT NULL,
-                       email VARCHAR(100) UNIQUE NOT NULL,
+                       username VARCHAR(50) NOT NULL,
+                       email VARCHAR(100) NOT NULL,
                        password_hash VARCHAR(255) NOT NULL,
                        full_name VARCHAR(100),
                        avatar_url VARCHAR(500),
-                       phone VARCHAR(15) UNIQUE,
-                       role ENUM('USER', 'ADMIN') DEFAULT 'USER',
+                       avatar_public_id VARCHAR(255),
+                       phone VARCHAR(15),
+                       role VARCHAR(20) DEFAULT 'USER',
                        is_active BOOLEAN DEFAULT TRUE,
                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                       INDEX idx_email (email),
-                       INDEX idx_username (username)
+                       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+                       CONSTRAINT uq_users_username UNIQUE (username),
+                       CONSTRAINT uq_users_email UNIQUE (email),
+                       CONSTRAINT uq_users_phone UNIQUE (phone)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_users_username ON users(username);
 
 -- 2. BẢNG USER_PROFILES - Thông tin chi tiết người dùng
 CREATE TABLE user_profiles (
                                id INT AUTO_INCREMENT PRIMARY KEY,
-                               user_id INT UNIQUE NOT NULL,
+                               user_id INT NOT NULL,
                                bio TEXT,
                                date_of_birth DATE,
                                address VARCHAR(255),
                                timezone VARCHAR(50) DEFAULT 'Asia/Ho_Chi_Minh',
                                language VARCHAR(10) DEFAULT 'vi',
-                               FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+
+                               CONSTRAINT uq_user_profiles_user UNIQUE (user_id),
+                               CONSTRAINT fk_user_profiles_user
+                                   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 3. BẢNG WORKSPACES - Không gian làm việc
 CREATE TABLE workspaces (
                             id INT AUTO_INCREMENT PRIMARY KEY,
                             name VARCHAR(100) NOT NULL,
-                            slug VARCHAR(100) UNIQUE NOT NULL, -- URL-friendly name
+                            slug VARCHAR(100) NOT NULL, -- URL-friendly name
                             description TEXT,
-                            visibility ENUM('PRIVATE', 'WORKSPACE', 'PUBLIC') DEFAULT 'PRIVATE',
+                            visibility VARCHAR(20) DEFAULT 'PRIVATE',
                             created_by INT NOT NULL,
                             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                            FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE CASCADE,
-                            INDEX idx_slug (slug),
-                            INDEX idx_created_by (created_by)
+                            CONSTRAINT uq_workspace_slug UNIQUE (slug),
+                            CONSTRAINT fk_workspace_creator
+                                FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE INDEX idx_workspace_created_by ON workspaces(created_by);
+CREATE INDEX idx_workspace_slug ON workspaces(slug);
 -- 4. BẢNG WORKSPACE_MEMBERS - Thành viên trong workspace
 CREATE TABLE workspace_members (
                                    id INT AUTO_INCREMENT PRIMARY KEY,
                                    workspace_id INT NOT NULL,
                                    user_id INT NOT NULL,
-                                   role ENUM('OWNER', 'ADMIN', 'MEMBER', 'GUEST') DEFAULT 'MEMBER',
+                                   role VARCHAR(20) DEFAULT 'MEMBER',
                                    joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                                   FOREIGN KEY (workspace_id) REFERENCES workspaces(id) ON DELETE CASCADE,
-                                   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-                                   UNIQUE KEY unique_workspace_member (workspace_id, user_id),
-                                   INDEX idx_workspace_id (workspace_id),
-                                   INDEX idx_user_id (user_id)
+
+                                   CONSTRAINT uq_workspace_member UNIQUE (workspace_id, user_id),
+                                   CONSTRAINT fk_wm_workspace FOREIGN KEY (workspace_id) REFERENCES workspaces(id) ON DELETE CASCADE,
+                                   CONSTRAINT fk_wm_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE INDEX idx_wm_workspace_id ON workspace_members(workspace_id);
+CREATE INDEX idx_wm_user_id ON workspace_members(user_id);
 
 -- 5. BẢNG BOARDS - Bảng làm việc
 CREATE TABLE boards (
@@ -73,31 +78,35 @@ CREATE TABLE boards (
                         description TEXT,
                         background_color VARCHAR(20) DEFAULT '#0079BF',
                         background_image_url VARCHAR(500),
-                        visibility ENUM('PRIVATE', 'WORKSPACE', 'PUBLIC') DEFAULT 'WORKSPACE',
+                        visibility VARCHAR(20) DEFAULT 'WORKSPACE',
                         is_closed BOOLEAN DEFAULT FALSE,
                         created_by INT NOT NULL,
                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                        FOREIGN KEY (workspace_id) REFERENCES workspaces(id) ON DELETE CASCADE,
-                        FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE CASCADE,
-                        UNIQUE KEY unique_board_slug (workspace_id, slug),
-                        INDEX idx_workspace_id (workspace_id),
-                        INDEX idx_is_closed (is_closed)
+
+                        CONSTRAINT uq_board_slug UNIQUE (workspace_id, slug),
+                        CONSTRAINT fk_board_workspace FOREIGN KEY (workspace_id) REFERENCES workspaces(id) ON DELETE CASCADE,
+                        CONSTRAINT fk_board_creator FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE INDEX idx_board_workspace_id ON boards(workspace_id);
+CREATE INDEX idx_board_is_closed ON boards(is_closed);
 
 -- 6. BẢNG BOARD_MEMBERS - Thành viên có quyền truy cập board
 CREATE TABLE board_members (
                                id INT AUTO_INCREMENT PRIMARY KEY,
                                board_id INT NOT NULL,
                                user_id INT NOT NULL,
-                               role ENUM('ADMIN', 'MEMBER', 'OBSERVER') DEFAULT 'MEMBER',
+                               role VARCHAR(20) DEFAULT 'MEMBER',
                                joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                               FOREIGN KEY (board_id) REFERENCES boards(id) ON DELETE CASCADE,
-                               FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-                               UNIQUE KEY unique_board_member (board_id, user_id),
-                               INDEX idx_board_id (board_id),
-                               INDEX idx_user_id (user_id)
+
+                               CONSTRAINT uq_board_member UNIQUE (board_id, user_id),
+                               CONSTRAINT fk_board_members_board FOREIGN KEY (board_id) REFERENCES boards(id) ON DELETE CASCADE,
+                               CONSTRAINT fk_board_members_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE INDEX idx_board_members_board_id ON board_members(board_id);
+CREATE INDEX idx_board_members_user_id ON board_members(user_id);
 
 -- 7. BẢNG LISTS - Danh sách/Cột trong board (To Do, In Progress, Done)
 CREATE TABLE lists (
@@ -108,11 +117,13 @@ CREATE TABLE lists (
                        is_archived BOOLEAN DEFAULT FALSE,
                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                       FOREIGN KEY (board_id) REFERENCES boards(id) ON DELETE CASCADE,
-                       INDEX idx_board_id (board_id),
-                       INDEX idx_position (board_id, position),
-                       INDEX idx_archived (is_archived)
+
+                       CONSTRAINT fk_list_board FOREIGN KEY (board_id) REFERENCES boards(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE INDEX idx_list_board_id ON lists(board_id);
+CREATE INDEX idx_list_board_position ON lists(board_id, position);
+CREATE INDEX idx_list_archived ON lists(is_archived);
 
 -- 8. BẢNG CARDS - Thẻ công việc (Card/Task trong Trello)
 CREATE TABLE cards (
@@ -131,14 +142,16 @@ CREATE TABLE cards (
                        created_by INT NOT NULL,
                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                       FOREIGN KEY (list_id) REFERENCES lists(id) ON DELETE CASCADE,
-                       FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE CASCADE,
-                       INDEX idx_list_id (list_id),
-                       INDEX idx_position (list_id, position),
-                       INDEX idx_due_date (due_date),
-                       INDEX idx_archived (is_archived),
-                       INDEX idx_created_by (created_by)
+
+                       CONSTRAINT fk_card_list FOREIGN KEY (list_id) REFERENCES lists(id) ON DELETE CASCADE,
+                       CONSTRAINT fk_card_creator FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE INDEX idx_card_list_position ON cards(list_id, position);
+CREATE INDEX idx_card_archived ON cards(is_archived);
+CREATE INDEX idx_card_created_by ON cards(created_by);
+CREATE INDEX idx_card_list_id ON cards(list_id);
+CREATE INDEX idx_card_due_date ON cards(due_date);
 
 -- 9. BẢNG CARD_MEMBERS - Người được giao thẻ
 CREATE TABLE card_members (
@@ -146,12 +159,14 @@ CREATE TABLE card_members (
                               card_id INT NOT NULL,
                               user_id INT NOT NULL,
                               assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                              FOREIGN KEY (card_id) REFERENCES cards(id) ON DELETE CASCADE,
-                              FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-                              UNIQUE KEY unique_card_member (card_id, user_id),
-                              INDEX idx_card_id (card_id),
-                              INDEX idx_user_id (user_id)
+
+                              CONSTRAINT uq_card_member UNIQUE (card_id, user_id),
+                              CONSTRAINT fk_card_members_card FOREIGN KEY (card_id) REFERENCES cards(id),
+                              CONSTRAINT fk_card_members_user FOREIGN KEY (user_id) REFERENCES users(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE INDEX idx_card_members_card_id ON card_members(card_id);
+CREATE INDEX idx_card_members_user_id ON card_members(user_id);
 
 -- 10. BẢNG LABELS - Nhãn cho board
 CREATE TABLE labels (
@@ -159,21 +174,25 @@ CREATE TABLE labels (
                         board_id INT NOT NULL,
                         name VARCHAR(50) NOT NULL,
                         color VARCHAR(20) NOT NULL, -- #61BD4F, #F2D600, #FF9F1A, etc.
-                        FOREIGN KEY (board_id) REFERENCES boards(id) ON DELETE CASCADE,
-                        INDEX idx_board_id (board_id)
+
+                        CONSTRAINT fk_labels_board FOREIGN KEY (board_id) REFERENCES boards(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE INDEX idx_labels_board_id ON labels(board_id);
 
 -- 11. BẢNG CARD_LABELS - Gắn nhãn cho thẻ
 CREATE TABLE card_labels (
                              id INT AUTO_INCREMENT PRIMARY KEY,
                              card_id INT NOT NULL,
                              label_id INT NOT NULL,
-                             FOREIGN KEY (card_id) REFERENCES cards(id) ON DELETE CASCADE,
-                             FOREIGN KEY (label_id) REFERENCES labels(id) ON DELETE CASCADE,
-                             UNIQUE KEY unique_card_label (card_id, label_id),
-                             INDEX idx_card_id (card_id),
-                             INDEX idx_label_id (label_id)
+
+                             CONSTRAINT uq_card_label UNIQUE (card_id, label_id),
+                             CONSTRAINT fk_card_labels_card FOREIGN KEY (card_id) REFERENCES cards(id) ON DELETE CASCADE,
+                             CONSTRAINT fk_card_labels_label FOREIGN KEY (label_id) REFERENCES labels(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE INDEX idx_card_labels_card_id ON card_labels(card_id);
+CREATE INDEX idx_card_labels_label_id ON card_labels(label_id);
 
 -- 12. BẢNG CHECKLISTS - Danh sách checklist trong thẻ
 CREATE TABLE checklists (
@@ -182,10 +201,11 @@ CREATE TABLE checklists (
                             title VARCHAR(255) NOT NULL,
                             position DECIMAL(10,2) NOT NULL,
                             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                            FOREIGN KEY (card_id) REFERENCES cards(id) ON DELETE CASCADE,
-                            INDEX idx_card_id (card_id),
-                            INDEX idx_position (card_id, position)
+                            CONSTRAINT fk_checklists_card FOREIGN KEY (card_id) REFERENCES cards(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE INDEX idx_checklists_card_position ON checklists(card_id, position);
+CREATE INDEX idx_checklists_card_id ON checklists(card_id);
 
 -- 13. BẢNG CHECKLIST_ITEMS - Các item trong checklist
 CREATE TABLE checklist_items (
@@ -193,15 +213,17 @@ CREATE TABLE checklist_items (
                                  checklist_id INT NOT NULL,
                                  content TEXT NOT NULL,
                                  is_completed BOOLEAN DEFAULT FALSE,
-                                 completed_by INT NULL,
-                                 completed_at TIMESTAMP NULL,
+                                 completed_by INT,
+                                 completed_at TIMESTAMP,
                                  position DECIMAL(10,2) NOT NULL,
-                                 due_date DATETIME NULL,
-                                 FOREIGN KEY (checklist_id) REFERENCES checklists(id) ON DELETE CASCADE,
-                                 FOREIGN KEY (completed_by) REFERENCES users(id) ON DELETE SET NULL,
-                                 INDEX idx_checklist_id (checklist_id),
-                                 INDEX idx_position (checklist_id, position)
+                                 due_date DATETIME,
+
+                                 CONSTRAINT fk_checklist_items_checklist FOREIGN KEY (checklist_id) REFERENCES checklists(id) ON DELETE CASCADE,
+                                 CONSTRAINT fk_checklist_items_completed_by FOREIGN KEY (completed_by) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE INDEX idx_checklist_items_checklist_position ON checklist_items(checklist_id, position);
+CREATE INDEX idx_checklist_items_checklist_id ON checklist_items(checklist_id);
 
 -- 14. BẢNG ATTACHMENTS - File đính kèm
 CREATE TABLE attachments (
@@ -214,11 +236,13 @@ CREATE TABLE attachments (
                              mime_type VARCHAR(100),
                              is_cover BOOLEAN DEFAULT FALSE, -- Đặt làm ảnh bìa
                              uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                             FOREIGN KEY (card_id) REFERENCES cards(id) ON DELETE CASCADE,
-                             FOREIGN KEY (uploaded_by) REFERENCES users(id) ON DELETE CASCADE,
-                             INDEX idx_card_id (card_id),
-                             INDEX idx_uploaded_by (uploaded_by)
+
+                             CONSTRAINT fk_attachments_card FOREIGN KEY (card_id) REFERENCES cards(id) ON DELETE CASCADE,
+                             CONSTRAINT fk_attachments_uploader FOREIGN KEY (uploaded_by) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE INDEX idx_attachments_card_id ON attachments(card_id);
+CREATE INDEX idx_attachments_uploaded_by ON attachments(uploaded_by);
 
 -- 15. BẢNG COMMENTS - Bình luận trong thẻ
 CREATE TABLE comments (
@@ -228,12 +252,14 @@ CREATE TABLE comments (
                           content TEXT NOT NULL,
                           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                           updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                          FOREIGN KEY (card_id) REFERENCES cards(id) ON DELETE CASCADE,
-                          FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-                          INDEX idx_card_id (card_id),
-                          INDEX idx_user_id (user_id),
-                          INDEX idx_created_at (created_at)
+
+                          CONSTRAINT fk_comments_card FOREIGN KEY (card_id) REFERENCES cards(id) ON DELETE CASCADE,
+                          CONSTRAINT fk_comments_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE INDEX idx_comments_card_id ON comments(card_id);
+CREATE INDEX idx_comments_user_id ON comments(user_id);
+CREATE INDEX idx_comments_created_at ON comments(created_at);
 
 -- 16. BẢNG ACTIVITIES - Lịch sử hoạt động (Activity Log)
 CREATE TABLE activities (
@@ -247,15 +273,17 @@ CREATE TABLE activities (
                             message TEXT, -- "Đã di chuyển thẻ từ 'To Do' sang 'In Progress'"
                             metadata JSON, -- Lưu data chi tiết dạng JSON
                             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                            FOREIGN KEY (card_id) REFERENCES cards(id) ON DELETE CASCADE,
-                            FOREIGN KEY (board_id) REFERENCES boards(id) ON DELETE CASCADE,
-                            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-                            INDEX idx_card_id (card_id),
-                            INDEX idx_board_id (board_id),
-                            INDEX idx_user_id (user_id),
-                            INDEX idx_created_at (created_at),
-                            INDEX idx_action_type (action_type)
+
+                            CONSTRAINT fk_activities_card FOREIGN KEY (card_id) REFERENCES cards(id) ON DELETE CASCADE,
+                            CONSTRAINT fk_activities_board FOREIGN KEY (board_id) REFERENCES boards(id) ON DELETE CASCADE,
+                            CONSTRAINT fk_activities_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE INDEX idx_activities_card_id ON activities(card_id);
+CREATE INDEX idx_activities_board_id ON activities(board_id);
+CREATE INDEX idx_activities_user_id ON activities(user_id);
+CREATE INDEX idx_activities_created_at ON activities(created_at);
+CREATE INDEX idx_activities_action_type ON activities(action_type);
 
 -- 17. BẢNG NOTIFICATIONS - Thông báo
 CREATE TABLE notifications (
@@ -270,52 +298,59 @@ CREATE TABLE notifications (
                                is_read BOOLEAN DEFAULT FALSE,
                                read_at TIMESTAMP NULL,
                                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                               FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-                               INDEX idx_user_id (user_id),
-                               INDEX idx_is_read (user_id, is_read),
-                               INDEX idx_created_at (created_at)
+                               CONSTRAINT fk_notifications_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE INDEX idx_notifications_user_read ON notifications(user_id, is_read);
+CREATE INDEX idx_notifications_created_at ON notifications(created_at);
+CREATE INDEX idx_notifications_user_id ON notifications(entity_type, entity_id);
 
 -- 18. BẢNG CUSTOM_FIELDS - Trường tùy chỉnh cho board (Premium feature)
 CREATE TABLE custom_fields (
                                id INT AUTO_INCREMENT PRIMARY KEY,
                                board_id INT NOT NULL,
                                name VARCHAR(100) NOT NULL,
-                               type ENUM('TEXT', 'NUMBER', 'DATE', 'CHECKBOX', 'DROPDOWN') NOT NULL,
+                               type VARCHAR(20) NOT NULL,
                                options JSON, -- Cho dropdown: ["Option 1", "Option 2"]
                                position DECIMAL(10,2) NOT NULL,
-                               FOREIGN KEY (board_id) REFERENCES boards(id) ON DELETE CASCADE,
-                               INDEX idx_board_id (board_id)
+                               CONSTRAINT fk_custom_fields_board FOREIGN KEY (board_id) REFERENCES boards(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE INDEX idx_custom_fields_board_id ON custom_fields(board_id);
 
 -- 19. BẢNG CARD_CUSTOM_FIELD_VALUES - Giá trị custom field của thẻ
 CREATE TABLE card_custom_field_values (
                                           id INT AUTO_INCREMENT PRIMARY KEY,
                                           card_id INT NOT NULL,
                                           custom_field_id INT NOT NULL,
-                                          value TEXT,
-                                          FOREIGN KEY (card_id) REFERENCES cards(id) ON DELETE CASCADE,
-                                          FOREIGN KEY (custom_field_id) REFERENCES custom_fields(id) ON DELETE CASCADE,
-                                          UNIQUE KEY unique_card_field (card_id, custom_field_id),
-                                          INDEX idx_card_id (card_id),
-                                          INDEX idx_custom_field_id (custom_field_id)
+                                          field_value  TEXT,
+
+                                          CONSTRAINT uq_card_custom_field UNIQUE (card_id, custom_field_id),
+                                          CONSTRAINT fk_ccfv_card FOREIGN KEY (card_id) REFERENCES cards(id) ON DELETE CASCADE,
+                                          CONSTRAINT fk_ccfv_custom_field FOREIGN KEY (custom_field_id) REFERENCES custom_fields(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE INDEX idx_ccfv_card_id ON card_custom_field_values(card_id);
+CREATE INDEX idx_ccfv_custom_field_id ON card_custom_field_values(custom_field_id);
 
 -- 20. BẢNG AUTH_TOKENS - Token xác thực
 CREATE TABLE auth_tokens (
                              id INT AUTO_INCREMENT PRIMARY KEY,
                              user_id INT NOT NULL,
-                             token VARCHAR(500) UNIQUE NOT NULL,
-                             refresh_token VARCHAR(500) UNIQUE,
+                             token VARCHAR(500) NOT NULL,
+                             refresh_token VARCHAR(500),
                              device_info VARCHAR(255), -- User agent, device name
                              ip_address VARCHAR(45),
                              expires_at TIMESTAMP NOT NULL,
                              created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-                             INDEX idx_user_id (user_id),
-                             INDEX idx_token (token),
-                             INDEX idx_expires_at (expires_at)
+
+                             CONSTRAINT uq_auth_token UNIQUE (token,refresh_token),
+                             CONSTRAINT fk_auth_tokens_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE INDEX idx_auth_tokens_user_id ON auth_tokens(user_id);
+CREATE INDEX idx_auth_tokens_expires_at ON auth_tokens(expires_at);
+CREATE INDEX idx_auth_tokens_token ON auth_tokens(token);
 
 -- 21. BẢNG BOARD_STARS - Board được đánh dấu sao (yêu thích)
 CREATE TABLE board_stars (
@@ -324,45 +359,28 @@ CREATE TABLE board_stars (
                              user_id INT NOT NULL,
                              position DECIMAL(10,2) NOT NULL, -- Thứ tự hiển thị
                              starred_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                             FOREIGN KEY (board_id) REFERENCES boards(id) ON DELETE CASCADE,
-                             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-                             UNIQUE KEY unique_board_star (board_id, user_id),
-                             INDEX idx_user_id (user_id),
-                             INDEX idx_position (user_id, position)
+
+                             CONSTRAINT uq_board_star UNIQUE (board_id, user_id),
+                             CONSTRAINT fk_board_stars_board FOREIGN KEY (board_id) REFERENCES boards(id) ON DELETE CASCADE,
+                             CONSTRAINT fk_board_stars_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ============================================
--- INSERT DỮ LIỆU MẪU (SAMPLE DATA)
--- ============================================
+CREATE INDEX idx_board_stars_user_position ON board_stars(user_id, position);
+CREATE INDEX idx_board_stars_user_id ON board_stars(user_id);
 
--- Sample Users
-INSERT INTO users (username, email, password_hash, full_name, role) VALUES
-                                                                        ('admin', 'admin@trello.com', '$2a$12$pNvceqsKyEbn/H41071JQOTGAclrV9Kw/XpOnA35M2gFEJjQMikCq', 'Admin User', 'ADMIN'),
-                                                                        ('john_doe', 'john@example.com', '$2a$12$pNvceqsKyEbn/H41071JQOTGAclrV9Kw/XpOnA35M2gFEJjQMikCq', 'John Doe', 'USER'),
-                                                                        ('jane_smith', 'jane@example.com', '$2a$12$pNvceqsKyEbn/H41071JQOTGAclrV9Kw/XpOnA35M2gFEJjQMikCq', 'Jane Smith', 'USER');
+CREATE TABLE password_reset_tokens (
+                                       id INT AUTO_INCREMENT PRIMARY KEY,
+                                       user_id INT NOT NULL,
+                                       token VARCHAR(255) NOT NULL,
+                                       expires_at TIMESTAMP NOT NULL,
+                                       used BOOLEAN NOT NULL DEFAULT FALSE,
+                                       created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
--- Sample Workspace
-INSERT INTO workspaces (name, slug, description, created_by) VALUES
-    ('My Workspace', 'my-workspace', 'Workspace chính của tôi', 1);
+                                       CONSTRAINT uq_password_reset_token UNIQUE (token),
+                                       CONSTRAINT fk_password_reset_user
+                                           FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Sample Board
-INSERT INTO boards (workspace_id, name, slug, description, created_by) VALUES
-    (1, 'Project Management', 'project-management', 'Quản lý dự án chính', 1);
-
--- Sample Lists
-INSERT INTO lists (board_id, name, position) VALUES
-                                                 (1, 'To Do', 1),
-                                                 (1, 'In Progress', 2),
-                                                 (1, 'Done', 3);
-
--- Sample Cards
-INSERT INTO cards (list_id, title, description, position, created_by) VALUES
-                                                                          (1, 'Thiết kế database', 'Thiết kế schema cho ứng dụng', 1, 1),
-                                                                          (1, 'Tạo API endpoints', 'Xây dựng REST API', 2, 1),
-                                                                          (2, 'Phát triển frontend', 'Dùng React để xây giao diện', 1, 2);
-
--- Sample Labels
-INSERT INTO labels (board_id, name, color) VALUES
-                                               (1, 'Bug', '#EB5A46'),
-                                               (1, 'Feature', '#61BD4F'),
-                                               (1, 'Urgent', '#FF9F1A');
+CREATE INDEX idx_password_reset_tokens_user_id ON password_reset_tokens(user_id);
+CREATE INDEX idx_password_reset_tokens_expires_at ON password_reset_tokens(expires_at);
+CREATE INDEX idx_password_reset_tokens_token ON password_reset_tokens(token);

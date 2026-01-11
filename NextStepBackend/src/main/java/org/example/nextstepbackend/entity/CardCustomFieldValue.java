@@ -6,7 +6,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -24,11 +23,7 @@ import lombok.Setter;
     uniqueConstraints =
         @UniqueConstraint(
             name = "unique_card_field",
-            columnNames = {"card_id", "custom_field_id"}),
-    indexes = {
-      @Index(name = "idx_card_id", columnList = "card_id"),
-      @Index(name = "idx_custom_field_id", columnList = "custom_field_id")
-    })
+            columnNames = {"card_id", "custom_field_id"}))
 @Getter
 @Setter
 @NoArgsConstructor
@@ -49,22 +44,22 @@ public class CardCustomFieldValue {
   private CustomField customField;
 
   @Column(columnDefinition = "TEXT")
-  private String value;
+  private String fieldValue;
 
   // Helper methods to parse value based on field type
   public String getTextValue() {
-    return value;
+    return fieldValue;
   }
 
   public Integer getNumberValue() {
-    return value != null ? Integer.parseInt(value) : null;
+    return fieldValue != null ? Integer.parseInt(fieldValue) : null;
   }
 
   public LocalDate getDateValue() {
-    return value != null ? LocalDate.parse(value) : null;
+    return fieldValue != null ? LocalDate.parse(fieldValue) : null;
   }
 
   public Boolean getCheckboxValue() {
-    return value != null ? Boolean.parseBoolean(value) : null;
+    return fieldValue != null ? Boolean.parseBoolean(fieldValue) : null;
   }
 }

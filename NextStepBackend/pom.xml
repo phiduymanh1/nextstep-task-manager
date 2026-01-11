@@ -153,6 +153,12 @@
             <version>1.36.0</version>
         </dependency>
 
+        <!-- quan ly depen thay cho hibernate-->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>

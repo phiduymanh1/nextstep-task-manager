@@ -51,11 +51,11 @@ public class JwtUtil {
 
   public boolean isAccessTokenValid(String token, UserDetails userDetails) {
     return parseClaims(token)
-            .map(c ->
-                    c.getSubject().equals(userDetails.getUsername())
-                            && c.getExpiration().after(new Date())
-            )
-            .orElse(false);
+        .map(
+            c ->
+                c.getSubject().equals(userDetails.getUsername())
+                    && c.getExpiration().after(new Date()))
+        .orElse(false);
   }
 
   public boolean isRefreshTokenValid(String token) {

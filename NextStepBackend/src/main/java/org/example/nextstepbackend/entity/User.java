@@ -10,7 +10,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Index;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -25,12 +24,7 @@ import org.example.nextstepbackend.entity.embedded.FullAudit;
 import org.example.nextstepbackend.enums.UserRole;
 
 @Entity
-@Table(
-    name = "users",
-    indexes = {
-      @Index(name = "idx_email", columnList = "email"),
-      @Index(name = "idx_username", columnList = "username")
-    })
+@Table(name = "users")
 @Getter
 @Setter
 @NoArgsConstructor

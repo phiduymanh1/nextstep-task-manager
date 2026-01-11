@@ -1,7 +1,17 @@
 package org.example.nextstepbackend.entity;
 
-import jakarta.persistence.*;
-
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -14,15 +24,7 @@ import lombok.Setter;
 import org.example.nextstepbackend.entity.embedded.FullAudit;
 
 @Entity
-@Table(
-    name = "cards",
-    indexes = {
-      @Index(name = "idx_list_id", columnList = "list_id"),
-      @Index(name = "idx_position", columnList = "list_id, position"),
-      @Index(name = "idx_due_date", columnList = "due_date"),
-      @Index(name = "idx_archived", columnList = "is_archived"),
-      @Index(name = "idx_created_by", columnList = "created_by")
-    })
+@Table(name = "cards")
 @Getter
 @Setter
 @NoArgsConstructor
