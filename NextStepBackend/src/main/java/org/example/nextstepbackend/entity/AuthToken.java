@@ -38,7 +38,7 @@ public class AuthToken {
   @Column(nullable = false, unique = true, length = 255)
   private String token;
 
-  @Column(name = "refresh_token", unique = true, length = 500)
+  @Column(name = "refresh_token", unique = true, length = 255)
   private String refreshToken;
 
   @Column(name = "device_info", columnDefinition = "TEXT")

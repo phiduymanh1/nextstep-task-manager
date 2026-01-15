@@ -398,9 +398,9 @@ CREATE INDEX idx_password_reset_tokens_token ON password_reset_tokens(token);
 
 -- Sample Users
 INSERT INTO users (username, email, password_hash, full_name, role) VALUES
-('admin', 'admin@trello.com', '$2a$12$pNvceqsKyEbn/H41071JQOTGAclrV9Kw/XpOnA35M2gFEJjQMikCq', 'Admin User', 'ADMIN'),
-('john_doe', 'john@example.com', '$2a$12$pNvceqsKyEbn/H41071JQOTGAclrV9Kw/XpOnA35M2gFEJjQMikCq', 'John Doe', 'USER'),
-('jane_smith', 'jane@example.com', '$2a$12$pNvceqsKyEbn/H41071JQOTGAclrV9Kw/XpOnA35M2gFEJjQMikCq', 'Jane Smith', 'USER');
+('admin', 'admin@trello.com', '$2a$12$fGH7XkRQMXg.kqKJ5Dg3OeY5X9kLDCQo/f0DixhzkJTtJNRwAqPOW', 'Admin User', 'ADMIN'),
+('john_doe', 'john@example.com', '$2a$12$fGH7XkRQMXg.kqKJ5Dg3OeY5X9kLDCQo/f0DixhzkJTtJNRwAqPOW', 'John Doe', 'USER'),
+('jane_smith', 'jane@example.com', '$2a$12$fGH7XkRQMXg.kqKJ5Dg3OeY5X9kLDCQo/f0DixhzkJTtJNRwAqPOW', 'Jane Smith', 'USER');
 
 -- Sample Workspace
 INSERT INTO workspaces (name, slug, description, created_by) VALUES

@@ -337,8 +337,8 @@ CREATE INDEX idx_ccfv_custom_field_id ON card_custom_field_values(custom_field_i
 CREATE TABLE auth_tokens (
                              id INT AUTO_INCREMENT PRIMARY KEY,
                              user_id INT NOT NULL,
-                             token VARCHAR(500) NOT NULL,
-                             refresh_token VARCHAR(500),
+                             token VARCHAR(255) NOT NULL,
+                             refresh_token VARCHAR(255),
                              device_info VARCHAR(255), -- User agent, device name
                              ip_address VARCHAR(45),
                              expires_at TIMESTAMP NOT NULL,

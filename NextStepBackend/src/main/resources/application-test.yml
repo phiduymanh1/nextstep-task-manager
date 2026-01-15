@@ -19,7 +19,7 @@ spring:
     properties:
       hibernate:
         format_sql: false
-        show_sql: false
+        show_sql: true
         jdbc:
           batch_size: 20
         order_inserts: true
@@ -36,6 +36,12 @@ server:
 logging:
   level:
     root: INFO
+    org:
+      hibernate:
+        orm:
+          jdbc:
+            bind:
+              parameter: TRACE
 
 app:
   jwt:
