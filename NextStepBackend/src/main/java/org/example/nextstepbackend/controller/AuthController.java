@@ -4,6 +4,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import java.util.Map;
+import org.example.nextstepbackend.comm.constants.Const;
 import org.example.nextstepbackend.controller.base.BaseController;
 import org.example.nextstepbackend.dto.request.ForgotPasswordRequest;
 import org.example.nextstepbackend.dto.request.LoginRequest;
@@ -32,13 +33,14 @@ public class AuthController extends BaseController {
     this.authService = authService;
   }
 
+  /** Login api */
   @PostMapping("/login")
   public ResponseEntity<ApiResponse<AuthResponse>> login(
       @Valid @RequestBody LoginRequest req, HttpServletResponse response) {
     Map<String, String> tokens = authService.login(req.email(), req.password());
 
     // Set refresh token cookie
-    Cookie cookie = new Cookie("refreshToken", tokens.get("refreshToken"));
+    Cookie cookie = new Cookie(Const.TEXT_REFRESH_TOKEN, tokens.get(Const.TEXT_REFRESH_TOKEN));
     cookie.setHttpOnly(true);
     cookie.setSecure(false); // deploy HTTPS -> true
     cookie.setPath("/");
@@ -46,14 +48,15 @@ public class AuthController extends BaseController {
     cookie.setAttribute("SameSite", "Strict");
     response.addCookie(cookie);
 
-    AuthResponse authResponse = new AuthResponse(tokens.get("accessToken"));
+    AuthResponse authResponse = new AuthResponse(tokens.get(Const.TEXT_ACCESS_TOKEN));
 
     return ResponseEntity.ok(success(MessageConst.AUTH_LOGIN_SUCCESS, authResponse));
   }
 
+  /** Refresh token api */
   @PostMapping("/refresh")
   public ResponseEntity<ApiResponse<AuthResponse>> refresh(
-      @CookieValue(value = "refreshToken", required = false) String refreshToken) {
+      @CookieValue(value = Const.TEXT_REFRESH_TOKEN, required = false) String refreshToken) {
     String newAccessToken = authService.refreshToken(refreshToken);
 
     AuthResponse authResponse = new AuthResponse(newAccessToken);
@@ -61,6 +64,7 @@ public class AuthController extends BaseController {
     return ResponseEntity.ok(success(MessageConst.AUTH_REFRESH_SUCCESS, authResponse));
   }
 
+  /** Register api */
   @PostMapping("/register")
   public ResponseEntity<ApiResponse<Void>> register(@Valid @RequestBody RegisterRequest req) {
     authService.register(req);
@@ -68,6 +72,7 @@ public class AuthController extends BaseController {
     return ResponseEntity.ok(success(MessageConst.AUTH_REGISTER_SUCCESS, null));
   }
 
+  /** Forgot password api */
   @PostMapping("/forgot-password")
   public ResponseEntity<ApiResponse<Void>> forgotPassword(
       @RequestBody ForgotPasswordRequest request) {
@@ -76,6 +81,7 @@ public class AuthController extends BaseController {
     return ResponseEntity.ok(success(MessageConst.AUTH_FORGOT_PASSWORD_SENT, null));
   }
 
+  /** Reset password api */
   @PostMapping("/reset-password")
   public void resetPassword(@RequestBody ResetPasswordRequest request) {
     authService.resetPassword(request.token(), request.newPassword());

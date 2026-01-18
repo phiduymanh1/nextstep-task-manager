@@ -26,6 +26,6 @@ public class CustomerUserDetailService implements UserDetailsService {
     GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + user.getRole().name());
 
     return new CustomUserDetails(
-        user.getId(), user.getEmail(), user.getPasswordHash(), List.of(authority));
+        user.getId(), user.getEmail(), user.getPasswordHash(),user.getIsActive(), List.of(authority));
   }
 }

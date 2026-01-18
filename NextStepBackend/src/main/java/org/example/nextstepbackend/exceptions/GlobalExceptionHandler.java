@@ -9,7 +9,9 @@ import org.example.nextstepbackend.enums.MessageConst;
 import org.example.nextstepbackend.utils.ApiResponseUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -71,5 +73,22 @@ public class GlobalExceptionHandler {
     log.error("Unexpected error", ex);
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
         .body(responseUtil.error(MessageConst.SYSTEM_INTERNAL_ERROR));
+  }
+
+  @ExceptionHandler(HttpMessageNotReadableException.class)
+  public ResponseEntity<ApiResponse<Void>> handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
+    log.warn("Malformed JSON request: {}", ex.getMessage());
+
+    String errorMessage = "Invalid or misformatted JSON data";
+
+    return ResponseEntity.badRequest()
+            .body(responseUtil.error("MALFORMED_JSON", errorMessage, List.of(ex.getMostSpecificCause().getMessage())));
+  }
+
+  @ExceptionHandler(DisabledException.class)
+  public ResponseEntity<ApiResponse<Void>> handleDisableAccount(DisabledException ex) {
+    log.warn("Account disabled: {}", ex.getMessage());
+    return ResponseEntity.status(HttpStatus.FORBIDDEN)
+            .body(responseUtil.error(MessageConst.AUTH_DISABLED_ACCOUNT));
   }
 }

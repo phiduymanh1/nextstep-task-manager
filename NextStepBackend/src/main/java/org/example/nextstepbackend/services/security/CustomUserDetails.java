@@ -10,13 +10,19 @@ public class CustomUserDetails implements UserDetails {
   @Getter private final Integer id;
   private final String email;
   private final String password;
+  private final boolean isActive;
   private final List<GrantedAuthority> authorities;
 
   public CustomUserDetails(
-      Integer id, String email, String password, List<GrantedAuthority> authorities) {
+      Integer id,
+      String email,
+      String password,
+      boolean isActive,
+      List<GrantedAuthority> authorities) {
     this.id = id;
     this.email = email;
     this.password = password;
+    this.isActive = isActive;
     this.authorities = authorities;
   }
 
@@ -52,6 +58,6 @@ public class CustomUserDetails implements UserDetails {
 
   @Override
   public boolean isEnabled() {
-    return true;
+    return isActive;
   }
 }

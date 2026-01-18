@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.example.nextstepbackend.comm.constants.Const;
 import org.example.nextstepbackend.dto.request.RegisterRequest;
 import org.example.nextstepbackend.entity.PasswordResetToken;
 import org.example.nextstepbackend.entity.User;
@@ -56,9 +57,7 @@ public class AuthService {
     String refreshToken = jwtUtil.generateRefreshToken(auth.getName());
 
     // Return both tokens, controller will set cookies
-    return Map.of(
-        "accessToken", accessToken,
-        "refreshToken", refreshToken);
+    return Map.of(Const.TEXT_ACCESS_TOKEN, accessToken, Const.TEXT_REFRESH_TOKEN, refreshToken);
   }
 
   // refresh token
