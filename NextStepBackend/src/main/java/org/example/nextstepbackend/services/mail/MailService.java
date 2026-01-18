@@ -1,4 +1,4 @@
-package org.example.nextstepbackend.services.Mail;
+package org.example.nextstepbackend.services.mail;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -7,6 +7,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import java.security.Key;
 import java.util.Date;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -45,38 +46,32 @@ public class JwtUtil {
   }
 
   public String extractUserName(String token) {
-    Claims claims = parseClaims(token);
-    if (claims == null) {
-      return null;
-    }
-    return claims.getSubject();
+    return parseClaims(token).map(Claims::getSubject).orElse(null);
   }
 
   public boolean isAccessTokenValid(String token, UserDetails userDetails) {
-    Claims claims = parseClaims(token);
-
-    if (claims == null) return false;
-
-    return claims.getSubject().equals(userDetails.getUsername())
-        && !claims.getExpiration().before(new Date());
+    return parseClaims(token)
+        .map(
+            c ->
+                c.getSubject().equals(userDetails.getUsername())
+                    && c.getExpiration().after(new Date()))
+        .orElse(false);
   }
 
   public boolean isRefreshTokenValid(String token) {
-    Claims c = parseClaims(token);
-    if (c == null) return false;
-
-    return !c.getExpiration().before(new Date());
+    return parseClaims(token).map(c -> c.getExpiration().after(new Date())).orElse(false);
   }
 
-  private Claims parseClaims(String token) {
+  private Optional<Claims> parseClaims(String token) {
     try {
-      return Jwts.parserBuilder() // bat dau qua trinh giai ma jwt
-          .setSigningKey(getKey()) // xac thuc chu ky
-          .build() // xay dung doi tuong JwtParser
-          .parseClaimsJws(token) // giai ma token
-          .getBody(); // trich xuat doi tuong claims
+      return Optional.of(
+          Jwts.parserBuilder() // bat dau qua trinh giai ma jwt
+              .setSigningKey(getKey()) // xac thuc chu ky
+              .build() // xay dung doi tuong JwtParser
+              .parseClaimsJws(token) // giai ma token
+              .getBody()); // trich xuat doi tuong claims
     } catch (JwtException e) {
-      return null;
+      return Optional.empty();
     }
   }
 }

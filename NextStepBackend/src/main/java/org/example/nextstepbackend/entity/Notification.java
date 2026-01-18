@@ -1,14 +1,13 @@
 package org.example.nextstepbackend.entity;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
@@ -17,16 +16,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
+import org.example.nextstepbackend.entity.embedded.CreateAudit;
 
 @Entity
-@Table(
-    name = "notifications",
-    indexes = {
-      @Index(name = "idx_user_id", columnList = "user_id"),
-      @Index(name = "idx_is_read", columnList = "user_id, is_read"),
-      @Index(name = "idx_created_at", columnList = "created_at")
-    })
+@Table(name = "notifications")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -49,7 +42,8 @@ public class Notification {
   @Column(nullable = false, length = 255)
   private String title;
 
-  @Lob private String message;
+  @Column(name = "message", columnDefinition = "TEXT")
+  private String message;
 
   @Column(name = "entity_type", length = 50)
   private String entityType; // card, board, comment
@@ -67,7 +61,5 @@ public class Notification {
   @Column(name = "read_at")
   private LocalDateTime readAt;
 
-  @CreationTimestamp
-  @Column(name = "created_at", updatable = false)
-  private LocalDateTime createdAt;
+  @Embedded private CreateAudit audit;
 }

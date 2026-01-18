@@ -2,18 +2,17 @@ package org.example.nextstepbackend.entity;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.AllArgsConstructor;
@@ -21,15 +20,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
+import org.example.nextstepbackend.entity.embedded.CreateAudit;
 
 @Entity
-@Table(
-    name = "checklists",
-    indexes = {
-      @Index(name = "idx_card_id", columnList = "card_id"),
-      @Index(name = "idx_position", columnList = "card_id, position")
-    })
+@Table(name = "checklists")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -51,9 +45,7 @@ public class Checklist {
   @Column(nullable = false, precision = 10, scale = 2)
   private BigDecimal position;
 
-  @CreationTimestamp
-  @Column(name = "created_at", updatable = false)
-  private LocalDateTime createdAt;
+  @Embedded private CreateAudit audit;
 
   @OneToMany(
       mappedBy = "checklist",

@@ -6,7 +6,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -26,10 +25,6 @@ import org.hibernate.annotations.CreationTimestamp;
       @UniqueConstraint(
           name = "unique_card_member",
           columnNames = {"card_id", "user_id"})
-    },
-    indexes = {
-      @Index(name = "idx_card_id", columnList = "card_id"),
-      @Index(name = "idx_user_id", columnList = "user_id")
     })
 @Getter
 @Setter

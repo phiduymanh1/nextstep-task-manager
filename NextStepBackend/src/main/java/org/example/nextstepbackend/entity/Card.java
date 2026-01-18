@@ -2,12 +2,12 @@ package org.example.nextstepbackend.entity;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
@@ -21,19 +21,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import org.example.nextstepbackend.entity.embedded.FullAudit;
 
 @Entity
-@Table(
-    name = "cards",
-    indexes = {
-      @Index(name = "idx_list_id", columnList = "list_id"),
-      @Index(name = "idx_position", columnList = "list_id, position"),
-      @Index(name = "idx_due_date", columnList = "due_date"),
-      @Index(name = "idx_archived", columnList = "is_archived"),
-      @Index(name = "idx_created_by", columnList = "created_by")
-    })
+@Table(name = "cards")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -86,13 +77,7 @@ public class Card {
   @JoinColumn(name = "created_by", nullable = false)
   private User createdBy;
 
-  @CreationTimestamp
-  @Column(name = "created_at", updatable = false)
-  private LocalDateTime createdAt;
-
-  @UpdateTimestamp
-  @Column(name = "updated_at")
-  private LocalDateTime updatedAt;
+  @Embedded private FullAudit audit;
 
   // relations
   @OneToMany(

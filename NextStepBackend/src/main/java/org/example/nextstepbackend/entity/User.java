@@ -2,6 +2,7 @@ package org.example.nextstepbackend.entity;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -9,11 +10,9 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Index;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.AllArgsConstructor;
@@ -21,17 +20,11 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.example.nextstepbackend.entity.embedded.FullAudit;
 import org.example.nextstepbackend.enums.UserRole;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 @Entity
-@Table(
-    name = "users",
-    indexes = {
-      @Index(name = "idx_email", columnList = "email"),
-      @Index(name = "idx_username", columnList = "username")
-    })
+@Table(name = "users")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -58,6 +51,9 @@ public class User {
   @Column(name = "avatar_url", length = 500)
   private String avatarUrl;
 
+  @Column(name = "avatar_public_id", length = 255)
+  private String avatarPublicId;
+
   @Column(unique = true, length = 15)
   private String phone;
 
@@ -70,13 +66,7 @@ public class User {
   @Builder.Default
   private Boolean isActive = true;
 
-  @CreationTimestamp
-  @Column(name = "created_at", updatable = false)
-  private LocalDateTime createdAt;
-
-  @UpdateTimestamp
-  @Column(name = "updated_at")
-  private LocalDateTime updatedAt;
+  @Embedded private FullAudit audit;
 
   // Relationships
   @OneToOne(
