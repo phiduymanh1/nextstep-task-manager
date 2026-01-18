@@ -34,7 +34,7 @@ public class AuthController extends BaseController {
 
   @PostMapping("/login")
   public ResponseEntity<ApiResponse<AuthResponse>> login(
-      @RequestBody LoginRequest req, HttpServletResponse response) {
+      @Valid @RequestBody LoginRequest req, HttpServletResponse response) {
     Map<String, String> tokens = authService.login(req.email(), req.password());
 
     // Set refresh token cookie
@@ -48,7 +48,7 @@ public class AuthController extends BaseController {
 
     AuthResponse authResponse = new AuthResponse(tokens.get("accessToken"));
 
-    return ResponseEntity.ok(success(MessageConst.AUTH_REFRESH_SUCCESS, authResponse));
+    return ResponseEntity.ok(success(MessageConst.AUTH_LOGIN_SUCCESS, authResponse));
   }
 
   @PostMapping("/refresh")
