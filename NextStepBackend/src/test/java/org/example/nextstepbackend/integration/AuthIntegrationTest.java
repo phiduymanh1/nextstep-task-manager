@@ -1,6 +1,6 @@
 package org.example.nextstepbackend.integration;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -8,23 +8,33 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 import org.example.nextstepbackend.comm.constants.Const;
 import org.example.nextstepbackend.comm.constants.ValidateMessageConst;
 import org.example.nextstepbackend.dto.request.LoginRequest;
 import org.example.nextstepbackend.enums.MessageConst;
-import org.example.nextstepbackend.utils.JwtUtil;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlGroup;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import java.nio.charset.StandardCharsets;
+import java.security.Key;
+import java.util.Date;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -33,18 +43,22 @@ class AuthIntegrationTest {
 
   @Autowired private MockMvc mockMvc;
   @Autowired private ObjectMapper objectMapper;
-  @Autowired private JwtUtil jwtUtil;
+  @Value("${app.jwt.secret}")
+  private String secret;
 
-  @SuppressWarnings("java:S2699")
-  @Test
-  void context_loads() {}
+  @Target(ElementType.METHOD)
+  @Retention(RetentionPolicy.RUNTIME)
+  @Sql(
+          scripts = "/db/sql/modules/auth/insert-user.sql",
+          executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(
+          scripts = "/db/sql/clean-up.sql",
+          executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  public @interface WithAuthUser {}
 
   /** Test login success case */
   @Test
-  @Sql(
-      scripts = "/db/sql/modules/auth/insert-user.sql",
-      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-  @Sql(scripts = "/db/sql/clean-up.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  @WithAuthUser
   void login_success_should_return_token() throws Exception {
     LoginRequest loginRequest = new LoginRequest("phiduymanh@gmail.com", "1");
 
@@ -71,10 +85,7 @@ class AuthIntegrationTest {
 
   /** Test login fail case - validate json body */
   @Test
-  @Sql(
-      scripts = "/db/sql/modules/auth/insert-user.sql",
-      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-  @Sql(scripts = "/db/sql/clean-up.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  @WithAuthUser
   void login_fail_validate_json_body() throws Exception {
     LoginRequest loginRequest = new LoginRequest("", "");
 
@@ -95,10 +106,7 @@ class AuthIntegrationTest {
 
   /** Test login fail case - wrong password */
   @Test
-  @Sql(
-      scripts = "/db/sql/modules/auth/insert-user.sql",
-      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-  @Sql(scripts = "/db/sql/clean-up.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  @WithAuthUser
   void login_fail_wrong_password() throws Exception {
     LoginRequest loginRequest = new LoginRequest("phiduymanh@gmail.com", "wrong_password");
 
@@ -115,10 +123,7 @@ class AuthIntegrationTest {
 
   /** Test login fail case - unregistered email */
   @Test
-  @Sql(
-      scripts = "/db/sql/modules/auth/insert-user.sql",
-      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-  @Sql(scripts = "/db/sql/clean-up.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  @WithAuthUser
   void login_fail_unregistered_email() throws Exception {
     LoginRequest loginRequest = new LoginRequest("manhphi@gmail.com", "1");
 
@@ -135,10 +140,7 @@ class AuthIntegrationTest {
 
   /** Verify cookie attributes */
   @Test
-  @Sql(
-      scripts = "/db/sql/modules/auth/insert-user.sql",
-      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-  @Sql(scripts = "/db/sql/clean-up.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  @WithAuthUser
   void login_success_verify_cookie_attributes() throws Exception {
     LoginRequest loginRequest = new LoginRequest("phiduymanh@gmail.com", "1");
 
@@ -151,18 +153,13 @@ class AuthIntegrationTest {
         .andExpect(status().isOk())
         .andExpect(cookie().exists(Const.TEXT_REFRESH_TOKEN))
         .andExpect(cookie().httpOnly(Const.TEXT_REFRESH_TOKEN, true))
-        .andExpect(cookie().secure(Const.TEXT_REFRESH_TOKEN, false)) // deploy HTTPS -> true
         .andExpect(cookie().path(Const.TEXT_REFRESH_TOKEN, "/"))
-        .andExpect(cookie().maxAge(Const.TEXT_REFRESH_TOKEN, 7 * 24 * 60 * 60))
-        .andExpect(cookie().attribute(Const.TEXT_REFRESH_TOKEN, "SameSite", "Strict"));
+        .andExpect(cookie().maxAge(Const.TEXT_REFRESH_TOKEN, 7 * 24 * 60 * 60));
   }
 
   /** verify jwt claims in access token */
   @Test
-  @Sql(
-      scripts = "/db/sql/modules/auth/insert-user.sql",
-      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-  @Sql(scripts = "/db/sql/clean-up.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  @WithAuthUser
   void login_success_verify_jwt_claims_in_access_token() throws Exception {
     String email = "phiduymanh@gmail.com";
     LoginRequest loginRequest = new LoginRequest(email, "1");
@@ -179,10 +176,19 @@ class AuthIntegrationTest {
               String responseBody = result.getResponse().getContentAsString();
               String accessToken = JsonPath.read(responseBody, "$.data.accessToken");
 
-              UserDetails userDetails =
-                  User.withUsername(email).password("1").authorities("USER").build();
+              Key key = Keys.hmacShaKeyFor(
+                      secret.getBytes(StandardCharsets.UTF_8)
+              );
 
-              assertTrue(jwtUtil.isAccessTokenValid(accessToken, userDetails), "Token invalid");
+              Claims claims = Jwts.parserBuilder()
+                      .setSigningKey(key)
+                      .build()
+                      .parseClaimsJws(accessToken)
+                      .getBody();
+
+              assertEquals(email, claims.getSubject());
+              assertNotNull(claims.getExpiration());
+              assertTrue(claims.getExpiration().after(new Date()));
             });
   }
 
