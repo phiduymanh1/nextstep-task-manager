@@ -15,6 +15,13 @@ public class CloudinaryService {
 
   private final Cloudinary cloudinary;
 
+  /**
+   * Upload avatar to Cloudinary
+   *
+   * @param file MultipartFile
+   * @param publicId public id
+   * @return UploadResult
+   */
   public UploadResult uploadAvatar(MultipartFile file, String publicId) {
     try {
       Map<String, Object> options =

@@ -12,6 +12,7 @@ public class CloudinaryConfig {
 
   private final CloudinaryProperties props;
 
+  /** Cloudinary bean */
   @Bean
   public Cloudinary cloudinary() {
     return new Cloudinary(

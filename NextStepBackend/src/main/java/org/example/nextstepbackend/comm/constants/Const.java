@@ -5,10 +5,11 @@ public class Const {
     throw new IllegalStateException("Utility class");
   }
 
-  // Date time format
+  /** Date time format */
   public static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
-  // Text constants
+  /** Text constants */
   public static final String TEXT_REFRESH_TOKEN = "refreshToken";
+
   public static final String TEXT_ACCESS_TOKEN = "accessToken";
 }

@@ -16,7 +16,7 @@ public class ApiResponseUtil {
 
   private final MessageSource messageSource;
 
-  // Success with code + message
+  // Success with data and optional message
   public <T> ApiResponse<T> success(MessageConst msConst, T data) {
 
     boolean hasMessage = msConst != null;
@@ -42,6 +42,7 @@ public class ApiResponseUtil {
         null);
   }
 
+  // Error 1 message with custom code
   public ApiResponse<Void> error(String msCode, String msg) {
     return new ApiResponse<>(
         new ResponseMetaData(false, msCode, msg, LocalDateTime.now(), List.of(msg)), null);

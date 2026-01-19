@@ -36,6 +36,7 @@ public class UserController extends BaseController {
     this.userService = userService;
   }
 
+  /** Get current user info */
   @GetMapping("/me")
   public ResponseEntity<ApiResponse<UserResponse>> getUserMe(
       @AuthenticationPrincipal UserDetails userDetails) {
@@ -49,6 +50,7 @@ public class UserController extends BaseController {
     return ResponseEntity.ok(success(null, userResponse));
   }
 
+  /** Get user info by id - Admin only */
   @PreAuthorize("hasRole('ADMIN')")
   @GetMapping("/{id}")
   public ResponseEntity<ApiResponse<UserResponse>> getUserById(@PathVariable("id") Integer id) {
@@ -59,6 +61,7 @@ public class UserController extends BaseController {
     return ResponseEntity.ok(success(null, userResponse));
   }
 
+  /** Update current user info */
   @PatchMapping("/me")
   public ResponseEntity<ApiResponse<Void>> patchUserMe(
       @Valid @RequestBody UserUpdateRequest request) {
@@ -66,6 +69,7 @@ public class UserController extends BaseController {
     return ResponseEntity.ok(success(MessageConst.USER_UPDATE_SUCCESS, null));
   }
 
+  /** Update current user avatar */
   @PatchMapping(value = "/me/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<ApiResponse<String>> updateAvatar(@RequestPart("file") MultipartFile file) {
 

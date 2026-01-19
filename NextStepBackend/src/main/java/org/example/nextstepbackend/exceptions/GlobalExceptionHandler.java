@@ -25,7 +25,7 @@ public class GlobalExceptionHandler {
 
   private final ApiResponseUtil responseUtil;
 
-  // wrong email / password
+  /** wrong email / password */
   @ExceptionHandler(BadCredentialsException.class)
   public ResponseEntity<ApiResponse<Void>> handleBadCredentials(BadCredentialsException ex) {
     log.warn("Bad credentials: {}", ex.getMessage());
@@ -33,6 +33,7 @@ public class GlobalExceptionHandler {
         .body(responseUtil.error(MessageConst.AUTH_INVALID_CREDENTIALS));
   }
 
+  /** username not found */
   @ExceptionHandler(UsernameNotFoundException.class)
   public ResponseEntity<ApiResponse<Void>> handleNotFound(UsernameNotFoundException ex) {
     log.warn("Username not found");
@@ -40,6 +41,7 @@ public class GlobalExceptionHandler {
         .body(responseUtil.error(MessageConst.AUTH_INVALID_CREDENTIALS));
   }
 
+  /** access denied */
   @ExceptionHandler(AccessDeniedException.class)
   public ResponseEntity<ApiResponse<Void>> handleAccessDenied(AccessDeniedException ex) {
     log.warn("Access denied");
@@ -47,7 +49,7 @@ public class GlobalExceptionHandler {
         .body(responseUtil.error(MessageConst.USER_ACCESS_DENIED));
   }
 
-  // ------------------- Validation errors -------------------
+  /** Handle validation errors */
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public ResponseEntity<ApiResponse<Void>> handleValidation(MethodArgumentNotValidException ex) {
     List<String> errors =
@@ -59,7 +61,7 @@ public class GlobalExceptionHandler {
         .body(responseUtil.error("VALIDATION_ERROR", "Validation failed", errors));
   }
 
-  // ------------------- Custom AppException -------------------
+  /** Handle custom application exceptions */
   @ExceptionHandler(AppException.class)
   public ResponseEntity<ApiResponse<Void>> handleAppException(AppException ex) {
     log.warn("AppException [{}]: {}", ex.getErrorCode(), ex.getMessage());
@@ -67,7 +69,7 @@ public class GlobalExceptionHandler {
         .body(responseUtil.error(ex.getErrorCode(), ex.getMessage()));
   }
 
-  // ------------------- General / Unknown errors -------------------
+  /** Handle all other exceptions */
   @ExceptionHandler(Exception.class)
   public ResponseEntity<ApiResponse<Void>> handleGeneral(Exception ex) {
     log.error("Unexpected error", ex);
@@ -75,20 +77,25 @@ public class GlobalExceptionHandler {
         .body(responseUtil.error(MessageConst.SYSTEM_INTERNAL_ERROR));
   }
 
+  /** Handle malformed JSON request */
   @ExceptionHandler(HttpMessageNotReadableException.class)
-  public ResponseEntity<ApiResponse<Void>> handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
+  public ResponseEntity<ApiResponse<Void>> handleHttpMessageNotReadable(
+      HttpMessageNotReadableException ex) {
     log.warn("Malformed JSON request: {}", ex.getMessage());
 
     String errorMessage = "Invalid or misformatted JSON data";
 
     return ResponseEntity.badRequest()
-            .body(responseUtil.error("MALFORMED_JSON", errorMessage, List.of(ex.getMostSpecificCause().getMessage())));
+        .body(
+            responseUtil.error(
+                "MALFORMED_JSON", errorMessage, List.of(ex.getMostSpecificCause().getMessage())));
   }
 
+  /** Handle disabled account */
   @ExceptionHandler(DisabledException.class)
   public ResponseEntity<ApiResponse<Void>> handleDisableAccount(DisabledException ex) {
     log.warn("Account disabled: {}", ex.getMessage());
     return ResponseEntity.status(HttpStatus.FORBIDDEN)
-            .body(responseUtil.error(MessageConst.AUTH_DISABLED_ACCOUNT));
+        .body(responseUtil.error(MessageConst.AUTH_DISABLED_ACCOUNT));
   }
 }

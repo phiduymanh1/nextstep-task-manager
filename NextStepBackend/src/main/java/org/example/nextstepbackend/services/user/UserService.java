@@ -24,6 +24,12 @@ public class UserService {
   private final CloudinaryService cloudinaryService;
   private final AvatarValidator avatarValidator;
 
+  /**
+   * Get current user info
+   *
+   * @param email user email
+   * @return UserResponse
+   */
   public UserResponse getUserMe(String email) {
     User user =
         userRepository
@@ -33,6 +39,12 @@ public class UserService {
     return userMapper.toUserResponse(user);
   }
 
+  /**
+   * Get user info by id
+   *
+   * @param id user id
+   * @return UserResponse
+   */
   public UserResponse getUserById(Integer id) {
     User user =
         userRepository
@@ -42,6 +54,11 @@ public class UserService {
     return userMapper.toUserResponse(user);
   }
 
+  /**
+   * Update current user info
+   *
+   * @param request UserUpdateRequest
+   */
   @Transactional
   public void updateUserMe(UserUpdateRequest request) {
     User user = authService.getCurrentUser();
@@ -49,6 +66,11 @@ public class UserService {
     userMapper.toUserResponse(user);
   }
 
+  /**
+   * Update current user avatar
+   *
+   * @param file MultipartFile
+   */
   @Transactional
   public void updateAvatar(MultipartFile file) {
     Integer userId = authService.getCurrentUserId();

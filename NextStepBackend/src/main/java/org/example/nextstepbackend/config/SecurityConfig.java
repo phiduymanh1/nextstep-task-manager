@@ -21,6 +21,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
   private final JwtFilter jwtFilter;
 
+  /** Security filter chain configuration */
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http.csrf(AbstractHttpConfigurer::disable)
@@ -37,12 +38,14 @@ public class SecurityConfig {
     return http.build();
   }
 
+  /** Authentication manager bean */
   @Bean
   public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
       throws Exception {
     return config.getAuthenticationManager();
   }
 
+  /** BCrypt password encoder bean */
   @Bean
   public BCryptPasswordEncoder getBCryptPasswordEncoder() {
     return new BCryptPasswordEncoder();

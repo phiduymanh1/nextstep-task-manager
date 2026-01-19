@@ -47,7 +47,7 @@ public class AuthService {
   @Value("${app.password-reset.token-ttl-minutes:15}")
   private long tokenTtlMinutes;
 
-  // login
+  /** login */
   public Map<String, String> login(String userEmail, String password) {
     Authentication auth =
         authenticationManager.authenticate(
@@ -60,7 +60,7 @@ public class AuthService {
     return Map.of(Const.TEXT_ACCESS_TOKEN, accessToken, Const.TEXT_REFRESH_TOKEN, refreshToken);
   }
 
-  // refresh token
+  /** refresh token */
   public String refreshToken(String refreshToken) {
     if (refreshToken == null || !jwtUtil.isRefreshTokenValid(refreshToken)) {
       throw new AuthException("Invalid refresh token");
@@ -74,7 +74,7 @@ public class AuthService {
     return jwtUtil.generateAccessToken(username);
   }
 
-  // register
+  /** register */
   public void register(RegisterRequest request) {
     if (userRepository.existsByEmail(request.email())) {
       throw new IllegalArgumentException("Email already in use");
@@ -87,7 +87,7 @@ public class AuthService {
     userRepository.save(user);
   }
 
-  // forgot password
+  /** forgot password */
   public void forgotPassword(String email) {
     userRepository
         .findByEmail(email)
@@ -113,7 +113,7 @@ public class AuthService {
             });
   }
 
-  // reset password
+  /** reset password */
   @Transactional
   public void resetPassword(String rawToken, String newPassword) {
 
@@ -138,6 +138,7 @@ public class AuthService {
     passwordResetTokenRepository.save(resetToken);
   }
 
+  /** get current logged-in user */
   public User getCurrentUser() {
     Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -150,6 +151,7 @@ public class AuthService {
         .orElseThrow(() -> new EntityNotFoundException("User not found"));
   }
 
+  /** get current logged-in user id */
   public Integer getCurrentUserId() {
     return getCurrentUser().getId();
   }

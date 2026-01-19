@@ -15,15 +15,39 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
     nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface UserMapper {
 
+  /**
+   * Convert User entity to LoginRequest DTO
+   *
+   * @param user the User entity
+   * @return the LoginRequest DTO
+   */
   @Mapping(source = "passwordHash", target = "password")
   LoginRequest toLoginRequest(User user);
 
+  /**
+   * Convert RegisterRequest DTO to User entity
+   *
+   * @param request the RegisterRequest DTO
+   * @return the User entity
+   */
   @Mapping(target = "passwordHash", ignore = true)
   User toUser(RegisterRequest request);
 
+  /**
+   * Convert User entity to UserResponse DTO
+   *
+   * @param user the User entity
+   * @return the UserResponse DTO
+   */
   @Mapping(source = "audit", target = "audit")
   UserResponse toUserResponse(User user);
 
+  /**
+   * Update User entity from UserUpdateRequest DTO
+   *
+   * @param request the UserUpdateRequest DTO
+   * @param user the User entity to be updated
+   */
   @Mapping(target = "username", ignore = true)
   @Mapping(target = "email", ignore = true)
   @Mapping(target = "role", ignore = true)
