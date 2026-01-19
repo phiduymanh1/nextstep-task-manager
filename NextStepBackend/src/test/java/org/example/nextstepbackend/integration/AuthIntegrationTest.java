@@ -23,6 +23,7 @@ import java.security.Key;
 import java.util.Date;
 import org.example.nextstepbackend.comm.constants.Const;
 import org.example.nextstepbackend.comm.constants.ValidateMessageConst;
+import org.example.nextstepbackend.dto.request.ForgotPasswordRequest;
 import org.example.nextstepbackend.dto.request.LoginRequest;
 import org.example.nextstepbackend.enums.MessageConst;
 import org.hamcrest.Matchers;
@@ -51,6 +52,8 @@ class AuthIntegrationTest {
 
   private static final String DOMAIN_API_FINAL = "/auth/login";
   private static final String DOMAIN_API_REFRESH = "/auth/refresh";
+  private static final String DOMAIN_API_FORGOT_PASSWORD = "/auth/forgot-password";
+  private static final String ACCOUNT_SUCCESS = "phiduymanh@gmail.com";
 
   @Target(ElementType.METHOD)
   @Retention(RetentionPolicy.RUNTIME)
@@ -65,7 +68,7 @@ class AuthIntegrationTest {
   @Test
   @WithAuthUser
   void login_success_should_return_token() throws Exception {
-    LoginRequest loginRequest = new LoginRequest("phiduymanh@gmail.com", "1");
+    LoginRequest loginRequest = new LoginRequest(ACCOUNT_SUCCESS, "1");
 
     mockMvc
         .perform(
@@ -107,7 +110,7 @@ class AuthIntegrationTest {
   @Test
   @WithAuthUser
   void login_fail_wrong_password() throws Exception {
-    LoginRequest loginRequest = new LoginRequest("phiduymanh@gmail.com", "wrong_password");
+    LoginRequest loginRequest = new LoginRequest(ACCOUNT_SUCCESS, "wrong_password");
 
     mockMvc
         .perform(
@@ -141,7 +144,7 @@ class AuthIntegrationTest {
   @Test
   @WithAuthUser
   void login_success_verify_cookie_attributes() throws Exception {
-    LoginRequest loginRequest = new LoginRequest("phiduymanh@gmail.com", "1");
+    LoginRequest loginRequest = new LoginRequest(ACCOUNT_SUCCESS, "1");
 
     mockMvc
         .perform(
@@ -160,7 +163,7 @@ class AuthIntegrationTest {
   @Test
   @WithAuthUser
   void login_success_verify_jwt_claims_in_access_token() throws Exception {
-    String email = "phiduymanh@gmail.com";
+    String email = ACCOUNT_SUCCESS;
     LoginRequest loginRequest = new LoginRequest(email, "1");
 
     mockMvc
@@ -197,7 +200,7 @@ class AuthIntegrationTest {
       executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/db/sql/clean-up.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   void login_fail_inactive_user() throws Exception {
-    LoginRequest loginRequest = new LoginRequest("phiduymanh@gmail.com", "1");
+    LoginRequest loginRequest = new LoginRequest(ACCOUNT_SUCCESS, "1");
 
     mockMvc
         .perform(
@@ -217,7 +220,7 @@ class AuthIntegrationTest {
   @Test
   @WithAuthUser
   void refresh_success() throws Exception {
-    LoginRequest loginRequest = new LoginRequest("phiduymanh@gmail.com", "1");
+    LoginRequest loginRequest = new LoginRequest(ACCOUNT_SUCCESS, "1");
 
     MvcResult apiLoginResult =
         mockMvc
@@ -279,4 +282,97 @@ class AuthIntegrationTest {
 
   // Refresh Api EN
 
+  // Forgot Password Api ST
+  /** Test forgot password success case */
+  @Test
+  @WithAuthUser
+  void forgot_password_success() throws Exception {
+    ForgotPasswordRequest forgotPasswordRequest = new ForgotPasswordRequest(ACCOUNT_SUCCESS);
+
+    mockMvc
+        .perform(
+            post(DOMAIN_API_FORGOT_PASSWORD)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(forgotPasswordRequest)))
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.metaData.success").value(true))
+        .andExpect(
+            jsonPath("$.metaData.code").value(MessageConst.AUTH_FORGOT_PASSWORD_SENT.getCode()));
+  }
+
+  /** Test forgot password fail case - empty email */
+  @Test
+  void forgot_password_fail_empty_email() throws Exception {
+    ForgotPasswordRequest forgotPasswordRequest = new ForgotPasswordRequest("");
+
+    mockMvc
+        .perform(
+            post(DOMAIN_API_FORGOT_PASSWORD)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(forgotPasswordRequest)))
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.metaData.success").value(false))
+        .andExpect(jsonPath("$.metaData.code").value("VALIDATION_ERROR"))
+        .andExpect(
+            jsonPath("$.metaData.errors", Matchers.hasItem(ValidateMessageConst.EMAIL_REQUIRED)));
+  }
+
+  /** Test forgot password fail case - invalid email format */
+  @Test
+  void forgot_password_fail_invalid_email_format() throws Exception {
+    ForgotPasswordRequest forgotPasswordRequest = new ForgotPasswordRequest("abc@invalid");
+
+    mockMvc
+        .perform(
+            post(DOMAIN_API_FORGOT_PASSWORD)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(forgotPasswordRequest)))
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.metaData.success").value(false))
+        .andExpect(jsonPath("$.metaData.code").value("VALIDATION_ERROR"))
+        .andExpect(
+            jsonPath("$.metaData.errors", Matchers.hasItem(ValidateMessageConst.EMAIL_VALID)));
+  }
+
+  /** Test forgot password fail case - email not found */
+  @Test
+  void forgot_password_fail_email_not_found() throws Exception {
+    ForgotPasswordRequest forgotPasswordRequest =
+        new ForgotPasswordRequest("phiduymanh2@gmail.com");
+
+    mockMvc
+        .perform(
+            post(DOMAIN_API_FORGOT_PASSWORD)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(forgotPasswordRequest)))
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.metaData.success").value(true))
+        .andExpect(
+            jsonPath("$.metaData.code").value(MessageConst.AUTH_FORGOT_PASSWORD_SENT.getCode()));
+  }
+
+  /** Test forgot password fail case - account inactive */
+  @Test
+  @Sql(
+      scripts = "/db/sql/modules/auth/insert-user-inactive.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/db/sql/clean-up.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  void forgot_password_fail_account_inactive() throws Exception {
+    ForgotPasswordRequest forgotPasswordRequest = new ForgotPasswordRequest(ACCOUNT_SUCCESS);
+    mockMvc
+        .perform(
+            post(DOMAIN_API_FORGOT_PASSWORD)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(forgotPasswordRequest)))
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.metaData.success").value(true))
+        .andExpect(
+            jsonPath("$.metaData.code").value(MessageConst.AUTH_FORGOT_PASSWORD_SENT.getCode()));
+  }
+  // Forgot Password Api EN
 }

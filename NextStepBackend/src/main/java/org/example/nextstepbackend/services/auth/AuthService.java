@@ -91,6 +91,7 @@ public class AuthService {
   public void forgotPassword(String email) {
     userRepository
         .findByEmail(email)
+        .filter(user -> Boolean.TRUE.equals(user.getIsActive()))
         .ifPresent(
             user -> {
               String rawToken = UUID.randomUUID().toString();

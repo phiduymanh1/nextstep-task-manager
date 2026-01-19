@@ -8,6 +8,9 @@ public class Const {
   /** Date time format */
   public static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
+  /** Regex patterns */
+  public static final String REGEX_EMAIL = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
+
   /** Text constants */
   public static final String TEXT_REFRESH_TOKEN = "refreshToken";
 

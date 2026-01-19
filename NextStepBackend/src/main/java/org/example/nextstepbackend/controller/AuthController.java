@@ -75,7 +75,7 @@ public class AuthController extends BaseController {
   /** Forgot password api */
   @PostMapping("/forgot-password")
   public ResponseEntity<ApiResponse<Void>> forgotPassword(
-      @RequestBody ForgotPasswordRequest request) {
+      @Valid @RequestBody ForgotPasswordRequest request) {
     authService.forgotPassword(request.email());
 
     return ResponseEntity.ok(success(MessageConst.AUTH_FORGOT_PASSWORD_SENT, null));
