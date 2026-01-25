@@ -10,6 +10,12 @@ public class AvatarValidator {
   private static final long MAX_SIZE = 2L * 1024 * 1024; // 2MB
   private static final List<String> ALLOWED_TYPES = List.of("image/jpeg", "image/png", "image/jpg");
 
+  /**
+   * Validate avatar file
+   *
+   * @param file MultipartFile
+   * @throws IllegalArgumentException if validation fails
+   */
   public void validate(MultipartFile file) {
     if (file == null || file.isEmpty()) {
       throw new IllegalArgumentException("Avatar file is required");

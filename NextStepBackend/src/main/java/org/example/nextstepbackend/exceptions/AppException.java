@@ -3,6 +3,7 @@ package org.example.nextstepbackend.exceptions;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
+/** Custom application exception */
 @Getter
 public class AppException extends RuntimeException {
 

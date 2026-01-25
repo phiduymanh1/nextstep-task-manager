@@ -20,6 +20,8 @@ public enum MessageConst {
   // Auth - error messages
   AUTH_INVALID_CREDENTIALS("E-AUTH-001", HttpStatus.UNAUTHORIZED),
   AUTH_REFRESH_TOKEN_INVALID("E-AUTH-002", HttpStatus.UNAUTHORIZED),
+  AUTH_DISABLED_ACCOUNT("E-AUTH-003", HttpStatus.FORBIDDEN),
+  AUTH_ERROR("E-AUTH-004", HttpStatus.UNAUTHORIZED),
 
   // User - error messages
   USER_NOT_FOUND("E-USER-001", HttpStatus.NOT_FOUND),

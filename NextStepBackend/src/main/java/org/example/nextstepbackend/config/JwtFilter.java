@@ -22,6 +22,10 @@ public class JwtFilter extends OncePerRequestFilter {
   private final JwtUtil jwtUtil;
   private final UserDetailsService userDetailsService;
 
+  /**
+   * Filter to validate JWT token from Authorization header and set authentication in security
+   * context
+   */
   @Override
   protected void doFilterInternal(
       @NonNull HttpServletRequest request,

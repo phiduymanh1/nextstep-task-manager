@@ -7,7 +7,6 @@ import org.example.nextstepbackend.dto.response.common.ApiResponse;
 import org.example.nextstepbackend.dto.response.user.UserResponse;
 import org.example.nextstepbackend.enums.MessageConst;
 import org.example.nextstepbackend.exceptions.InvalidInputException;
-import org.example.nextstepbackend.exceptions.ResourceNotFoundException;
 import org.example.nextstepbackend.services.user.UserService;
 import org.example.nextstepbackend.utils.ApiResponseUtil;
 import org.springframework.http.MediaType;
@@ -36,6 +35,7 @@ public class UserController extends BaseController {
     this.userService = userService;
   }
 
+  /** Get current user info */
   @GetMapping("/me")
   public ResponseEntity<ApiResponse<UserResponse>> getUserMe(
       @AuthenticationPrincipal UserDetails userDetails) {
@@ -43,22 +43,18 @@ public class UserController extends BaseController {
       throw new InvalidInputException("Email parameter is required");
     }
     UserResponse userResponse = userService.getUserMe(userDetails.getUsername());
-    if (userResponse == null) {
-      throw new ResourceNotFoundException("User not found");
-    }
     return ResponseEntity.ok(success(null, userResponse));
   }
 
+  /** Get user info by id - Admin only */
   @PreAuthorize("hasRole('ADMIN')")
   @GetMapping("/{id}")
   public ResponseEntity<ApiResponse<UserResponse>> getUserById(@PathVariable("id") Integer id) {
     UserResponse userResponse = userService.getUserById(id);
-    if (userResponse == null) {
-      throw new ResourceNotFoundException("User not found with id: " + id);
-    }
     return ResponseEntity.ok(success(null, userResponse));
   }
 
+  /** Update current user info */
   @PatchMapping("/me")
   public ResponseEntity<ApiResponse<Void>> patchUserMe(
       @Valid @RequestBody UserUpdateRequest request) {
@@ -66,6 +62,7 @@ public class UserController extends BaseController {
     return ResponseEntity.ok(success(MessageConst.USER_UPDATE_SUCCESS, null));
   }
 
+  /** Update current user avatar */
   @PatchMapping(value = "/me/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<ApiResponse<String>> updateAvatar(@RequestPart("file") MultipartFile file) {
 

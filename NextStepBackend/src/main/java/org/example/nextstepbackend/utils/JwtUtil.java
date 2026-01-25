@@ -24,18 +24,22 @@ public class JwtUtil {
   @Value("${app.jwt.refresh-token-expiration}")
   private Long expirationRefreshToken;
 
+  /** Get signing key from secret */
   private Key getKey() {
     return Keys.hmacShaKeyFor(secret.getBytes());
   }
 
+  /** Generate access token */
   public String generateAccessToken(String username) {
     return buildToken(username, expirationAccessToken);
   }
 
+  /** Generate refresh token */
   public String generateRefreshToken(String username) {
     return buildToken(username, expirationRefreshToken);
   }
 
+  /** Build JWT token */
   public String buildToken(String username, Long exp) {
     return Jwts.builder()
         .setSubject(username)
@@ -45,10 +49,12 @@ public class JwtUtil {
         .compact();
   }
 
+  /** Extract username from token */
   public String extractUserName(String token) {
     return parseClaims(token).map(Claims::getSubject).orElse(null);
   }
 
+  /** Validate access token */
   public boolean isAccessTokenValid(String token, UserDetails userDetails) {
     return parseClaims(token)
         .map(
@@ -58,10 +64,12 @@ public class JwtUtil {
         .orElse(false);
   }
 
+  /** Validate refresh token */
   public boolean isRefreshTokenValid(String token) {
     return parseClaims(token).map(c -> c.getExpiration().after(new Date())).orElse(false);
   }
 
+  /** Parse claims from token */
   private Optional<Claims> parseClaims(String token) {
     try {
       return Optional.of(

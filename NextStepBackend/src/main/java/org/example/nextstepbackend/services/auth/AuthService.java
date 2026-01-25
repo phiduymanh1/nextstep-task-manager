@@ -1,16 +1,17 @@
 package org.example.nextstepbackend.services.auth;
 
-import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.example.nextstepbackend.comm.constants.Const;
 import org.example.nextstepbackend.dto.request.RegisterRequest;
 import org.example.nextstepbackend.entity.PasswordResetToken;
 import org.example.nextstepbackend.entity.User;
 import org.example.nextstepbackend.exceptions.AppException;
 import org.example.nextstepbackend.exceptions.AuthException;
+import org.example.nextstepbackend.exceptions.DuplicateResourceException;
 import org.example.nextstepbackend.exceptions.InvalidTokenException;
 import org.example.nextstepbackend.mappers.UserMapper;
 import org.example.nextstepbackend.repository.PasswordResetTokenRepository;
@@ -20,6 +21,7 @@ import org.example.nextstepbackend.services.security.CustomUserDetails;
 import org.example.nextstepbackend.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -46,7 +48,7 @@ public class AuthService {
   @Value("${app.password-reset.token-ttl-minutes:15}")
   private long tokenTtlMinutes;
 
-  // login
+  /** login */
   public Map<String, String> login(String userEmail, String password) {
     Authentication auth =
         authenticationManager.authenticate(
@@ -56,12 +58,10 @@ public class AuthService {
     String refreshToken = jwtUtil.generateRefreshToken(auth.getName());
 
     // Return both tokens, controller will set cookies
-    return Map.of(
-        "accessToken", accessToken,
-        "refreshToken", refreshToken);
+    return Map.of(Const.TEXT_ACCESS_TOKEN, accessToken, Const.TEXT_REFRESH_TOKEN, refreshToken);
   }
 
-  // refresh token
+  /** refresh token */
   public String refreshToken(String refreshToken) {
     if (refreshToken == null || !jwtUtil.isRefreshTokenValid(refreshToken)) {
       throw new AuthException("Invalid refresh token");
@@ -75,10 +75,10 @@ public class AuthService {
     return jwtUtil.generateAccessToken(username);
   }
 
-  // register
+  /** register */
   public void register(RegisterRequest request) {
     if (userRepository.existsByEmail(request.email())) {
-      throw new IllegalArgumentException("Email already in use");
+      throw new DuplicateResourceException("Email already in use");
     }
     User user = userMapper.toUser(request);
 
@@ -88,10 +88,11 @@ public class AuthService {
     userRepository.save(user);
   }
 
-  // forgot password
+  /** forgot password */
   public void forgotPassword(String email) {
     userRepository
         .findByEmail(email)
+        .filter(user -> Boolean.TRUE.equals(user.getIsActive()))
         .ifPresent(
             user -> {
               String rawToken = UUID.randomUUID().toString();
@@ -114,7 +115,7 @@ public class AuthService {
             });
   }
 
-  // reset password
+  /** reset password */
   @Transactional
   public void resetPassword(String rawToken, String newPassword) {
 
@@ -139,6 +140,7 @@ public class AuthService {
     passwordResetTokenRepository.save(resetToken);
   }
 
+  /** get current logged-in user */
   public User getCurrentUser() {
     Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -148,9 +150,10 @@ public class AuthService {
 
     return userRepository
         .findById(userDetails.getId())
-        .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        .orElseThrow(() -> new AuthenticationCredentialsNotFoundException("Unauthorized"));
   }
 
+  /** get current logged-in user id */
   public Integer getCurrentUserId() {
     return getCurrentUser().getId();
   }

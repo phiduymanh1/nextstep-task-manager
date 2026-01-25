@@ -16,6 +16,13 @@ public class CustomerUserDetailService implements UserDetailsService {
 
   private final UserRepository userRepository;
 
+  /**
+   * Load user by email for authentication
+   *
+   * @param email user email
+   * @return UserDetails
+   * @throws UsernameNotFoundException if user not found
+   */
   @Override
   public UserDetails loadUserByUsername(String email) {
     var user =
@@ -26,6 +33,10 @@ public class CustomerUserDetailService implements UserDetailsService {
     GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + user.getRole().name());
 
     return new CustomUserDetails(
-        user.getId(), user.getEmail(), user.getPasswordHash(), List.of(authority));
+        user.getId(),
+        user.getEmail(),
+        user.getPasswordHash(),
+        user.getIsActive(),
+        List.of(authority));
   }
 }

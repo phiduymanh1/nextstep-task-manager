@@ -20,11 +20,15 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
   private final JwtFilter jwtFilter;
+  private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
+  /** Security filter chain configuration */
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http.csrf(AbstractHttpConfigurer::disable)
         .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .exceptionHandling(
+            exception -> exception.authenticationEntryPoint(jwtAuthenticationEntryPoint))
         .authorizeHttpRequests(
             auth ->
                 auth.requestMatchers("/auth/**")
@@ -37,12 +41,14 @@ public class SecurityConfig {
     return http.build();
   }
 
+  /** Authentication manager bean */
   @Bean
   public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
       throws Exception {
     return config.getAuthenticationManager();
   }
 
+  /** BCrypt password encoder bean */
   @Bean
   public BCryptPasswordEncoder getBCryptPasswordEncoder() {
     return new BCryptPasswordEncoder();

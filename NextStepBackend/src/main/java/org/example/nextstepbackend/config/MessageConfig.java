@@ -8,6 +8,7 @@ import org.springframework.context.support.ReloadableResourceBundleMessageSource
 @Configuration
 public class MessageConfig {
 
+  /** Message source bean for internationalization */
   @Bean
   public MessageSource messageSource() {
     ReloadableResourceBundleMessageSource ms = new ReloadableResourceBundleMessageSource();

@@ -22,6 +22,13 @@ public class MailService {
   @Value("${spring.mail.username}")
   private String from;
 
+  /**
+   * Send mail asynchronously with retry on failure
+   *
+   * @param to recipient email
+   * @param subject email subject
+   * @param content email content
+   */
   @Async("mailExecutor")
   @Retryable(retryFor = MailException.class, maxAttempts = 3, backoff = @Backoff(delay = 2000))
   public void sendMail(String to, String subject, String content) {
@@ -35,6 +42,14 @@ public class MailService {
     log.info("Mail sent to {}", to);
   }
 
+  /**
+   * Recovery method if all retries fail
+   *
+   * @param e MailException
+   * @param to recipient email
+   * @param subject email subject
+   * @param content email content
+   */
   @Recover
   public void recover(MailException e, String to, String subject, String content) {
     log.error("Send mail FAILED to {}", to, e);
