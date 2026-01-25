@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import org.example.nextstepbackend.comm.constants.Const;
 import org.example.nextstepbackend.dto.request.RegisterRequest;
@@ -20,6 +21,7 @@ import org.example.nextstepbackend.services.mail.MailService;
 import org.example.nextstepbackend.services.security.CustomUserDetails;
 import org.example.nextstepbackend.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -29,6 +31,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -41,6 +44,7 @@ public class AuthService {
   private final UserRepository userRepository;
   private final PasswordResetTokenRepository passwordResetTokenRepository;
   private final MailService mailService;
+  private final StringRedisTemplate stringRedisTemplate;
 
   @Value("${app.frontend.base-url:http://localhost:8080}")
   private String frontendBaseUrl;
@@ -138,6 +142,24 @@ public class AuthService {
 
     resetToken.setUsed(true);
     passwordResetTokenRepository.save(resetToken);
+  }
+
+  /** Logout */
+  public void logout(String refreshToken) {
+    if (!StringUtils.hasText(refreshToken)) return;
+
+    String jti = jwtUtil.getJti(refreshToken);
+    long ttl = jwtUtil.getRemainingTime(refreshToken);
+
+    /**
+     * Store a dummy flag value ("1") to mark the token as revoked only key existence matters, value
+     * has no business meaning
+     */
+    if (ttl > 0) {
+      stringRedisTemplate
+          .opsForValue()
+          .set("blacklist:refresh:" + jti, "1", ttl, TimeUnit.MILLISECONDS);
+    }
   }
 
   /** get current logged-in user */

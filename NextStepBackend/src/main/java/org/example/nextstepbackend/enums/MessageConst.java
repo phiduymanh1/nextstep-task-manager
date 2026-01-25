@@ -11,6 +11,7 @@ public enum MessageConst {
   AUTH_REGISTER_SUCCESS("I-AUTH-002", HttpStatus.OK),
   AUTH_FORGOT_PASSWORD_SENT("I-AUTH-003", HttpStatus.OK),
   AUTH_LOGIN_SUCCESS("I-AUTH-004", HttpStatus.OK),
+  AUTH_LOGOUT_SUCCESS("I-AUTH-005",HttpStatus.OK),
 
   // User - info messages
   USER_FETCH_SUCCESS("I-USER-001", HttpStatus.OK),

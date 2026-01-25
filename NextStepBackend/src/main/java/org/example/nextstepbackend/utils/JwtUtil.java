@@ -8,6 +8,7 @@ import io.jsonwebtoken.security.Keys;
 import java.security.Key;
 import java.util.Date;
 import java.util.Optional;
+import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -43,6 +44,7 @@ public class JwtUtil {
   public String buildToken(String username, Long exp) {
     return Jwts.builder()
         .setSubject(username)
+        .setId(UUID.randomUUID().toString()) // TODO: add blacklist token
         .setIssuedAt(new Date())
         .setExpiration(new Date(System.currentTimeMillis() + exp))
         .signWith(getKey(), SignatureAlgorithm.HS256)
@@ -81,5 +83,18 @@ public class JwtUtil {
     } catch (JwtException e) {
       return Optional.empty();
     }
+  }
+
+  /** Get JTI from token */
+  public String getJti(String token) {
+    return parseClaims(token).map(Claims::getId).orElse(null);
+  }
+
+  /** Get remaining time from token */
+  public long getRemainingTime(String token) {
+    return parseClaims(token)
+        .map(Claims::getExpiration)
+        .map(exp -> exp.getTime() - System.currentTimeMillis())
+        .orElse(0L);
   }
 }
