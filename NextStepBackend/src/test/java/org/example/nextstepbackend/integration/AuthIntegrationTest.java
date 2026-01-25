@@ -55,6 +55,7 @@ class AuthIntegrationTest {
   private static final String DOMAIN_API_REFRESH = "/auth/refresh";
   private static final String DOMAIN_API_FORGOT_PASSWORD = "/auth/forgot-password";
   private static final String DOMAIN_API_REGISTER = "/auth/register";
+  private static final String DOMAIN_API_LOGOUT = "/auth/logout";
   private static final String ACCOUNT_SUCCESS = "phiduymanh@gmail.com";
 
   @Target(ElementType.METHOD)
@@ -431,4 +432,31 @@ class AuthIntegrationTest {
 
   // Register API EN
 
+  // Logout Api ST
+
+  /** Test successful logout. */
+  @Test
+  void logout_success() throws Exception {
+    String dummyRefreshToken = "valid.refresh.token.here";
+    Cookie refreshTokenCookie = new Cookie(Const.TEXT_REFRESH_TOKEN, dummyRefreshToken);
+
+    mockMvc
+        .perform(post(DOMAIN_API_LOGOUT).cookie(refreshTokenCookie))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.metaData.success").value(true))
+        .andExpect(jsonPath("$.metaData.code").value(MessageConst.AUTH_LOGOUT_SUCCESS.getCode()));
+  }
+
+  /** Test logout failure when the refresh token cookie is not present. */
+  @Test
+  void logout_notExistsCookie() throws Exception {
+    mockMvc
+        .perform(post(DOMAIN_API_LOGOUT))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.metaData.success").value(true))
+        .andExpect(jsonPath("$.metaData.code").value(MessageConst.AUTH_LOGOUT_SUCCESS.getCode()));
+  }
+
+  // TODO: Token đã blacklist
+  // Logout Api EN
 }

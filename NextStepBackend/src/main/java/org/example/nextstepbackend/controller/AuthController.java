@@ -86,4 +86,23 @@ public class AuthController extends BaseController {
   public void resetPassword(@RequestBody ResetPasswordRequest request) {
     authService.resetPassword(request.token(), request.newPassword());
   }
+
+  /** Logout api */
+  @PostMapping("/logout")
+  public ResponseEntity<ApiResponse<Void>> logout(
+      @CookieValue(value = Const.TEXT_REFRESH_TOKEN, required = false) String refreshToken,
+      HttpServletResponse response) {
+
+    authService.logout(refreshToken);
+
+    Cookie cookie = new Cookie(Const.TEXT_REFRESH_TOKEN, null);
+    cookie.setHttpOnly(true);
+    cookie.setSecure(false); // deploy HTTPS -> true
+    cookie.setPath("/");
+    cookie.setMaxAge(0);
+    cookie.setAttribute("SameSite", "Strict");
+    response.addCookie(cookie);
+
+    return ResponseEntity.ok(success(MessageConst.AUTH_LOGOUT_SUCCESS, null));
+  }
 }
