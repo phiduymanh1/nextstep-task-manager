@@ -56,7 +56,7 @@ public class AuthController extends BaseController {
   /** Refresh token api */
   @PostMapping("/refresh")
   public ResponseEntity<ApiResponse<AuthResponse>> refresh(
-          @CookieValue(value = Const.TEXT_REFRESH_TOKEN, required = false) String refreshToken) {
+      @CookieValue(value = Const.TEXT_REFRESH_TOKEN, required = false) String refreshToken) {
     String newAccessToken = authService.refreshToken(refreshToken);
 
     AuthResponse authResponse = new AuthResponse(newAccessToken);
@@ -75,7 +75,7 @@ public class AuthController extends BaseController {
   /** Forgot password api */
   @PostMapping("/forgot-password")
   public ResponseEntity<ApiResponse<Void>> forgotPassword(
-          @Valid @RequestBody ForgotPasswordRequest request) {
+      @Valid @RequestBody ForgotPasswordRequest request) {
     authService.forgotPassword(request.email());
 
     return ResponseEntity.ok(success(MessageConst.AUTH_FORGOT_PASSWORD_SENT, null));
@@ -89,11 +89,13 @@ public class AuthController extends BaseController {
 
   /** Logout api */
   @PostMapping("/logout")
-  public ResponseEntity<ApiResponse<Void>> logout(@CookieValue(value = Const.TEXT_REFRESH_TOKEN, required = false) String refreshToken, HttpServletResponse response) {
+  public ResponseEntity<ApiResponse<Void>> logout(
+      @CookieValue(value = Const.TEXT_REFRESH_TOKEN, required = false) String refreshToken,
+      HttpServletResponse response) {
 
     authService.logout(refreshToken);
 
-    Cookie cookie = new Cookie(Const.TEXT_REFRESH_TOKEN,null);
+    Cookie cookie = new Cookie(Const.TEXT_REFRESH_TOKEN, null);
     cookie.setHttpOnly(true);
     cookie.setSecure(false); // deploy HTTPS -> true
     cookie.setPath("/");

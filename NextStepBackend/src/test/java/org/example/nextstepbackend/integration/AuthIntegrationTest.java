@@ -434,30 +434,27 @@ class AuthIntegrationTest {
 
   // Logout Api ST
 
-  /**
-   * Test successful logout.
-   */
+  /** Test successful logout. */
   @Test
   void logout_success() throws Exception {
     String dummyRefreshToken = "valid.refresh.token.here";
     Cookie refreshTokenCookie = new Cookie(Const.TEXT_REFRESH_TOKEN, dummyRefreshToken);
 
-    mockMvc.perform(post(DOMAIN_API_LOGOUT)
-                    .cookie(refreshTokenCookie))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.metaData.success").value(true))
-            .andExpect(jsonPath("$.metaData.code").value(MessageConst.AUTH_LOGOUT_SUCCESS.getCode()));
+    mockMvc
+        .perform(post(DOMAIN_API_LOGOUT).cookie(refreshTokenCookie))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.metaData.success").value(true))
+        .andExpect(jsonPath("$.metaData.code").value(MessageConst.AUTH_LOGOUT_SUCCESS.getCode()));
   }
 
-  /**
-   * Test logout failure when the refresh token cookie is not present.
-   */
+  /** Test logout failure when the refresh token cookie is not present. */
   @Test
   void logout_notExistsCookie() throws Exception {
-    mockMvc.perform(post(DOMAIN_API_LOGOUT))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.metaData.success").value(true))
-            .andExpect(jsonPath("$.metaData.code").value(MessageConst.AUTH_LOGOUT_SUCCESS.getCode()));
+    mockMvc
+        .perform(post(DOMAIN_API_LOGOUT))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.metaData.success").value(true))
+        .andExpect(jsonPath("$.metaData.code").value(MessageConst.AUTH_LOGOUT_SUCCESS.getCode()));
   }
 
   // TODO: Token đã blacklist
