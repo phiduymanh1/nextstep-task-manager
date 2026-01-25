@@ -3,6 +3,7 @@ package org.example.nextstepbackend.utils;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.example.nextstepbackend.comm.constants.ValidateMessageConst;
 import org.example.nextstepbackend.dto.response.common.ApiResponse;
 import org.example.nextstepbackend.dto.response.common.ResponseMetaData;
 import org.example.nextstepbackend.enums.MessageConst;
@@ -58,7 +59,11 @@ public class ApiResponseUtil {
   public ApiResponse<Void> validationError(List<String> errors) {
     return new ApiResponse<>(
         new ResponseMetaData(
-            false, "VALIDATION_ERROR", "Validation failed", LocalDateTime.now(), errors),
+            false,
+            ValidateMessageConst.VALIDATE_CODE,
+            "Validation failed",
+            LocalDateTime.now(),
+            errors),
         null);
   }
 }

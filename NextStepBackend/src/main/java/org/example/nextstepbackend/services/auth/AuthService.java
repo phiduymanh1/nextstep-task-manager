@@ -1,6 +1,5 @@
 package org.example.nextstepbackend.services.auth;
 
-import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +11,7 @@ import org.example.nextstepbackend.entity.PasswordResetToken;
 import org.example.nextstepbackend.entity.User;
 import org.example.nextstepbackend.exceptions.AppException;
 import org.example.nextstepbackend.exceptions.AuthException;
+import org.example.nextstepbackend.exceptions.DuplicateResourceException;
 import org.example.nextstepbackend.exceptions.InvalidTokenException;
 import org.example.nextstepbackend.mappers.UserMapper;
 import org.example.nextstepbackend.repository.PasswordResetTokenRepository;
@@ -21,6 +21,7 @@ import org.example.nextstepbackend.services.security.CustomUserDetails;
 import org.example.nextstepbackend.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -77,7 +78,7 @@ public class AuthService {
   /** register */
   public void register(RegisterRequest request) {
     if (userRepository.existsByEmail(request.email())) {
-      throw new IllegalArgumentException("Email already in use");
+      throw new DuplicateResourceException("Email already in use");
     }
     User user = userMapper.toUser(request);
 
@@ -149,7 +150,7 @@ public class AuthService {
 
     return userRepository
         .findById(userDetails.getId())
-        .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        .orElseThrow(() -> new AuthenticationCredentialsNotFoundException("Unauthorized"));
   }
 
   /** get current logged-in user id */

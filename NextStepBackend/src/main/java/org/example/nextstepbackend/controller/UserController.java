@@ -7,7 +7,6 @@ import org.example.nextstepbackend.dto.response.common.ApiResponse;
 import org.example.nextstepbackend.dto.response.user.UserResponse;
 import org.example.nextstepbackend.enums.MessageConst;
 import org.example.nextstepbackend.exceptions.InvalidInputException;
-import org.example.nextstepbackend.exceptions.ResourceNotFoundException;
 import org.example.nextstepbackend.services.user.UserService;
 import org.example.nextstepbackend.utils.ApiResponseUtil;
 import org.springframework.http.MediaType;
@@ -44,9 +43,6 @@ public class UserController extends BaseController {
       throw new InvalidInputException("Email parameter is required");
     }
     UserResponse userResponse = userService.getUserMe(userDetails.getUsername());
-    if (userResponse == null) {
-      throw new ResourceNotFoundException("User not found");
-    }
     return ResponseEntity.ok(success(null, userResponse));
   }
 
@@ -55,9 +51,6 @@ public class UserController extends BaseController {
   @GetMapping("/{id}")
   public ResponseEntity<ApiResponse<UserResponse>> getUserById(@PathVariable("id") Integer id) {
     UserResponse userResponse = userService.getUserById(id);
-    if (userResponse == null) {
-      throw new ResourceNotFoundException("User not found with id: " + id);
-    }
     return ResponseEntity.ok(success(null, userResponse));
   }
 

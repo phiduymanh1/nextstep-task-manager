@@ -25,6 +25,7 @@ import org.example.nextstepbackend.comm.constants.Const;
 import org.example.nextstepbackend.comm.constants.ValidateMessageConst;
 import org.example.nextstepbackend.dto.request.ForgotPasswordRequest;
 import org.example.nextstepbackend.dto.request.LoginRequest;
+import org.example.nextstepbackend.dto.request.RegisterRequest;
 import org.example.nextstepbackend.enums.MessageConst;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
@@ -53,6 +54,7 @@ class AuthIntegrationTest {
   private static final String DOMAIN_API_FINAL = "/auth/login";
   private static final String DOMAIN_API_REFRESH = "/auth/refresh";
   private static final String DOMAIN_API_FORGOT_PASSWORD = "/auth/forgot-password";
+  private static final String DOMAIN_API_REGISTER = "/auth/register";
   private static final String ACCOUNT_SUCCESS = "phiduymanh@gmail.com";
 
   @Target(ElementType.METHOD)
@@ -98,7 +100,7 @@ class AuthIntegrationTest {
                 .content(objectMapper.writeValueAsString(loginRequest)))
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.metaData.success").value(false))
-        .andExpect(jsonPath("$.metaData.code").value("VALIDATION_ERROR"))
+        .andExpect(jsonPath("$.metaData.code").value(ValidateMessageConst.VALIDATE_CODE))
         .andExpect(
             jsonPath("$.metaData.errors", Matchers.hasItem(ValidateMessageConst.EMAIL_REQUIRED)))
         .andExpect(
@@ -314,7 +316,7 @@ class AuthIntegrationTest {
         .andDo(MockMvcResultHandlers.print())
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.metaData.success").value(false))
-        .andExpect(jsonPath("$.metaData.code").value("VALIDATION_ERROR"))
+        .andExpect(jsonPath("$.metaData.code").value(ValidateMessageConst.VALIDATE_CODE))
         .andExpect(
             jsonPath("$.metaData.errors", Matchers.hasItem(ValidateMessageConst.EMAIL_REQUIRED)));
   }
@@ -332,7 +334,7 @@ class AuthIntegrationTest {
         .andDo(MockMvcResultHandlers.print())
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.metaData.success").value(false))
-        .andExpect(jsonPath("$.metaData.code").value("VALIDATION_ERROR"))
+        .andExpect(jsonPath("$.metaData.code").value(ValidateMessageConst.VALIDATE_CODE))
         .andExpect(
             jsonPath("$.metaData.errors", Matchers.hasItem(ValidateMessageConst.EMAIL_VALID)));
   }
@@ -374,5 +376,59 @@ class AuthIntegrationTest {
         .andExpect(
             jsonPath("$.metaData.code").value(MessageConst.AUTH_FORGOT_PASSWORD_SENT.getCode()));
   }
+
   // Forgot Password Api EN
+
+  // Register Api ST
+  /** Test successful registration with valid data. */
+  @Test
+  void register_success() throws Exception {
+    RegisterRequest request =
+        new RegisterRequest(
+            "phiduymanh", "manhphi123@gmail.com", "Manh992005@", "Phí Duy Mạnh", "0123456789");
+
+    mockMvc
+        .perform(
+            post(DOMAIN_API_REGISTER)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.metaData.success").value(true))
+        .andExpect(jsonPath("$.metaData.code").value(MessageConst.AUTH_REGISTER_SUCCESS.getCode()));
+  }
+
+  /** Test registration failure due to invalid input validation. */
+  @Test
+  void register_validation_fail() throws Exception {
+    RegisterRequest request = new RegisterRequest("test@gmail.com", "", "", "", "");
+    mockMvc
+        .perform(
+            post(DOMAIN_API_REGISTER)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.metaData.success").value(false))
+        .andExpect(jsonPath("$.metaData.errors").isArray());
+  }
+
+  /** Test registration failure when the email is already registered. */
+  @Test
+  @WithAuthUser
+  void register_email_already_exists() throws Exception {
+    RegisterRequest request =
+        new RegisterRequest(
+            "phiduymanh", ACCOUNT_SUCCESS, "Manh992005@", "Phí Duy Mạnh", "0123456789");
+
+    mockMvc
+        .perform(
+            post(DOMAIN_API_REGISTER)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.metaData.success").value(false))
+        .andExpect(jsonPath("$.metaData.code").value("CONFLICT"));
+  }
+
+  // Register API EN
+
 }
