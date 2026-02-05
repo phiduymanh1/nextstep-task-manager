@@ -20,7 +20,7 @@ spring:
       max-lifetime: 600000
   data:
     redis:
-      host: ${REDIS_HOST}
+      host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD}
       database: 0
@@ -51,6 +51,7 @@ spring:
     enabled: true
 
 server:
+  port: 8443
   error:
     include-message: never
     include-stacktrace: never
@@ -61,7 +62,10 @@ server:
         http-only: true
   ssl:
     enabled: ${SSL_ENABLED:true}
-    forward-headers-strategy: native
+    key-store: classpath:keystore.p12
+    key-store-password: ${KEY_STORE_PASS:manh123}
+    key-store-type: PKCS12
+    key-alias: nextstep
 
 logging:
   level:
