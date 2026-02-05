@@ -2,7 +2,6 @@
 # SERVER CONFIGURATION - Cấu hình máy chủ chung
 # =============================================================================
 server:
-  port: ${SERVER_PORT:8080}
   servlet:
     context-path: /next-step
     encoding:           # Bat moi req/res deu dung UTF-8
