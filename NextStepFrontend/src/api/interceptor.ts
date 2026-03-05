@@ -9,6 +9,7 @@ import { HTTP_HEADER, MIME_TYPE } from '@/constants/Const';
 import type { ApiResponse } from '@/types/api.type';
 import { refreshToken } from '@/services/auth.service';
 import { handleLogout } from '@/utils/auth';
+import { notifyError } from '@/utils/notify';
 
 let isRefreshing = false;
 let failedQueue: {
@@ -52,31 +53,41 @@ axiosInstance.interceptors.response.use(
     const { metaData } = response.data;
     // If unsuccessful response, reject with metaData
     if (!metaData.success) {
+      notifyError(metaData.message || 'Something went wrong');
       return Promise.reject(metaData);
     }
     // Success response, return it
     return response;
   },
   // Error (status code outside 2xx)
-  async (error: AxiosError) => {
+  async (error: AxiosError<ApiResponse<unknown>>) => {
     const originalRequest = error.config as
       | (InternalAxiosRequestConfig & { _retry?: boolean })
       | undefined;
 
-    if (!originalRequest) {
+    if (!error.response) {
+      notifyError('Network error. Please check your connection.');
       return Promise.reject(error);
     }
+
+    const status = error.response?.status;
+    const backendMessage =
+      error.response?.data?.metaData?.message || 'Unexpected error';
+
     // if the server return 401 Unauthorized, clear the access token
     if (
-      error.response?.status === 401 &&
+      status === 401 &&
+      originalRequest &&
       !originalRequest._retry &&
-      !originalRequest.url?.includes('/auth/refresh')
+      !originalRequest.url?.includes('/auth')
     ) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         }).then((token) => {
-          originalRequest.headers.Authorization = `Bearer ${token}`;
+          if (originalRequest.headers) {
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+          }
           return axiosInstance(originalRequest);
         });
       }
@@ -85,25 +96,53 @@ axiosInstance.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        // 👇 CALL REFRESH API
         const res = await refreshToken();
         const newAccessToken = res.accessToken;
 
-        // save token
         localStorage.setItem('accessToken', newAccessToken);
 
-        processQueue(newAccessToken);
+        processQueue(null, newAccessToken);
 
-        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+        if (originalRequest.headers) {
+          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+        }
+
         return axiosInstance(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError);
+
+        notifyError('Session expired. Please login again.');
+
         await handleLogout();
+        window.location.href = '/login';
+
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
       }
     }
+
+    /**
+     * 403
+     */
+    if (status === 403) {
+      notifyError(backendMessage || 'You do not have permission.');
+      return Promise.reject(error);
+    }
+
+    /**
+     * 500
+     */
+    if (status === 500) {
+      notifyError(backendMessage || 'Server error. Please try again later.');
+      return Promise.reject(error);
+    }
+
+    /**
+     * Other errors (400, 404...)
+     */
+    notifyError(backendMessage);
+
     return Promise.reject(error);
   }
 );

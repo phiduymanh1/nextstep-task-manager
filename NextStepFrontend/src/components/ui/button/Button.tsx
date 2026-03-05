@@ -1,4 +1,4 @@
-import './Button.css';
+import '@/assets/styles/Button.css';
 
 type Props = {
   loading?: boolean;

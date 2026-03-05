@@ -1,4 +1,4 @@
-import '@/components/layout/boardCardLayout/BoardCard.css';
+import '@/assets/styles/BoardCard.css';
 
 interface Props {
   title: string;

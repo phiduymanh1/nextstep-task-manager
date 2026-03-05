@@ -1,16 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '@/components/layout/navbarLayout/navbar.css';
+import '@/assets/styles/Navbar.css';
+import { handleLogout } from '@/utils/auth';
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const dropdownRef = useRef<HTMLDivElement>(null);
-
-  const handleLogout = () => {
-    localStorage.removeItem('access_token');
-    navigate('/login');
-  };
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -39,6 +35,14 @@ export default function Navbar() {
 
         {open && (
           <div className="navbar-dropdown">
+            <button
+              onClick={() => {
+                navigate('/profile');
+                setOpen(false);
+              }}
+            >
+              Profile
+            </button>
             <button onClick={handleLogout}>Logout</button>
           </div>
         )}

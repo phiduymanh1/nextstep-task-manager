@@ -1,4 +1,3 @@
-import '@/components/layout/boardCardLayout/BoardCard.css';
 import Sidebar from '@/components/layout/sidebarLayout/Sidebar';
 import Navbar from '@/components/layout/navbarLayout/Navbar';
 import BoardCard from '@/components/layout/boardCardLayout/BoardCard';

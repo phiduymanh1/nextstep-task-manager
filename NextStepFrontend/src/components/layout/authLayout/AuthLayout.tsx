@@ -1,4 +1,4 @@
-import './AuthLayout.css';
+import '@/assets/styles/AuthLayout.css';
 
 export default function AuthLayout({
   children,

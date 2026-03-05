@@ -1,4 +1,4 @@
-import './InputField.css';
+import '@/assets/styles/InputField.css';
 
 type Props = {
   label: string;
