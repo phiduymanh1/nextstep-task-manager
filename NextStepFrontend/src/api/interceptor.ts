@@ -9,7 +9,7 @@ import { HTTP_HEADER, MIME_TYPE } from '@/constants/Const';
 import type { ApiResponse } from '@/types/api.type';
 import { refreshToken } from '@/services/auth.service';
 import { handleLogout } from '@/utils/auth';
-import { notifyError } from '@/utils/notify';
+import { notifyError, notifySuccess } from '@/utils/notify';
 
 let isRefreshing = false;
 let failedQueue: {
@@ -51,10 +51,15 @@ axiosInstance.interceptors.response.use(
   // Success (status code 2xx)
   (response: AxiosResponse<ApiResponse<unknown>>) => {
     const { metaData } = response.data;
+    const method = response.config.method?.toUpperCase();
     // If unsuccessful response, reject with metaData
     if (!metaData.success) {
       notifyError(metaData.message || 'Something went wrong');
       return Promise.reject(metaData);
+    }
+
+    if (metaData.success && method !== 'GET') {
+      notifySuccess(metaData.message || 'Discussion successful!');
     }
     // Success response, return it
     return response;
