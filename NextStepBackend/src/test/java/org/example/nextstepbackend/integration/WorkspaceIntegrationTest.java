@@ -28,7 +28,7 @@ class WorkspaceIntegrationTest {
   @Autowired private MockMvc mockMvc;
   @Autowired private ObjectMapper objectMapper;
 
-  private static final String DOMAIN_API_WORKSPACE = "/work-space";
+  private static final String DOMAIN_API_WORKSPACE = "/work-space/me";
 
   private static final String EMAIL_SUCCESS = "phiduymanh@gmail.com";
 
