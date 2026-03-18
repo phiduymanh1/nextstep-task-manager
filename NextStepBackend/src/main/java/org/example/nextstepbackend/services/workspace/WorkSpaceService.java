@@ -17,26 +17,26 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class WorkSpaceService {
 
-    private final WorkSpaceMapper workSpaceMapper;
-    private final AuthService authService;
-    private final WorkSpaceRepository workSpaceRepository;
+  private final WorkSpaceMapper workSpaceMapper;
+  private final AuthService authService;
+  private final WorkSpaceRepository workSpaceRepository;
 
-    public void createWorkSpace(WorkSpaceRequest request){
+  public void createWorkSpace(WorkSpaceRequest request) {
 
-        Workspace workspace = workSpaceMapper.toWorkspace(request);
-        User user = authService.getCurrentUser();
-        String slug = SlugUtils.toSlug(workspace.getName() + Const.HYPHEN+ user.getUsername());
-        if (validateDuplicateSlug(slug)){
-            throw new DuplicateResourceException(ValidateMessageConst.SLUG_DUPLICATE);
-        }
-
-        workspace.setCreatedBy(user);
-        workspace.setSlug(slug);
-
-        workSpaceRepository.save(workspace);
+    Workspace workspace = workSpaceMapper.toWorkspace(request);
+    User user = authService.getCurrentUser();
+    String slug = SlugUtils.toSlug(workspace.getName() + Const.HYPHEN + user.getUsername());
+    if (validateDuplicateSlug(slug)) {
+      throw new DuplicateResourceException(ValidateMessageConst.SLUG_DUPLICATE);
     }
 
-    public boolean validateDuplicateSlug(String slug){
-        return workSpaceRepository.findBySlug(slug) != null;
-    }
+    workspace.setCreatedBy(user);
+    workspace.setSlug(slug);
+
+    workSpaceRepository.save(workspace);
+  }
+
+  public boolean validateDuplicateSlug(String slug) {
+    return workSpaceRepository.findBySlug(slug) != null;
+  }
 }

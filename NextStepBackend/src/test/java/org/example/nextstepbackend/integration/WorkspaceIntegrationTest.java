@@ -96,7 +96,8 @@ class WorkspaceIntegrationTest {
         .andExpect(status().isBadRequest())
         .andExpect(
             jsonPath(
-                "$.metaData.errors", Matchers.hasItem("The name must be between 4 and 20 characters long.")));
+                "$.metaData.errors",
+                Matchers.hasItem("The name must be between 4 and 20 characters long.")));
   }
 
   @Test

@@ -26,10 +26,8 @@ public class WorkSpaceController extends BaseController {
 
   @PostMapping
   public ResponseEntity<ApiResponse<Void>> createWorkSpace(
-          @Valid @RequestBody WorkSpaceRequest request
-          ){
+      @Valid @RequestBody WorkSpaceRequest request) {
     workSpaceService.createWorkSpace(request);
-    return ResponseEntity.ok(success(MessageConst.WORK_SPACE_CREATE_SUCCESS,null));
+    return ResponseEntity.ok(success(MessageConst.WORK_SPACE_CREATE_SUCCESS, null));
   }
-
 }
