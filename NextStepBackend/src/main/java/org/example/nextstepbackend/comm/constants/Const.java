@@ -17,4 +17,7 @@ public class Const {
   public static final String TEXT_REFRESH_TOKEN = "refreshToken";
 
   public static final String TEXT_ACCESS_TOKEN = "accessToken";
+
+  public static final String BLANK = "";
+  public static final String HYPHEN = "-";
 }
