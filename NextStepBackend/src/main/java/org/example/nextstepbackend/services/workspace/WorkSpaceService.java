@@ -5,10 +5,12 @@ import lombok.RequiredArgsConstructor;
 import org.example.nextstepbackend.comm.constants.Const;
 import org.example.nextstepbackend.comm.constants.ValidateMessageConst;
 import org.example.nextstepbackend.dto.request.WorkSpaceRequest;
+import org.example.nextstepbackend.dto.request.WorkSpaceUpdateRequest;
 import org.example.nextstepbackend.dto.response.Workspace.WorkspaceResponse;
 import org.example.nextstepbackend.entity.User;
 import org.example.nextstepbackend.entity.Workspace;
 import org.example.nextstepbackend.exceptions.DuplicateResourceException;
+import org.example.nextstepbackend.exceptions.ResourceNotFoundException;
 import org.example.nextstepbackend.mappers.WorkSpaceMapper;
 import org.example.nextstepbackend.repository.WorkSpaceRepository;
 import org.example.nextstepbackend.services.auth.AuthService;
@@ -49,5 +51,28 @@ public class WorkSpaceService {
     List<Workspace> workspaces = workSpaceRepository.findByCreatedBy_Email(email);
 
     return workSpaceMapper.toWorkspaceResponseList(workspaces);
+  }
+
+  /** Update workspace info by slug or current user */
+  public void updateWorkspace(String slug, String email, WorkSpaceUpdateRequest request) {
+
+    Workspace workspace =
+        workSpaceRepository
+            .findBySlugAndCreatedBy_Email(slug, email)
+            .orElseThrow(() -> new ResourceNotFoundException("Workspace not found"));
+
+    if (request.name() != null) {
+      workspace.setName(request.name());
+    }
+
+    if (request.description() != null) {
+      workspace.setDescription(request.description());
+    }
+
+    if (request.visibility() != null) {
+      workspace.setVisibility(request.visibility());
+    }
+
+    workSpaceRepository.save(workspace);
   }
 }

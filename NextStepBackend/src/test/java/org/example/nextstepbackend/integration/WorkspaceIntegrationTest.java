@@ -1,5 +1,7 @@
 package org.example.nextstepbackend.integration;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -7,8 +9,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.nextstepbackend.comm.constants.ValidateMessageConst;
 import org.example.nextstepbackend.dto.request.WorkSpaceRequest;
+import org.example.nextstepbackend.dto.request.WorkSpaceUpdateRequest;
+import org.example.nextstepbackend.entity.User;
+import org.example.nextstepbackend.entity.Workspace;
 import org.example.nextstepbackend.enums.MessageConst;
 import org.example.nextstepbackend.enums.Visibility;
+import org.example.nextstepbackend.repository.WorkSpaceRepository;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +25,7 @@ import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -27,6 +34,7 @@ class WorkspaceIntegrationTest {
 
   @Autowired private MockMvc mockMvc;
   @Autowired private ObjectMapper objectMapper;
+  @Autowired private WorkSpaceRepository workspaceRepository;
 
   private static final String DOMAIN_API_WORKSPACE = "/work-space/me";
 
@@ -157,5 +165,91 @@ class WorkspaceIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
         .andExpect(status().isUnauthorized());
+  }
+
+  @Test
+  @WithUserDetails(value = EMAIL_SUCCESS)
+  @AuthIntegrationTest.WithAuthUser
+  void get_workspace_me_success() throws Exception {
+
+    mockMvc
+        .perform(get(DOMAIN_API_WORKSPACE))
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.data").isArray())
+        .andExpect(jsonPath("$.metaData.success").value(true));
+  }
+
+  @Test
+  void get_workspace_me_unauthorized() throws Exception {
+
+    mockMvc
+        .perform(get(DOMAIN_API_WORKSPACE))
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(status().isUnauthorized());
+  }
+
+  @Test
+  @WithUserDetails(value = EMAIL_SUCCESS)
+  @AuthIntegrationTest.WithAuthUser
+  void update_workspace_not_found() throws Exception {
+
+    WorkSpaceUpdateRequest request =
+        new WorkSpaceUpdateRequest("newName", "newDesc", Visibility.PRIVATE);
+
+    mockMvc
+        .perform(
+            patch(DOMAIN_API_WORKSPACE + "/{slug}", "not-exist")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isNotFound());
+  }
+
+  @Test
+  @Transactional
+  @WithUserDetails(value = EMAIL_SUCCESS)
+  @AuthIntegrationTest.WithAuthUser
+  void update_workspace_success() throws Exception {
+
+    Workspace ws = new Workspace();
+    ws.setSlug("workspace-1");
+    ws.setName("Test WS");
+    ws.setCreatedBy(User.builder().id(1).build());
+    workspaceRepository.save(ws);
+
+    WorkSpaceUpdateRequest request =
+        new WorkSpaceUpdateRequest("newName", "newDesc", Visibility.PRIVATE);
+
+    mockMvc
+        .perform(
+            patch(DOMAIN_API_WORKSPACE + "/{slug}", "workspace-1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(status().isOk())
+        .andExpect(
+            jsonPath("$.metaData.code").value(MessageConst.WORK_SPACE_UPDATE_SUCCESS.getCode()));
+  }
+
+  @Test
+  @WithUserDetails(value = EMAIL_SUCCESS)
+  @AuthIntegrationTest.WithAuthUser
+  void update_workspace_forbidden() throws Exception {
+
+    Workspace ws = new Workspace();
+    ws.setSlug("workspace-of-other-user");
+    ws.setName("Test WS");
+    ws.setCreatedBy(User.builder().id(2).build());
+    workspaceRepository.save(ws);
+
+    WorkSpaceUpdateRequest request =
+        new WorkSpaceUpdateRequest("newName", "newDesc", Visibility.PRIVATE);
+
+    mockMvc
+        .perform(
+            patch(DOMAIN_API_WORKSPACE + "/{slug}", "workspace-of-other-user")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isNotFound()); // hoặc 403 tùy bạn design
   }
 }

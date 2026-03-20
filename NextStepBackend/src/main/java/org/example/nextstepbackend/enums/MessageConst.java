@@ -20,6 +20,7 @@ public enum MessageConst {
 
   // Work space - info messages
   WORK_SPACE_CREATE_SUCCESS("I-WORK-SPACE-001", HttpStatus.OK),
+  WORK_SPACE_UPDATE_SUCCESS("I-WORK-SPACE-002", HttpStatus.OK),
 
   // Auth - error messages
   AUTH_INVALID_CREDENTIALS("E-AUTH-001", HttpStatus.UNAUTHORIZED),
