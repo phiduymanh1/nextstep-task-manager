@@ -43,8 +43,8 @@ public class WorkSpaceController extends BaseController {
   @GetMapping("/me")
   public ResponseEntity<ApiResponse<List<WorkspaceResponse>>> getWorkSpaceOfUser(
       @AuthenticationPrincipal UserDetails userDetails) {
-    if (!StringUtils.hasText(userDetails.getUsername())) {
-      throw new InvalidInputException("Email parameter is required");
+    if (userDetails == null) {
+      throw new InvalidInputException("Unauthenticated");
     }
     List<WorkspaceResponse> workspaceResponses =
         workSpaceService.getWorkspaceMe(userDetails.getUsername());

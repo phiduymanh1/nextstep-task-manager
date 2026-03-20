@@ -39,8 +39,8 @@ public class UserController extends BaseController {
   @GetMapping("/me")
   public ResponseEntity<ApiResponse<UserResponse>> getUserMe(
       @AuthenticationPrincipal UserDetails userDetails) {
-    if (!StringUtils.hasText(userDetails.getUsername())) {
-      throw new InvalidInputException("Email parameter is required");
+    if (userDetails == null) {
+      throw new InvalidInputException("Unauthenticated");
     }
     UserResponse userResponse = userService.getUserMe(userDetails.getUsername());
     return ResponseEntity.ok(success(null, userResponse));
