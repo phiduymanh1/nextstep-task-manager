@@ -114,27 +114,44 @@ public class User {
 
   // Helpers
   public void addWorkspaceMembership(WorkspaceMember membership) {
-    workspaceMemberships.add(membership);
-    membership.setUser(this);
+    if (membership == null) return;
+
+    this.workspaceMemberships.add(membership);
+    // Important: Only reverse the setting if it hasn't already been set to avoid an infinite loop.
+    if (membership.getUser() != this) {
+      membership.setUser(this);
+    }
   }
 
   public void addBoardMembership(BoardMember membership) {
-    boardMemberships.add(membership);
-    membership.setUser(this);
+    if (membership == null) return;
+    this.boardMemberships.add(membership);
+    if (membership.getUser() != this) {
+      membership.setUser(this);
+    }
   }
 
   public void addCardAssignment(CardMember cm) {
-    cardAssignments.add(cm);
-    cm.setUser(this);
+    if (cm == null) return;
+    this.cardAssignments.add(cm);
+    if (cm.getUser() != this) {
+      cm.setUser(this);
+    }
   }
 
   public void addAuthToken(AuthToken token) {
-    authTokens.add(token);
-    token.setUser(this);
+    if (token == null) return;
+    this.authTokens.add(token);
+    if (token.getUser() != this) {
+      token.setUser(this);
+    }
   }
 
   public void addNotification(Notification n) {
-    notifications.add(n);
-    n.setUser(this);
+    if (n == null) return;
+    this.notifications.add(n);
+    if (n.getUser() != this) {
+      n.setUser(this);
+    }
   }
 }

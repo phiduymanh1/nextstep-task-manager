@@ -23,6 +23,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.example.nextstepbackend.entity.embedded.FullAudit;
 import org.example.nextstepbackend.enums.Visibility;
+import org.hibernate.annotations.SoftDelete;
+import org.hibernate.annotations.SoftDeleteType;
 
 @Entity
 @Table(name = "workspaces")
@@ -31,6 +33,7 @@ import org.example.nextstepbackend.enums.Visibility;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@SoftDelete(strategy = SoftDeleteType.DELETED, columnName = "deleted")
 public class Workspace {
 
   @Id
@@ -40,7 +43,7 @@ public class Workspace {
   @Column(nullable = false, length = 100)
   private String name;
 
-  @Column(nullable = false, unique = true, length = 100)
+  @Column(nullable = false, length = 100)
   private String slug;
 
   @Column(columnDefinition = "TEXT")
@@ -75,12 +78,21 @@ public class Workspace {
 
   // helpers
   public void addMember(WorkspaceMember m) {
-    members.add(m);
-    m.setWorkspace(this);
+    if (m == null) return;
+
+    this.members.add(m);
+
+    if (m.getWorkspace() != this) {
+      m.setWorkspace(this);
+    }
   }
 
   public void addBoard(Board b) {
-    boards.add(b);
-    b.setWorkspace(this);
+    if (b == null) return;
+
+    this.boards.add(b);
+    if (b.getWorkspace() != this) {
+      b.setWorkspace(this);
+    }
   }
 }

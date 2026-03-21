@@ -46,7 +46,8 @@ CREATE TABLE workspaces (
                             created_by INT NOT NULL,
                             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                            CONSTRAINT uq_workspace_slug UNIQUE (slug),
+                            deleted BOOLEAN DEFAULT FALSE,
+                            CONSTRAINT uq_workspace_slug_delete UNIQUE (slug, deleted),
                             CONSTRAINT fk_workspace_creator
                                 FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

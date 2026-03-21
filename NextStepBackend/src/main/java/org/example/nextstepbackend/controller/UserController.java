@@ -14,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -39,8 +38,8 @@ public class UserController extends BaseController {
   @GetMapping("/me")
   public ResponseEntity<ApiResponse<UserResponse>> getUserMe(
       @AuthenticationPrincipal UserDetails userDetails) {
-    if (!StringUtils.hasText(userDetails.getUsername())) {
-      throw new InvalidInputException("Email parameter is required");
+    if (userDetails == null) {
+      throw new InvalidInputException("Unauthenticated");
     }
     UserResponse userResponse = userService.getUserMe(userDetails.getUsername());
     return ResponseEntity.ok(success(null, userResponse));
