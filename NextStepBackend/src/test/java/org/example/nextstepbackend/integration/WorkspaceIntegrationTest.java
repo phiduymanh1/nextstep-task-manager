@@ -250,6 +250,6 @@ class WorkspaceIntegrationTest {
             patch(DOMAIN_API_WORKSPACE + "/{slug}", "workspace-of-other-user")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().isNotFound()); // hoặc 403 tùy bạn design
+        .andExpect(status().isNotFound());
   }
 }

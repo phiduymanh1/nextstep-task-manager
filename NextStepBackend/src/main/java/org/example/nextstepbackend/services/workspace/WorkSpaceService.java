@@ -9,6 +9,8 @@ import org.example.nextstepbackend.dto.request.WorkSpaceUpdateRequest;
 import org.example.nextstepbackend.dto.response.Workspace.WorkspaceResponse;
 import org.example.nextstepbackend.entity.User;
 import org.example.nextstepbackend.entity.Workspace;
+import org.example.nextstepbackend.entity.WorkspaceMember;
+import org.example.nextstepbackend.enums.WorkspaceRole;
 import org.example.nextstepbackend.exceptions.DuplicateResourceException;
 import org.example.nextstepbackend.exceptions.ResourceNotFoundException;
 import org.example.nextstepbackend.mappers.WorkSpaceMapper;
@@ -16,6 +18,7 @@ import org.example.nextstepbackend.repository.WorkSpaceRepository;
 import org.example.nextstepbackend.services.auth.AuthService;
 import org.example.nextstepbackend.utils.SlugUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -26,8 +29,9 @@ public class WorkSpaceService {
   private final WorkSpaceRepository workSpaceRepository;
 
   /** Create a new workspace */
+  @Transactional
   public void createWorkSpace(WorkSpaceRequest request) {
-    // Generate slug from workspace name and current user's username
+    // Initialize workspace entity from request
     Workspace workspace = workSpaceMapper.toWorkspace(request);
     User user = authService.getCurrentUser();
     String slug = SlugUtils.toSlug(workspace.getName() + Const.HYPHEN + user.getUsername());
@@ -37,6 +41,14 @@ public class WorkSpaceService {
 
     workspace.setCreatedBy(user);
     workspace.setSlug(slug);
+
+    // Create record membership for current user as owner of workspace
+    WorkspaceMember membership = new WorkspaceMember();
+    membership.setRole(WorkspaceRole.OWNER);
+
+    // Used helper method
+    workspace.addMember(membership); // relation member with workspace
+    user.addWorkspaceMembership(membership); // relation member with user
 
     workSpaceRepository.save(workspace);
   }
@@ -55,11 +67,8 @@ public class WorkSpaceService {
 
   /** Update workspace info by slug or current user */
   public void updateWorkspace(String slug, String email, WorkSpaceUpdateRequest request) {
-
-    Workspace workspace =
-        workSpaceRepository
-            .findBySlugAndCreatedBy_Email(slug, email)
-            .orElseThrow(() -> new ResourceNotFoundException("Workspace not found"));
+    // Find workspace by slug and current user's email
+    Workspace workspace = getWorkspaceBySlugAndCurrentUser(slug, email);
 
     if (request.name() != null) {
       workspace.setName(request.name());
@@ -73,6 +82,20 @@ public class WorkSpaceService {
       workspace.setVisibility(request.visibility());
     }
 
+    // Slug not update when workspace name updated
     workSpaceRepository.save(workspace);
+  }
+
+  /** Delete workspace by slug and current user's email */
+  public void deleteWorkspace(String slug, String email) {
+    Workspace workspace = getWorkspaceBySlugAndCurrentUser(slug, email);
+    workSpaceRepository.delete(workspace);
+  }
+
+  /** get workspace by slug and current user's email */
+  public Workspace getWorkspaceBySlugAndCurrentUser(String slug, String email) {
+    return workSpaceRepository
+        .findBySlugAndCreatedBy_Email(slug, email)
+        .orElseThrow(() -> new ResourceNotFoundException("Workspace not found"));
   }
 }

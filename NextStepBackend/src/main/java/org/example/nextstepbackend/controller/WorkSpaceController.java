@@ -14,6 +14,7 @@ import org.example.nextstepbackend.utils.ApiResponseUtil;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -64,5 +65,15 @@ public class WorkSpaceController extends BaseController {
     }
     workSpaceService.updateWorkspace(slug, userDetails.getUsername(), request);
     return ResponseEntity.ok(success(MessageConst.WORK_SPACE_UPDATE_SUCCESS, null));
+  }
+
+  @DeleteMapping("/me/{slug}")
+  public ResponseEntity<ApiResponse<Void>> deleteWorkSpace(
+      @PathVariable("slug") String slug, @AuthenticationPrincipal UserDetails userDetails) {
+    if (userDetails == null) {
+      throw new InvalidInputException("Unauthenticated");
+    }
+    workSpaceService.deleteWorkspace(slug, userDetails.getUsername());
+    return ResponseEntity.ok(success(MessageConst.WORK_SPACE_DELETE_SUCCESS, null));
   }
 }

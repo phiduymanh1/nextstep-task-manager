@@ -1,6 +1,6 @@
 package org.example.nextstepbackend.dto.response.Workspace;
 
-import org.example.nextstepbackend.entity.embedded.FullAudit;
+import org.example.nextstepbackend.dto.response.common.AuditRecord;
 import org.example.nextstepbackend.enums.Visibility;
 
 public record WorkspaceResponse(
@@ -11,4 +11,4 @@ public record WorkspaceResponse(
     Visibility visibility,
     String createdById,
     String createdByName,
-    FullAudit audit) {}
+    AuditRecord audit) {}
