@@ -4,6 +4,8 @@ import Login from './pages/login/Login';
 import Dashboard from '@/pages/dashboard/Dashboard';
 import { Toaster } from 'react-hot-toast';
 import ProfilePage from './pages/profile/ProfilePage';
+import DashboardLayout from './pages/dashboard/DashboardLayout';
+import WorkspaceHome from './pages/workspace/WorkspaceHome';
 
 function App() {
   return (
@@ -24,8 +26,11 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/" element={<DashboardLayout />}>
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="workspace/:slug/home" element={<WorkspaceHome />} />
+        </Route>
       </Routes>
     </>
   );
