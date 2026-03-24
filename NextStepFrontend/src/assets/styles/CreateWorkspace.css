@@ -1,0 +1,129 @@
+.modal {
+    background: #262b31;
+    padding: 24px;
+    border-radius: 12px;
+    width: 400px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.modal input,
+.modal textarea,
+.modal select {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #3a3f45;
+    background: #2a2f36;
+    color: #fff;
+    font-size: 14px;
+}
+
+.modal input::placeholder,
+.modal textarea::placeholder {
+    color: #9ca3af;
+}
+
+.modal input:focus,
+.modal textarea:focus,
+.modal select:focus {
+    outline: none;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.3);
+}
+
+.modal textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+
+    background: rgba(0, 0, 0, 0.6);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    z-index: 9999;
+}
+
+.modal {
+    background: #1e2228;
+    padding: 24px;
+    border-radius: 12px;
+    width: 420px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+
+    color: #fff;
+}
+
+.modal h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.actions button {
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+}
+
+/* Create */
+.actions button:first-child {
+    background: #4f46e5;
+    color: white;
+}
+
+.actions button:first-child:hover {
+    background: #4338ca;
+}
+
+/* Cancel */
+.actions button:last-child {
+    background: #3a3f45;
+    color: #ccc;
+}
+
+.actions button:last-child:hover {
+    background: #4b5563;
+}
+
+.error {
+    color: #f87171;
+    font-size: 13px;
+}
+
+.modal {
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
