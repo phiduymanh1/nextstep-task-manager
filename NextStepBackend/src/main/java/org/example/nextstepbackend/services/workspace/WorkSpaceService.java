@@ -110,15 +110,11 @@ public class WorkSpaceService {
         .orElseThrow(() -> new ResourceNotFoundException("Workspace not found"));
   }
 
-  public WorkspaceDetailResponse getWorkspaceDetail(
-          String slug,
-          String email,
-          int page,
-          int size
-  ) {
+  public WorkspaceDetailResponse getWorkspaceDetail(String slug, String email, int page, int size) {
     size = Math.min(size, 50);
 
-    Workspace workspace = workSpaceRepository
+    Workspace workspace =
+        workSpaceRepository
             .findBySlugAndCreatedBy_Email(slug, email)
             .orElseThrow(() -> new ResourceNotFoundException("Workspace not found"));
 
@@ -126,24 +122,30 @@ public class WorkSpaceService {
 
     Page<Board> boardPage = boardRepository.findByWorkspaceSlug(slug, pageable);
 
-    PageResponse<BoardResponse> boards =
-            toPageResponse(boardPage.map(boardMapper::toResponse));
+    PageResponse<BoardResponse> boards = toPageResponse(boardPage.map(boardMapper::toResponse));
 
     return new WorkspaceDetailResponse(
-            workspace.getId(),
-            workspace.getName(),
-            workspace.getSlug(),
-            boards
-    );
+        workspace.getId(), workspace.getName(), workspace.getSlug(), boards);
   }
+
+  //  public PageResponse<WorkspaceResponse> getWorkspaceDetailOnlyByEmail(String email, int page,
+  // int size) {
+  //    size = Math.min(size, 50);
+  //
+  //    Pageable pageable = PageRequest.of(page,size);
+  //
+  //    Page<Workspace> workspacePage =
+  //            workSpaceRepository
+  //                    .findByCreatedBy_Email(email,pageable);
+  //
+  //  }
 
   public PageResponse<BoardResponse> toPageResponse(Page<BoardResponse> page) {
     return new PageResponse<>(
-            page.getContent(),
-            page.getNumber(),
-            page.getSize(),
-            page.getTotalElements(),
-            page.getTotalPages()
-    );
+        page.getContent(),
+        page.getNumber(),
+        page.getSize(),
+        page.getTotalElements(),
+        page.getTotalPages());
   }
 }
