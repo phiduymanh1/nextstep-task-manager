@@ -14,7 +14,7 @@ export default function CreateWorkspaceModal({ open, onClose }: Props) {
   const [form, setForm] = useState({
     name: '',
     description: '',
-    visibility: '' as 'PUBLIC' | 'PRIVATE' | '',
+    visibility: '' as 'PUBLIC' | 'PRIVATE' | 'WORKSPACE' | '',
   });
 
   const [error, setError] = useState('');
@@ -27,7 +27,6 @@ export default function CreateWorkspaceModal({ open, onClose }: Props) {
 
       await createWorkspace(parsed);
 
-      // reset form
       setForm({
         name: '',
         description: '',
@@ -51,38 +50,52 @@ export default function CreateWorkspaceModal({ open, onClose }: Props) {
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         <h3>Create Workspace</h3>
 
+        {/* NAME */}
         <input
           placeholder="Name"
           value={form.name}
           onChange={(e) => setForm({ ...form, name: e.target.value })}
         />
 
+        {/* DESCRIPTION */}
         <textarea
           placeholder="Description"
           value={form.description}
           onChange={(e) => setForm({ ...form, description: e.target.value })}
         />
 
-        <select
-          value={form.visibility}
-          onChange={(e) =>
-            setForm({
-              ...form,
-              visibility: e.target.value as 'PUBLIC' | 'PRIVATE',
-            })
-          }
-        >
-          <option value="" disabled>
-            Select visibility
-          </option>
-          <option value="PUBLIC">Public</option>
-          <option value="PRIVATE">Private</option>
-        </select>
+        {/* 🔥 VISIBILITY (NEW UI) */}
+        <div className="visibility-group">
+          <button
+            className={form.visibility === 'PUBLIC' ? 'active' : ''}
+            onClick={() => setForm({ ...form, visibility: 'PUBLIC' })}
+            type="button"
+          >
+            🌍 Public
+          </button>
+
+          <button
+            className={form.visibility === 'WORKSPACE' ? 'active' : ''}
+            onClick={() => setForm({ ...form, visibility: 'WORKSPACE' })}
+            type="button"
+          >
+            👥 Workspace
+          </button>
+
+          <button
+            className={form.visibility === 'PRIVATE' ? 'active' : ''}
+            onClick={() => setForm({ ...form, visibility: 'PRIVATE' })}
+            type="button"
+          >
+            🔒 Private
+          </button>
+        </div>
 
         {error && <p className="error">{error}</p>}
 
         <div className="actions">
           <button onClick={handleCreate}>Create</button>
+
           <button onClick={onClose}>Cancel</button>
         </div>
       </div>

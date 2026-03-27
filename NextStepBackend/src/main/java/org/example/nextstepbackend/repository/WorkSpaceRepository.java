@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.example.nextstepbackend.entity.Workspace;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 public interface WorkSpaceRepository extends JpaRepository<Workspace, Integer> {
 

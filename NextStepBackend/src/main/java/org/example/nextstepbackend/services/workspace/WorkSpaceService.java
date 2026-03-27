@@ -6,17 +6,26 @@ import org.example.nextstepbackend.comm.constants.Const;
 import org.example.nextstepbackend.comm.constants.ValidateMessageConst;
 import org.example.nextstepbackend.dto.request.WorkSpaceRequest;
 import org.example.nextstepbackend.dto.request.WorkSpaceUpdateRequest;
+import org.example.nextstepbackend.dto.response.Workspace.WorkspaceDetailResponse;
 import org.example.nextstepbackend.dto.response.Workspace.WorkspaceResponse;
+import org.example.nextstepbackend.dto.response.board.BoardResponse;
+import org.example.nextstepbackend.dto.response.common.PageResponse;
+import org.example.nextstepbackend.entity.Board;
 import org.example.nextstepbackend.entity.User;
 import org.example.nextstepbackend.entity.Workspace;
 import org.example.nextstepbackend.entity.WorkspaceMember;
 import org.example.nextstepbackend.enums.WorkspaceRole;
 import org.example.nextstepbackend.exceptions.DuplicateResourceException;
 import org.example.nextstepbackend.exceptions.ResourceNotFoundException;
+import org.example.nextstepbackend.mappers.BoardMapper;
 import org.example.nextstepbackend.mappers.WorkSpaceMapper;
+import org.example.nextstepbackend.repository.BoardRepository;
 import org.example.nextstepbackend.repository.WorkSpaceRepository;
 import org.example.nextstepbackend.services.auth.AuthService;
 import org.example.nextstepbackend.utils.SlugUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +36,8 @@ public class WorkSpaceService {
   private final WorkSpaceMapper workSpaceMapper;
   private final AuthService authService;
   private final WorkSpaceRepository workSpaceRepository;
+  private final BoardRepository boardRepository;
+  private final BoardMapper boardMapper;
 
   /** Create a new workspace */
   @Transactional
@@ -97,5 +108,42 @@ public class WorkSpaceService {
     return workSpaceRepository
         .findBySlugAndCreatedBy_Email(slug, email)
         .orElseThrow(() -> new ResourceNotFoundException("Workspace not found"));
+  }
+
+  public WorkspaceDetailResponse getWorkspaceDetail(
+          String slug,
+          String email,
+          int page,
+          int size
+  ) {
+    size = Math.min(size, 50);
+
+    Workspace workspace = workSpaceRepository
+            .findBySlugAndCreatedBy_Email(slug, email)
+            .orElseThrow(() -> new ResourceNotFoundException("Workspace not found"));
+
+    Pageable pageable = PageRequest.of(page, size);
+
+    Page<Board> boardPage = boardRepository.findByWorkspaceSlug(slug, pageable);
+
+    PageResponse<BoardResponse> boards =
+            toPageResponse(boardPage.map(boardMapper::toResponse));
+
+    return new WorkspaceDetailResponse(
+            workspace.getId(),
+            workspace.getName(),
+            workspace.getSlug(),
+            boards
+    );
+  }
+
+  public PageResponse<BoardResponse> toPageResponse(Page<BoardResponse> page) {
+    return new PageResponse<>(
+            page.getContent(),
+            page.getNumber(),
+            page.getSize(),
+            page.getTotalElements(),
+            page.getTotalPages()
+    );
   }
 }
