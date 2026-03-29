@@ -110,6 +110,7 @@ public class WorkSpaceService {
         .orElseThrow(() -> new ResourceNotFoundException("Workspace not found"));
   }
 
+  /** Get workspace detail by slug with pagination for boards */
   public WorkspaceDetailResponse getWorkspaceDetail(String slug, String email, int page, int size) {
     size = Math.min(size, 50);
 
@@ -128,18 +129,7 @@ public class WorkSpaceService {
         workspace.getId(), workspace.getName(), workspace.getSlug(), boards);
   }
 
-  //  public PageResponse<WorkspaceResponse> getWorkspaceDetailOnlyByEmail(String email, int page,
-  // int size) {
-  //    size = Math.min(size, 50);
-  //
-  //    Pageable pageable = PageRequest.of(page,size);
-  //
-  //    Page<Workspace> workspacePage =
-  //            workSpaceRepository
-  //                    .findByCreatedBy_Email(email,pageable);
-  //
-  //  }
-
+  /** Helper method to convert Page<BoardResponse> to PageResponse<BoardResponse> */
   public PageResponse<BoardResponse> toPageResponse(Page<BoardResponse> page) {
     return new PageResponse<>(
         page.getContent(),
