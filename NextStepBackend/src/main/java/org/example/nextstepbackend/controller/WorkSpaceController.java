@@ -5,9 +5,9 @@ import java.util.List;
 import org.example.nextstepbackend.controller.base.BaseController;
 import org.example.nextstepbackend.dto.request.WorkSpaceRequest;
 import org.example.nextstepbackend.dto.request.WorkSpaceUpdateRequest;
-import org.example.nextstepbackend.dto.response.Workspace.WorkspaceDetailResponse;
-import org.example.nextstepbackend.dto.response.Workspace.WorkspaceResponse;
 import org.example.nextstepbackend.dto.response.common.ApiResponse;
+import org.example.nextstepbackend.dto.response.workspace.WorkspaceDetailResponse;
+import org.example.nextstepbackend.dto.response.workspace.WorkspaceResponse;
 import org.example.nextstepbackend.enums.MessageConst;
 import org.example.nextstepbackend.exceptions.InvalidInputException;
 import org.example.nextstepbackend.services.workspace.WorkSpaceService;
@@ -60,7 +60,7 @@ public class WorkSpaceController extends BaseController {
   @PatchMapping("/me/{slug}")
   public ResponseEntity<ApiResponse<Void>> updateWorkSpace(
       @PathVariable("slug") String slug,
-      @RequestBody WorkSpaceUpdateRequest request,
+      @Valid @RequestBody WorkSpaceUpdateRequest request,
       @AuthenticationPrincipal UserDetails userDetails) {
     if (userDetails == null) {
       throw new InvalidInputException("Unauthenticated");

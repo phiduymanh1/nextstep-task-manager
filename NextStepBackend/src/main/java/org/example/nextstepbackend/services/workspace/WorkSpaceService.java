@@ -6,10 +6,10 @@ import org.example.nextstepbackend.comm.constants.Const;
 import org.example.nextstepbackend.comm.constants.ValidateMessageConst;
 import org.example.nextstepbackend.dto.request.WorkSpaceRequest;
 import org.example.nextstepbackend.dto.request.WorkSpaceUpdateRequest;
-import org.example.nextstepbackend.dto.response.Workspace.WorkspaceDetailResponse;
-import org.example.nextstepbackend.dto.response.Workspace.WorkspaceResponse;
 import org.example.nextstepbackend.dto.response.board.BoardResponse;
 import org.example.nextstepbackend.dto.response.common.PageResponse;
+import org.example.nextstepbackend.dto.response.workspace.WorkspaceDetailResponse;
+import org.example.nextstepbackend.dto.response.workspace.WorkspaceResponse;
 import org.example.nextstepbackend.entity.Board;
 import org.example.nextstepbackend.entity.User;
 import org.example.nextstepbackend.entity.Workspace;
@@ -26,6 +26,7 @@ import org.example.nextstepbackend.utils.SlugUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -119,14 +120,18 @@ public class WorkSpaceService {
             .findBySlugAndCreatedBy_Email(slug, email)
             .orElseThrow(() -> new ResourceNotFoundException("Workspace not found"));
 
-    Pageable pageable = PageRequest.of(page, size);
+    Pageable pageable = PageRequest.of(page, size, Sort.by("audit.createdAt").descending());
 
     Page<Board> boardPage = boardRepository.findByWorkspaceSlug(slug, pageable);
 
     PageResponse<BoardResponse> boards = toPageResponse(boardPage.map(boardMapper::toResponse));
 
     return new WorkspaceDetailResponse(
-        workspace.getId(), workspace.getName(), workspace.getSlug(), boards);
+        workspace.getId(),
+        workspace.getName(),
+        workspace.getSlug(),
+        workspace.getVisibility(),
+        boards);
   }
 
   /** Helper method to convert Page<BoardResponse> to PageResponse<BoardResponse> */

@@ -2,7 +2,7 @@ package org.example.nextstepbackend.mappers;
 
 import java.util.List;
 import org.example.nextstepbackend.dto.request.WorkSpaceRequest;
-import org.example.nextstepbackend.dto.response.Workspace.WorkspaceResponse;
+import org.example.nextstepbackend.dto.response.workspace.WorkspaceResponse;
 import org.example.nextstepbackend.entity.Workspace;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
