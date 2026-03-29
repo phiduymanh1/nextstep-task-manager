@@ -60,7 +60,7 @@ public class WorkSpaceController extends BaseController {
   @PatchMapping("/me/{slug}")
   public ResponseEntity<ApiResponse<Void>> updateWorkSpace(
       @PathVariable("slug") String slug,
-      @RequestBody WorkSpaceUpdateRequest request,
+      @Valid @RequestBody WorkSpaceUpdateRequest request,
       @AuthenticationPrincipal UserDetails userDetails) {
     if (userDetails == null) {
       throw new InvalidInputException("Unauthenticated");

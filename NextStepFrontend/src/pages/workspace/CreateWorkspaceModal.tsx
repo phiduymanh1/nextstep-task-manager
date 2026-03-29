@@ -64,7 +64,6 @@ export default function CreateWorkspaceModal({ open, onClose }: Props) {
           onChange={(e) => setForm({ ...form, description: e.target.value })}
         />
 
-        {/* 🔥 VISIBILITY (NEW UI) */}
         <div className="visibility-group">
           <button
             className={form.visibility === 'PUBLIC' ? 'active' : ''}
