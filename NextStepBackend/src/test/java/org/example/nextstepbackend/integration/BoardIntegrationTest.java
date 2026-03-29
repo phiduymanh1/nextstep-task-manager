@@ -25,110 +25,93 @@ import org.springframework.transaction.annotation.Transactional;
 @ActiveProfiles("test")
 class BoardIntegrationTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+  @Autowired private MockMvc mockMvc;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+  @Autowired private ObjectMapper objectMapper;
 
-    @Autowired
-    private WorkSpaceRepository workspaceRepository;
+  @Autowired private WorkSpaceRepository workspaceRepository;
 
-    private static final String EMAIL_SUCCESS = "phiduymanh@gmail.com";
+  private static final String EMAIL_SUCCESS = "phiduymanh@gmail.com";
 
-    private static final String DOMAIN_API_BOARD = "/board";
+  private static final String DOMAIN_API_BOARD = "/board";
 
-    @Test
-    @Transactional
-    @WithUserDetails(value = EMAIL_SUCCESS)
-    @AuthIntegrationTest.WithAuthUser
-    void create_board_success() throws Exception {
+  @Test
+  @Transactional
+  @WithUserDetails(value = EMAIL_SUCCESS)
+  @AuthIntegrationTest.WithAuthUser
+  void create_board_success() throws Exception {
 
-        Workspace ws = new Workspace();
-        ws.setSlug("workspace-1");
-        ws.setName("Test WS");
-        ws.setCreatedBy(User.builder().build().builder().id(1).build());
-        workspaceRepository.save(ws);
+    Workspace ws = new Workspace();
+    ws.setSlug("workspace-1");
+    ws.setName("Test WS");
+    ws.setCreatedBy(User.builder().build().builder().id(1).build());
+    workspaceRepository.save(ws);
 
-        BoardRequest request = new BoardRequest(
-                "Board 1",
-                "desc",
-                "#ffffff",
-                null,
-                Visibility.PUBLIC
-        );
+    BoardRequest request = new BoardRequest("Board 1", "desc", "#ffffff", null, Visibility.PUBLIC);
 
-        mockMvc.perform(
-                        post(DOMAIN_API_BOARD + "/{slug}", "workspace-1")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(request))
-                )
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.metaData.success").value(true));
-    }
+    mockMvc
+        .perform(
+            post(DOMAIN_API_BOARD + "/{slug}", "workspace-1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.metaData.success").value(true));
+  }
 
-    @Test
-    @WithUserDetails(value = EMAIL_SUCCESS)
-    @AuthIntegrationTest.WithAuthUser
-    void create_board_workspace_not_found() throws Exception {
+  @Test
+  @WithUserDetails(value = EMAIL_SUCCESS)
+  @AuthIntegrationTest.WithAuthUser
+  void create_board_workspace_not_found() throws Exception {
 
-        BoardRequest request = new BoardRequest(
-                "Board 1",
-                "desc",
-                "#ffffff",
-                null,
-                Visibility.PUBLIC
-        );
+    BoardRequest request = new BoardRequest("Board 1", "desc", "#ffffff", null, Visibility.PUBLIC);
 
-        mockMvc.perform(
-                        post(DOMAIN_API_BOARD + "/{slug}", "not-exist")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(request))
-                )
-                .andExpect(status().isNotFound());
-    }
+    mockMvc
+        .perform(
+            post(DOMAIN_API_BOARD + "/{slug}", "not-exist")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isNotFound());
+  }
 
-    @Test
-    @Transactional
-    @WithUserDetails(value = EMAIL_SUCCESS)
-    @AuthIntegrationTest.WithAuthUser
-    void create_board_same_name_should_auto_increment_slug() throws Exception {
+  @Test
+  @Transactional
+  @WithUserDetails(value = EMAIL_SUCCESS)
+  @AuthIntegrationTest.WithAuthUser
+  void create_board_same_name_should_auto_increment_slug() throws Exception {
 
-        Workspace ws = new Workspace();
-        ws.setSlug("workspace-1");
-        ws.setName("Test WS");
-        ws.setCreatedBy(User.builder().id(1).build());
-        workspaceRepository.save(ws);
+    Workspace ws = new Workspace();
+    ws.setSlug("workspace-1");
+    ws.setName("Test WS");
+    ws.setCreatedBy(User.builder().id(1).build());
+    workspaceRepository.save(ws);
 
-        BoardRequest request = new BoardRequest(
-                "Same Name",
-                "desc",
-                "#ffffff",
-                null,
-                Visibility.PUBLIC
-        );
+    BoardRequest request =
+        new BoardRequest("Same Name", "desc", "#ffffff", null, Visibility.PUBLIC);
 
-        // First -> success
-        mockMvc.perform(
-                post(DOMAIN_API_BOARD + "/{slug}", "workspace-1")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request))
-        ).andExpect(status().isCreated());
+    // First -> success
+    mockMvc
+        .perform(
+            post(DOMAIN_API_BOARD + "/{slug}", "workspace-1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isCreated());
 
-        // Second -> success
-        mockMvc.perform(
-                post(DOMAIN_API_BOARD + "/{slug}", "workspace-1")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request))
-        ).andExpect(status().isCreated());
-    }
+    // Second -> success
+    mockMvc
+        .perform(
+            post(DOMAIN_API_BOARD + "/{slug}", "workspace-1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isCreated());
+  }
 
-    @Test
-    @WithUserDetails(value = EMAIL_SUCCESS)
-    @AuthIntegrationTest.WithAuthUser
-    void create_board_name_blank() throws Exception {
+  @Test
+  @WithUserDetails(value = EMAIL_SUCCESS)
+  @AuthIntegrationTest.WithAuthUser
+  void create_board_name_blank() throws Exception {
 
-        String request = """
+    String request =
+        """
             {
               "name": "",
               "description": "desc",
@@ -136,30 +119,24 @@ class BoardIntegrationTest {
             }
         """;
 
-        mockMvc.perform(
-                        post(DOMAIN_API_BOARD + "/{slug}", "workspace-1")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(request)
-                )
-                .andExpect(status().isBadRequest());
-    }
+    mockMvc
+        .perform(
+            post(DOMAIN_API_BOARD + "/{slug}", "workspace-1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(request))
+        .andExpect(status().isBadRequest());
+  }
 
-    @Test
-    void create_board_unauthorized() throws Exception {
+  @Test
+  void create_board_unauthorized() throws Exception {
 
-        BoardRequest request = new BoardRequest(
-                "Board 1",
-                "desc",
-                "#ffffff",
-                null,
-                Visibility.PUBLIC
-        );
+    BoardRequest request = new BoardRequest("Board 1", "desc", "#ffffff", null, Visibility.PUBLIC);
 
-        mockMvc.perform(
-                        post(DOMAIN_API_BOARD + "/{slug}", "workspace-1")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(request))
-                )
-                .andExpect(status().isUnauthorized());
-    }
+    mockMvc
+        .perform(
+            post(DOMAIN_API_BOARD + "/{slug}", "workspace-1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isUnauthorized());
+  }
 }

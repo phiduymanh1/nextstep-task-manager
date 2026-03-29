@@ -12,7 +12,6 @@ public record BoardRequest(
         String name,
     String description,
     @Pattern(regexp = "^#([A-Fa-f0-9]{6})$", message = "Invalid color format")
-    String backgroundColor,
-    @Size(max = 500)
-    String backgroundImageUrl,
+        String backgroundColor,
+    @Size(max = 500) String backgroundImageUrl,
     Visibility visibility) {}
