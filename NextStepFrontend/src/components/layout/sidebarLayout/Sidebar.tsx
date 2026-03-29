@@ -1,25 +1,55 @@
-import '@/assets/styles/Sidebar.css';
+import { getWorkspaceMe } from '@/services/workspace.service';
+import type { Workspace } from '@/types/workspace.type';
+import { useEffect, useState } from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
+import '@/assets/styles/sidebar.css';
 
 export default function Sidebar() {
+  const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
+  const [collapsed, setCollapsed] = useState(false);
+  const location = useLocation();
+
+  useEffect(() => {
+    getWorkspaceMe().then(setWorkspaces).catch(console.error);
+  }, []);
+
   return (
-    <div className="sidebar">
-      <div className="sidebar-logo">NextStep</div>
+    <div className={`sidebar ${collapsed ? 'collapsed' : ''}`}>
+      {/* LOGO + TOGGLE */}
+      <div className="sidebar-logo">
+        {!collapsed && 'NextStep'}
+        <button onClick={() => setCollapsed(!collapsed)}>☰</button>
+      </div>
 
-      <nav className="sidebar-menu">
-        <div className="sidebar-item">Bảng</div>
-        <div className="sidebar-item">Mẫu</div>
-        <div className="sidebar-item">Trang chủ</div>
-      </nav>
+      {/* BẢNG */}
+      <NavLink
+        to="/dashboard"
+        className={({ isActive }) => `sidebar-item ${isActive ? 'active' : ''}`}
+      >
+        <span>Bảng</span>
+      </NavLink>
 
+      {/* WORKSPACE */}
       <div className="sidebar-section">
-        <div className="sidebar-section-title">Các Không gian làm việc</div>
+        {!collapsed && (
+          <div className="sidebar-section-title">Các Không gian làm việc</div>
+        )}
 
         <div className="sidebar-menu">
-          <div className="sidebar-item">Đồ án tốt nghiệp</div>
-
-          <div className="sidebar-item">Lịch Trình</div>
-
-          <div className="sidebar-item active">Luyện tập chuyên ngành</div>
+          {workspaces.map((ws) => (
+            <NavLink
+              key={ws.id}
+              to={`/workspace/${ws.slug}/home`}
+              data-label={ws.name}
+              className={`sidebar-item ${
+                location.pathname.startsWith(`/workspace/${ws.slug}`)
+                  ? 'active'
+                  : ''
+              }`}
+            >
+              <span>{ws.name}</span>
+            </NavLink>
+          ))}
         </div>
       </div>
     </div>

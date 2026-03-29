@@ -5,6 +5,7 @@ import java.util.List;
 import org.example.nextstepbackend.controller.base.BaseController;
 import org.example.nextstepbackend.dto.request.WorkSpaceRequest;
 import org.example.nextstepbackend.dto.request.WorkSpaceUpdateRequest;
+import org.example.nextstepbackend.dto.response.Workspace.WorkspaceDetailResponse;
 import org.example.nextstepbackend.dto.response.Workspace.WorkspaceResponse;
 import org.example.nextstepbackend.dto.response.common.ApiResponse;
 import org.example.nextstepbackend.enums.MessageConst;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -67,6 +69,7 @@ public class WorkSpaceController extends BaseController {
     return ResponseEntity.ok(success(MessageConst.WORK_SPACE_UPDATE_SUCCESS, null));
   }
 
+  /** Api to delete workspace by slug for user */
   @DeleteMapping("/me/{slug}")
   public ResponseEntity<ApiResponse<Void>> deleteWorkSpace(
       @PathVariable("slug") String slug, @AuthenticationPrincipal UserDetails userDetails) {
@@ -75,5 +78,21 @@ public class WorkSpaceController extends BaseController {
     }
     workSpaceService.deleteWorkspace(slug, userDetails.getUsername());
     return ResponseEntity.ok(success(MessageConst.WORK_SPACE_DELETE_SUCCESS, null));
+  }
+
+  /** Api get workspace detail by slug */
+  @GetMapping("/boards/{slug}")
+  public ResponseEntity<ApiResponse<WorkspaceDetailResponse>> getWorkspaceDetail(
+      @PathVariable String slug,
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size,
+      @AuthenticationPrincipal UserDetails userDetails) {
+    if (userDetails == null) {
+      throw new InvalidInputException("Unauthenticated");
+    }
+
+    var response = workSpaceService.getWorkspaceDetail(slug, userDetails.getUsername(), page, size);
+
+    return ResponseEntity.ok(success(null, response));
   }
 }

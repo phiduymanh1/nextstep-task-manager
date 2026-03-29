@@ -3,8 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { getMe, updateMe } from '@/services/user.service';
 import type { User } from '@/types/user.type';
 import '@/assets/styles/profile.css';
-import toast from 'react-hot-toast';
-
 export default function ProfilePage() {
   const [user, setUser] = useState<User | null>(null);
   const [editing, setEditing] = useState(false);

@@ -23,6 +23,9 @@ public enum MessageConst {
   WORK_SPACE_UPDATE_SUCCESS("I-WORK-SPACE-002", HttpStatus.OK),
   WORK_SPACE_DELETE_SUCCESS("I-WORK-SPACE-003", HttpStatus.OK),
 
+  // Board - info messages
+  BOARD_CREATE_SUCCESS("I-BOARD-001", HttpStatus.OK),
+
   // Auth - error messages
   AUTH_INVALID_CREDENTIALS("E-AUTH-001", HttpStatus.UNAUTHORIZED),
   AUTH_REFRESH_TOKEN_INVALID("E-AUTH-002", HttpStatus.UNAUTHORIZED),
