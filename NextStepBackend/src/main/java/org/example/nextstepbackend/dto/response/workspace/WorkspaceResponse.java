@@ -1,4 +1,4 @@
-package org.example.nextstepbackend.dto.response.Workspace;
+package org.example.nextstepbackend.dto.response.workspace;
 
 import org.example.nextstepbackend.dto.response.common.AuditRecord;
 import org.example.nextstepbackend.enums.Visibility;

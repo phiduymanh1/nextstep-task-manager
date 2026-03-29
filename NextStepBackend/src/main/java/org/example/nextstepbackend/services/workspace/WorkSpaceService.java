@@ -6,8 +6,8 @@ import org.example.nextstepbackend.comm.constants.Const;
 import org.example.nextstepbackend.comm.constants.ValidateMessageConst;
 import org.example.nextstepbackend.dto.request.WorkSpaceRequest;
 import org.example.nextstepbackend.dto.request.WorkSpaceUpdateRequest;
-import org.example.nextstepbackend.dto.response.Workspace.WorkspaceDetailResponse;
-import org.example.nextstepbackend.dto.response.Workspace.WorkspaceResponse;
+import org.example.nextstepbackend.dto.response.workspace.WorkspaceDetailResponse;
+import org.example.nextstepbackend.dto.response.workspace.WorkspaceResponse;
 import org.example.nextstepbackend.dto.response.board.BoardResponse;
 import org.example.nextstepbackend.dto.response.common.PageResponse;
 import org.example.nextstepbackend.entity.Board;
@@ -127,7 +127,11 @@ public class WorkSpaceService {
     PageResponse<BoardResponse> boards = toPageResponse(boardPage.map(boardMapper::toResponse));
 
     return new WorkspaceDetailResponse(
-        workspace.getId(), workspace.getName(), workspace.getSlug(),workspace.getVisibility(), boards);
+        workspace.getId(),
+        workspace.getName(),
+        workspace.getSlug(),
+        workspace.getVisibility(),
+        boards);
   }
 
   /** Helper method to convert Page<BoardResponse> to PageResponse<BoardResponse> */
