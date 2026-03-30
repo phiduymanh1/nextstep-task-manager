@@ -6,7 +6,8 @@
     justify-content: space-between;
     padding: 0 24px;
     border-bottom: 1px solid #e2e8f0;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    /* Bỏ box-shadow dùng filter thay thế — không tạo stacking context */
+    flex-shrink: 0;
 }
 
 .navbar-search {
@@ -16,7 +17,7 @@
     border: 1px solid #e2e8f0;
     border-radius: 8px;
     color: #0f172a;
-    transition: all 0.2s ease;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
 .navbar-search::placeholder {
@@ -30,15 +31,14 @@
     box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
 }
 
-/* RIGHT */
+/* RIGHT — BỎ position:relative, dùng ở dropdown trực tiếp */
 .navbar-right {
     display: flex;
     align-items: center;
     gap: 16px;
-    position: relative;
 }
 
-/* BUTTON */
+/* BUTTON — BỎ transform, dùng background thay thế */
 .navbar-button {
     padding: 8px 14px;
     background-color: #3b82f6;
@@ -46,16 +46,26 @@
     border-radius: 8px;
     color: white;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: background-color 0.2s ease;
 }
 
 .navbar-button:hover {
     background-color: #2563eb;
-    transform: translateY(-1px);
+    /* ĐÃ BỎ: transform: translateY(-1px) */
 }
 
-/* AVATAR */
+/* CREATE DROPDOWN WRAPPER */
+.navbar-create {
+    position: relative;
+}
+
+/* AVATAR WRAPPER */
 .navbar-avatar {
+    position: relative;
+}
+
+/* AVATAR INNER */
+.navbar-avatar>div:first-child {
     width: 34px;
     height: 34px;
     border-radius: 50%;
@@ -66,18 +76,19 @@
     font-weight: bold;
     color: white;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: opacity 0.2s ease;
 }
 
-.navbar-avatar:hover {
-    transform: scale(1.05);
+.navbar-avatar>div:first-child:hover {
+    opacity: 0.85;
+    /* ĐÃ BỎ: transform: scale(1.05) */
 }
 
 /* DROPDOWN */
 .navbar-dropdown {
     position: absolute;
     right: 0;
-    top: 48px;
+    top: 44px;
     width: 180px;
     background-color: #ffffff;
     border-radius: 10px;
@@ -85,18 +96,19 @@
     box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
     overflow: hidden;
     padding: 6px;
+    z-index: 100;
 }
 
 .navbar-dropdown button {
     width: 100%;
     padding: 10px 12px;
     background: none;
-    border: none;
+    border: none; 
     color: #0f172a;
     text-align: left;
     cursor: pointer;
     border-radius: 6px;
-    transition: all 0.2s ease;
+    transition: background-color 0.2s ease;
 }
 
 .navbar-dropdown button:hover {

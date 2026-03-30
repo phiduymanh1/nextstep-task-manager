@@ -7,8 +7,8 @@ import type {
   WorkspaceDetailResponse,
 } from '@/types/workspace.type';
 
-import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useCallback, useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom'; // 👈 THÊM
 
 import '@/assets/styles/WorkspaceHome.css';
 
@@ -20,11 +20,11 @@ const PAGE_SIZE = 5;
 
 export default function WorkspaceHome() {
   const { slug } = useParams();
+  const navigate = useNavigate(); // 👈 THÊM
 
   const [data, setData] = useState<WorkspaceDetailResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // pagination state
   const [boards, setBoards] = useState<BoardResponse[]>([]);
   const [page, setPage] = useState(0);
   const [total, setTotal] = useState(0);
@@ -32,23 +32,25 @@ export default function WorkspaceHome() {
   const [openEdit, setOpenEdit] = useState(false);
   const [openCreateBoard, setOpenCreateBoard] = useState(false);
 
-  // fetch boards
-  const fetchBoards = async (pageNumber: number) => {
-    if (!slug) return;
+  const fetchBoards = useCallback(
+    async (pageNumber: number) => {
+      if (!slug) return;
 
-    const res = await getWorkspaceDetailBySlug(slug, {
-      page: pageNumber,
-      size: PAGE_SIZE,
-    });
+      const res = await getWorkspaceDetailBySlug(slug, {
+        page: pageNumber,
+        size: PAGE_SIZE,
+      });
 
-    setData(res);
+      setData(res);
 
-    setBoards((prev) =>
-      pageNumber === 0 ? res.boards.items : [...prev, ...res.boards.items]
-    );
+      setBoards((prev) =>
+        pageNumber === 0 ? res.boards.items : [...prev, ...res.boards.items]
+      );
 
-    setTotal(res.boards.totalElements);
-  };
+      setTotal(res.boards.totalElements);
+    },
+    [slug]
+  );
 
   const handleUpdateWorkspace = async (payload: {
     name: string;
@@ -59,7 +61,6 @@ export default function WorkspaceHome() {
 
     await updateWorkspace(slug, payload);
 
-    // reload lại từ đầu
     setPage(0);
     await fetchBoards(0);
   };
@@ -77,7 +78,7 @@ export default function WorkspaceHome() {
     };
 
     load();
-  }, [slug]);
+  }, [slug, fetchBoards]);
 
   const getVisibilityInfo = (visibility: Visibility) => {
     switch (visibility) {
@@ -138,7 +139,14 @@ export default function WorkspaceHome() {
         <>
           <div className="board-grid">
             {boards.map((board) => (
-              <div key={board.id} className="board-card">
+              <div
+                key={board.id}
+                className="board-card"
+                onClick={
+                  () => navigate(`/workspace/${slug}/board/${board.slug}`) // 👈 THÊM
+                }
+                style={{ cursor: 'pointer' }} // 👈 OPTIONAL
+              >
                 <div
                   className="board-bg"
                   style={{
