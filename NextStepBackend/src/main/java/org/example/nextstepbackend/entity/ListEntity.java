@@ -21,7 +21,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.example.nextstepbackend.entity.embedded.FullAudit;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
+@SuppressWarnings("deprecation")
 @Entity
 @Table(name = "lists")
 @Getter
@@ -29,6 +32,8 @@ import org.example.nextstepbackend.entity.embedded.FullAudit;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@SQLDelete(sql = "UPDATE lists SET is_archived = true WHERE id = ?")
+@Where(clause = "is_archived = false")
 public class ListEntity {
 
   @Id

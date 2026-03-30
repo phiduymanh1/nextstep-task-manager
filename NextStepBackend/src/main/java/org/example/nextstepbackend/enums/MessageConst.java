@@ -27,6 +27,9 @@ public enum MessageConst {
   BOARD_CREATE_SUCCESS("I-BOARD-001", HttpStatus.OK),
   BOARD_DELETE_SUCCESS("I-BOARD-002", HttpStatus.OK),
 
+  // List - info messages
+  LIST_CREATE_SUCCESS("I-LIST-001", HttpStatus.OK),
+
   // Auth - error messages
   AUTH_INVALID_CREDENTIALS("E-AUTH-001", HttpStatus.UNAUTHORIZED),
   AUTH_REFRESH_TOKEN_INVALID("E-AUTH-002", HttpStatus.UNAUTHORIZED),

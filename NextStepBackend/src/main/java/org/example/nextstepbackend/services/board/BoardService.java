@@ -77,7 +77,8 @@ public class BoardService {
   /** Close a board by slug within a workspace */
   @Transactional
   public void closeBoardBySlug(String workspaceSlug, String boardSlug) {
-    Board board = boardRepository
+    Board board =
+        boardRepository
             .findByWorkspace_SlugAndSlug(workspaceSlug, boardSlug)
             .orElseThrow(() -> new ResourceNotFoundException("Board not found"));
 

@@ -9,7 +9,12 @@ import org.example.nextstepbackend.services.board.BoardService;
 import org.example.nextstepbackend.utils.ApiResponseUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/board")
@@ -33,12 +38,12 @@ public class BoardController extends BaseController {
 
   /** Close a board by slug within a workspace */
   @DeleteMapping("/{wSpaceSlug}/{boardSlug}")
-  public ResponseEntity<ApiResponse<Void>> closeBoardBySlug(@PathVariable("wSpaceSlug") String wSpaceSlug, @PathVariable("boardSlug") String boardSlug){
+  public ResponseEntity<ApiResponse<Void>> closeBoardBySlug(
+      @PathVariable("wSpaceSlug") String wSpaceSlug, @PathVariable("boardSlug") String boardSlug) {
     boardService.closeBoardBySlug(wSpaceSlug, boardSlug);
-    return ResponseEntity.ok(success(MessageConst.BOARD_DELETE_SUCCESS,null));
+    return ResponseEntity.ok(success(MessageConst.BOARD_DELETE_SUCCESS, null));
   }
 
   // TODO: Implement update and get board details APIs
-
 
 }
