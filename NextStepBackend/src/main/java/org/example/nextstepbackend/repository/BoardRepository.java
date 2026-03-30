@@ -6,9 +6,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Optional;
+
 public interface BoardRepository extends JpaRepository<Board, Integer> {
 
   Page<Board> findByWorkspaceSlug(String slug, Pageable pageable);
 
   boolean existsByWorkspaceAndSlug(Workspace workspace, String slug);
+
+  Optional<Board> findByWorkspace_SlugAndSlug(String workspaceSlug, String boardSlug);
 }

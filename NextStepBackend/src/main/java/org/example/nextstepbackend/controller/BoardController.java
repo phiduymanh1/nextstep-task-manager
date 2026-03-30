@@ -9,11 +9,7 @@ import org.example.nextstepbackend.services.board.BoardService;
 import org.example.nextstepbackend.utils.ApiResponseUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/board")
@@ -26,6 +22,7 @@ public class BoardController extends BaseController {
     this.boardService = boardService;
   }
 
+  /** Create a new board within a workspace */
   @PostMapping("/{wSpaceSlug}")
   public ResponseEntity<ApiResponse<Void>> createBoardByWorkspace(
       @PathVariable("wSpaceSlug") String wSpaceSlug, @Valid @RequestBody BoardRequest request) {
@@ -33,4 +30,13 @@ public class BoardController extends BaseController {
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(success(MessageConst.BOARD_CREATE_SUCCESS, null));
   }
+
+  /** Close a board by slug within a workspace */
+  @DeleteMapping("/{wSpaceSlug}/{boardSlug}")
+  public ResponseEntity<ApiResponse<Void>> closeBoardBySlug(@PathVariable("wSpaceSlug") String wSpaceSlug, @PathVariable("boardSlug") String boardSlug){
+    boardService.closeBoardBySlug(wSpaceSlug, boardSlug);
+    return ResponseEntity.ok(success(MessageConst.BOARD_DELETE_SUCCESS,null));
+  }
+
+
 }

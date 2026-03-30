@@ -8,6 +8,7 @@ import org.example.nextstepbackend.entity.User;
 import org.example.nextstepbackend.entity.Workspace;
 import org.example.nextstepbackend.enums.Visibility;
 import org.example.nextstepbackend.exceptions.DuplicateResourceException;
+import org.example.nextstepbackend.exceptions.InvalidTokenException;
 import org.example.nextstepbackend.exceptions.ResourceNotFoundException;
 import org.example.nextstepbackend.mappers.BoardMapper;
 import org.example.nextstepbackend.repository.BoardRepository;
@@ -69,5 +70,21 @@ public class BoardService {
     }
 
     return slug;
+  }
+
+  /** Close a board by slug within a workspace */
+  @Transactional
+  public void closeBoardBySlug(String workspaceSlug, String boardSlug) {
+    Board board = boardRepository
+            .findByWorkspace_SlugAndSlug(workspaceSlug, boardSlug)
+            .orElseThrow(() -> new ResourceNotFoundException("Board not found"));
+
+    String emailCurrentUser = authService.getCurrentUser().getEmail();
+
+    if (!board.getWorkspace().getCreatedBy().getEmail().equals(emailCurrentUser)) {
+      throw new InvalidTokenException("You don't have permission");
+    }
+
+    boardRepository.delete(board);
   }
 }
