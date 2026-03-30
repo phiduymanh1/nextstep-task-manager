@@ -38,5 +38,7 @@ public class BoardController extends BaseController {
     return ResponseEntity.ok(success(MessageConst.BOARD_DELETE_SUCCESS,null));
   }
 
+  // TODO: Implement update and get board details APIs
+
 
 }

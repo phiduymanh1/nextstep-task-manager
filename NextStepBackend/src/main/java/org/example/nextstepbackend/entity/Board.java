@@ -107,4 +107,14 @@ public class Board {
   @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   @Builder.Default
   private Set<Label> labels = new HashSet<>();
+
+  public void addMember(BoardMember member) {
+    members.add(member);
+    member.setBoard(this);
+  }
+
+  public void addList(ListEntity list) {
+    lists.add(list);
+    list.setBoard(this);
+  }
 }

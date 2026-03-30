@@ -40,6 +40,8 @@ public class BoardService {
       throw new ResourceNotFoundException("Workspace not found");
     }
 
+    // TODO: Relation board member
+
     String baseSlug = SlugUtils.toSlug(board.getName() + Const.HYPHEN + user.getUsername());
     String slug = generateUniqueSlug(baseSlug, workspace);
 
