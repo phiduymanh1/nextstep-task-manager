@@ -117,7 +117,7 @@ public class WorkSpaceService {
 
     Workspace workspace =
         workSpaceRepository
-            .findBySlugAndCreatedBy_Email(slug, email)
+            .findWorkspaceDetail(slug, email)
             .orElseThrow(() -> new ResourceNotFoundException("Workspace not found"));
 
     Pageable pageable = PageRequest.of(page, size, Sort.by("audit.createdAt").descending());

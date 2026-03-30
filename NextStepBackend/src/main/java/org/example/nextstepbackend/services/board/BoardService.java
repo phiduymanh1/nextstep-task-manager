@@ -3,7 +3,11 @@ package org.example.nextstepbackend.services.board;
 import lombok.RequiredArgsConstructor;
 import org.example.nextstepbackend.comm.constants.Const;
 import org.example.nextstepbackend.dto.request.BoardRequest;
+import org.example.nextstepbackend.dto.response.board.BoardDetailResponse;
+import org.example.nextstepbackend.dto.response.common.PageResponse;
+import org.example.nextstepbackend.dto.response.lists.ListsResponse;
 import org.example.nextstepbackend.entity.Board;
+import org.example.nextstepbackend.entity.ListEntity;
 import org.example.nextstepbackend.entity.User;
 import org.example.nextstepbackend.entity.Workspace;
 import org.example.nextstepbackend.enums.Visibility;
@@ -11,11 +15,17 @@ import org.example.nextstepbackend.exceptions.DuplicateResourceException;
 import org.example.nextstepbackend.exceptions.InvalidTokenException;
 import org.example.nextstepbackend.exceptions.ResourceNotFoundException;
 import org.example.nextstepbackend.mappers.BoardMapper;
+import org.example.nextstepbackend.mappers.ListMapper;
 import org.example.nextstepbackend.repository.BoardRepository;
+import org.example.nextstepbackend.repository.ListsRepository;
 import org.example.nextstepbackend.repository.WorkSpaceRepository;
 import org.example.nextstepbackend.services.auth.AuthService;
 import org.example.nextstepbackend.utils.SlugUtils;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +37,8 @@ public class BoardService {
   private final BoardRepository boardRepository;
   private final BoardMapper boardMapper;
   private final WorkSpaceRepository workSpaceRepository;
+  private final ListsRepository listsRepository;
+  private final ListMapper listMapper;
 
   /** Create a new board within a workspace */
   @Transactional
@@ -89,5 +101,36 @@ public class BoardService {
     }
 
     boardRepository.delete(board);
+  }
+
+  /** Get board details by slug, including lists and cards with pagination */
+  public BoardDetailResponse getBoardDetail(String boardSlug, int page, int size) {
+    size = Math.min(size, 50);
+
+    String email = authService.getCurrentUser().getEmail();
+
+    Board board =
+        boardRepository
+            .findBoardBySlugAndMember(boardSlug, email)
+            .orElseThrow(() -> new ResourceNotFoundException("Board not found"));
+
+    Pageable pageable = PageRequest.of(page, size, Sort.by("position").ascending());
+
+    Page<ListEntity> listPage = listsRepository.findByBoardSlug(boardSlug, pageable);
+
+    PageResponse<ListsResponse> lists = toPageResponse(listPage.map(listMapper::toResponse));
+
+    return new BoardDetailResponse(
+        board.getId(), board.getName(), board.getSlug(), board.getVisibility(), lists);
+  }
+
+  /** Helper method to convert Page of ListsResponse to PageResponse */
+  public PageResponse<ListsResponse> toPageResponse(Page<ListsResponse> page) {
+    return new PageResponse<>(
+        page.getContent(),
+        page.getNumber(),
+        page.getSize(),
+        page.getTotalElements(),
+        page.getTotalPages());
   }
 }
