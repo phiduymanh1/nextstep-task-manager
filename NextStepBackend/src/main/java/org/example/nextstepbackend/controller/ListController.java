@@ -26,6 +26,7 @@ public class ListController extends BaseController {
     this.listService = listService;
   }
 
+  /** Api create list by slug of board */
   @PostMapping("/board/{boardSlug}")
   public ResponseEntity<ApiResponse<Void>> createList(
       @PathVariable String boardSlug, @Valid @RequestBody ListsRequest request) {

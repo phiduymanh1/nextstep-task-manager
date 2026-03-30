@@ -30,6 +30,7 @@ public class ListService {
   private final BoardRepository boardRepository;
   private final ListMapper listMapper;
 
+  /** Create list with position resolved by afterId and beforeId */
   @Transactional
   public void createListByBoardSlug(String boardSlug, ListsRequest request) {
 
@@ -67,12 +68,14 @@ public class ListService {
     listsRepository.save(entity);
   }
 
+  /** Get board by slug or throw 404 */
   private Board getBoard(String slug) {
     return boardRepository
         .findBySlug(slug)
         .orElseThrow(() -> new ResourceNotFoundException("Board with slug " + slug + " not found"));
   }
 
+  /** Load reference lists by afterId and beforeId (if provided) */
   private Map<Integer, ListEntity> getReferenceLists(ListsRequest request) {
 
     List<Integer> ids =
@@ -105,6 +108,7 @@ public class ListService {
     }
   }
 
+  /** Create list at the end of the board (when no afterId and beforeId) */
   private void createAtEnd(Board board, ListsRequest request) {
 
     BigDecimal maxPos = listsRepository.findMaxPositionByBoardId(board.getId());
@@ -117,6 +121,7 @@ public class ListService {
     listsRepository.save(entity);
   }
 
+  /** Rebalance positions of all lists in the board and resolve position for new list */
   private PositionUtils.MoveResult<ListEntity> handleRebalance(Board board, ListsRequest request) {
 
     List<ListEntity> lists = listsRepository.findByBoardIdOrderByPositionAsc(board.getId());
