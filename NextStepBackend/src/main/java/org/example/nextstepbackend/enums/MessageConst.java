@@ -31,6 +31,7 @@ public enum MessageConst {
   // List - info messages
   LIST_CREATE_SUCCESS("I-LIST-001", HttpStatus.OK),
   LIST_ARCHIVE_SUCCESS("I-LIST-002", HttpStatus.OK),
+  LIST_UPDATE_SUCCESS("I-LIST-003", HttpStatus.OK),
 
   // Auth - error messages
   AUTH_INVALID_CREDENTIALS("E-AUTH-001", HttpStatus.UNAUTHORIZED),

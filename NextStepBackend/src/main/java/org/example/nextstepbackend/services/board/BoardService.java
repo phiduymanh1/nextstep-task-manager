@@ -7,16 +7,24 @@ import org.example.nextstepbackend.dto.request.BoardUpdateRequest;
 import org.example.nextstepbackend.dto.response.board.BoardDetailResponse;
 import org.example.nextstepbackend.dto.response.common.PageResponse;
 import org.example.nextstepbackend.dto.response.lists.ListsResponse;
-import org.example.nextstepbackend.entity.*;
+import org.example.nextstepbackend.entity.Board;
+import org.example.nextstepbackend.entity.BoardMember;
+import org.example.nextstepbackend.entity.ListEntity;
+import org.example.nextstepbackend.entity.User;
+import org.example.nextstepbackend.entity.Workspace;
+import org.example.nextstepbackend.entity.WorkspaceMember;
 import org.example.nextstepbackend.enums.BoardRole;
 import org.example.nextstepbackend.enums.Visibility;
 import org.example.nextstepbackend.exceptions.DuplicateResourceException;
 import org.example.nextstepbackend.exceptions.InvalidInputException;
-import org.example.nextstepbackend.exceptions.InvalidTokenException;
 import org.example.nextstepbackend.exceptions.ResourceNotFoundException;
 import org.example.nextstepbackend.mappers.BoardMapper;
 import org.example.nextstepbackend.mappers.ListMapper;
-import org.example.nextstepbackend.repository.*;
+import org.example.nextstepbackend.repository.BoardMemberRepository;
+import org.example.nextstepbackend.repository.BoardRepository;
+import org.example.nextstepbackend.repository.ListsRepository;
+import org.example.nextstepbackend.repository.WorkSpaceRepository;
+import org.example.nextstepbackend.repository.WorkspaceMemberRepository;
 import org.example.nextstepbackend.services.auth.AuthService;
 import org.example.nextstepbackend.services.list.PermissionService;
 import org.example.nextstepbackend.utils.SlugUtils;
@@ -25,7 +33,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,6 +54,7 @@ public class BoardService {
   private static final String DELETE_MODE = "DELETE";
   private static final String CREATE_MODE = "CREATE";
   private static final String UPDATE_MODE = "UPDATE";
+  private final RoleBoardService roleBoardService;
 
   /** Create a new board within a workspace */
   @Transactional
@@ -60,9 +68,9 @@ public class BoardService {
     if (workspace == null) {
       throw new ResourceNotFoundException("Workspace not found");
     }
-
-
-    checkRoleBoard(null, user.getId(), workspace.getId(), CREATE_MODE);
+    WorkspaceMember workspaceMember =
+        roleBoardService.getWorkspaceMember(workspace.getId(), user.getId());
+    permissionService.checkCanUpdateWorkspace(workspaceMember.getRole());
 
     String baseSlug = SlugUtils.toSlug(board.getName() + Const.HYPHEN + user.getUsername());
     String slug = generateUniqueSlug(baseSlug, workspace);
@@ -110,7 +118,8 @@ public class BoardService {
             .findByWorkspace_SlugAndSlug(workspaceSlug, boardSlug)
             .orElseThrow(() -> new ResourceNotFoundException(BOARD_FOUND));
 
-    checkRoleBoard(boardSlug, authService.getCurrentUserId(), board.getWorkspace().getId(), DELETE_MODE);
+    roleBoardService.checkRoleBoard(
+        boardSlug, authService.getCurrentUserId(), board.getWorkspace().getId(), DELETE_MODE);
 
     boardRepository.delete(board);
   }
@@ -159,7 +168,9 @@ public class BoardService {
             .findBySlug(boardSlug)
             .orElseThrow(() -> new ResourceNotFoundException(BOARD_FOUND));
 
-    checkRoleBoard(boardSlug, authService.getCurrentUserId(), board.getWorkspace().getId(), UPDATE_MODE);
+    roleBoardService.checkRoleBoard(
+        boardSlug, authService.getCurrentUserId(), board.getWorkspace().getId(), UPDATE_MODE);
+
     boolean updated = false;
 
     if (request.name() != null) {
@@ -190,31 +201,5 @@ public class BoardService {
     if (!updated) {
       throw new InvalidInputException("No fields to update");
     }
-  }
-
-  private void checkRoleBoard(String boardSlug, Integer userId, Integer workspaceId, String mode) {
-    BoardMember BoardMember = getBoardMember(boardSlug, userId);
-    WorkspaceMember workspaceMember = getWorkspaceMember(workspaceId, userId);
-
-    if (mode.equals(DELETE_MODE)) {
-      permissionService.checkCanDelete(workspaceMember, BoardMember);
-    }else if (mode.equals(UPDATE_MODE)){
-      permissionService.checkCanEdit(workspaceMember, BoardMember);
-    }else if (mode.equals(CREATE_MODE)){
-      permissionService.checkCanUpdateWorkspace(workspaceMember.getRole());
-    }
-
-  }
-
-  private BoardMember getBoardMember(String slug, Integer userId) {
-    return boardMemberRepository
-            .findByBoard_SlugAndUser_Id(slug, userId)
-            .orElseThrow(() -> new AccessDeniedException("You are not in this board"));
-  }
-
-  private WorkspaceMember getWorkspaceMember(Integer workspaceId, Integer userId) {
-    return workspaceMemberRepository
-            .findByWorkspace_IdAndUser_Id(workspaceId, userId)
-            .orElseThrow(() -> new AccessDeniedException("You are not in this workspace"));
   }
 }

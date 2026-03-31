@@ -156,7 +156,7 @@ public class WorkSpaceService {
 
   private WorkspaceMember getWorkspaceMember(Integer workspaceId, Integer userId) {
     return workspaceMemberRepository
-            .findByWorkspace_IdAndUser_Id(workspaceId, userId)
-            .orElseThrow(() -> new AccessDeniedException("You are not in this workspace"));
+        .findByWorkspace_IdAndUser_Id(workspaceId, userId)
+        .orElseThrow(() -> new AccessDeniedException("You are not in this workspace"));
   }
 }

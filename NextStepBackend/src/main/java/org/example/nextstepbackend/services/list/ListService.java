@@ -9,22 +9,20 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
+import org.example.nextstepbackend.dto.request.ListPositionRequest;
 import org.example.nextstepbackend.dto.request.ListsRequest;
+import org.example.nextstepbackend.dto.request.ListsUpdateRequest;
 import org.example.nextstepbackend.entity.Board;
-import org.example.nextstepbackend.entity.BoardMember;
 import org.example.nextstepbackend.entity.ListEntity;
-import org.example.nextstepbackend.entity.WorkspaceMember;
 import org.example.nextstepbackend.exceptions.InvalidInputException;
 import org.example.nextstepbackend.exceptions.ResourceNotFoundException;
 import org.example.nextstepbackend.mappers.ListMapper;
-import org.example.nextstepbackend.repository.BoardMemberRepository;
 import org.example.nextstepbackend.repository.BoardRepository;
 import org.example.nextstepbackend.repository.ListsRepository;
-import org.example.nextstepbackend.repository.WorkspaceMemberRepository;
 import org.example.nextstepbackend.services.auth.AuthService;
+import org.example.nextstepbackend.services.board.RoleBoardService;
 import org.example.nextstepbackend.utils.PositionUtils;
 import org.example.nextstepbackend.utils.RebalanceUtils;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,9 +34,11 @@ public class ListService {
   private final BoardRepository boardRepository;
   private final ListMapper listMapper;
   private final AuthService authService;
-  private final BoardMemberRepository boardMemberRepository;
-  private final WorkspaceMemberRepository workspaceMemberRepository;
-  private final PermissionService permissionService;
+  private final RoleBoardService roleBoardService;
+
+  private static final String DELETE_MODE = "DELETE";
+  private static final String CREATE_MODE = "CREATE";
+  private static final String UPDATE_MODE = "UPDATE";
 
   /** Create list with position resolved by afterId and beforeId */
   @Transactional
@@ -46,17 +46,12 @@ public class ListService {
 
     Integer userId = authService.getCurrentUserId();
 
-    BoardMember boardMember = getBoardMember(boardSlug, userId);
-
-    WorkspaceMember workspaceMember =
-            getWorkspaceMember(boardMember.getBoard().getWorkspace().getId(), userId);
-
-    permissionService.checkCanEdit(workspaceMember, boardMember);
+    roleBoardService.checkRoleBoard(boardSlug, userId, null, CREATE_MODE);
 
     Board board = getBoard(boardSlug);
 
     // 1. Load prev & next (1 query)
-    Map<Integer, ListEntity> refMap = getReferenceLists(request);
+    Map<Integer, ListEntity> refMap = getReferenceLists(request.afterId(), request.beforeId());
 
     ListEntity prev = refMap.get(request.afterId());
     ListEntity next = refMap.get(request.beforeId());
@@ -76,7 +71,7 @@ public class ListService {
 
     // 5. Rebalance if needed
     if (result.needRebalance()) {
-      result = handleRebalance(board, request);
+      result = handleRebalance(board, request.afterId(), request.beforeId());
     }
 
     // 6. Create new list
@@ -95,13 +90,9 @@ public class ListService {
   }
 
   /** Load reference lists by afterId and beforeId (if provided) */
-  private Map<Integer, ListEntity> getReferenceLists(ListsRequest request) {
+  private Map<Integer, ListEntity> getReferenceLists(Integer afterId, Integer beforeId) {
 
-    List<Integer> ids =
-        Stream.of(request.afterId(), request.beforeId())
-            .filter(Objects::nonNull)
-            .distinct()
-            .toList();
+    List<Integer> ids = Stream.of(afterId, beforeId).filter(Objects::nonNull).distinct().toList();
 
     if (ids.isEmpty()) return Collections.emptyMap();
 
@@ -140,12 +131,13 @@ public class ListService {
     listsRepository.save(entity);
   }
 
-  /** Rebalance positions of all lists in the board and resolve position for new list */
-  private PositionUtils.MoveResult<ListEntity> handleRebalance(Board board, ListsRequest request) {
+  /** Rebalanced positions of all lists in the board and resolve position for new list */
+  private PositionUtils.MoveResult<ListEntity> handleRebalance(
+      Board board, Integer afterId, Integer beforeId) {
 
     List<ListEntity> lists = listsRepository.findByBoardIdOrderByPositionAsc(board.getId());
 
-    // Rebalance với step lớn
+    // Rebalanced với step lớn
     RebalanceUtils.rebalance(lists, ListEntity::setPosition);
 
     listsRepository.saveAll(lists);
@@ -154,50 +146,96 @@ public class ListService {
     Map<Integer, ListEntity> map =
         lists.stream().collect(Collectors.toMap(ListEntity::getId, Function.identity()));
 
-    ListEntity prev = (request.afterId() != null) ? map.get(request.afterId()) : null;
+    ListEntity prev = (afterId != null) ? map.get(afterId) : null;
 
-    ListEntity next = (request.beforeId() != null) ? map.get(request.beforeId()) : null;
+    ListEntity next = (beforeId != null) ? map.get(beforeId) : null;
 
     return PositionUtils.resolve(prev, next, ListEntity::getPosition);
   }
 
   /** Archive list by id (soft delete( */
+  @Transactional
   public void archiveList(String slug, Integer listId) {
 
     // 1. Get list
-    ListEntity list =
-        listsRepository
-            .findByBoard_SlugAndId(slug, listId)
-            .orElseThrow(
-                () ->
-                    new ResourceNotFoundException(
-                        "List with id " + listId + " not found in board " + slug));
+    ListEntity list = findByBoardSlugAndId(slug, listId);
 
     Integer userId = authService.getCurrentUserId();
 
-    // 2. Get board member
-    BoardMember boardMember = getBoardMember(slug, userId);
+    roleBoardService.checkRoleBoard(
+        slug, userId, list.getBoard().getWorkspace().getId(), DELETE_MODE);
 
-    // 3. Get workspace member
-    WorkspaceMember workspaceMember =
-        getWorkspaceMember(list.getBoard().getWorkspace().getId(), userId);
-
-    // 4. Check permission
-    permissionService.checkCanDelete(workspaceMember, boardMember);
-
-    // 5. Delete (soft delete nếu bạn có field archived)
+    // 2. Delete (soft delete nếu bạn có field archived)
     listsRepository.delete(list);
   }
 
-  private BoardMember getBoardMember(String slug, Integer userId) {
-    return boardMemberRepository
-        .findByBoard_SlugAndUser_Id(slug, userId)
-        .orElseThrow(() -> new AccessDeniedException("You are not in this board"));
+  @Transactional
+  public void updateList(String slug, Integer listId, ListsUpdateRequest request) {
+    ListEntity list = findByBoardSlugAndId(slug, listId);
+
+    roleBoardService.checkRoleBoard(
+        slug, authService.getCurrentUserId(), list.getBoard().getWorkspace().getId(), UPDATE_MODE);
+
+    boolean updated = false;
+
+    if (request.name() != null) {
+      list.setName(request.name());
+      updated = true;
+    }
+
+    if (!updated) {
+      throw new InvalidInputException("No fields to update");
+    }
   }
 
-  private WorkspaceMember getWorkspaceMember(Integer workspaceId, Integer userId) {
-    return workspaceMemberRepository
-        .findByWorkspace_IdAndUser_Id(workspaceId, userId)
-        .orElseThrow(() -> new AccessDeniedException("You are not in this workspace"));
+  @Transactional
+  public void updateListPosition(String slug, Integer listId, ListPositionRequest request) {
+
+    Integer userId = authService.getCurrentUserId();
+
+    // 1. Get current list
+    ListEntity list = findByBoardSlugAndId(slug, listId);
+
+    // 2. Permission
+    roleBoardService.checkRoleBoard(
+        slug, userId, list.getBoard().getWorkspace().getId(), UPDATE_MODE);
+
+    Board board = list.getBoard();
+
+    Map<Integer, ListEntity> refMap = getReferenceLists(request.afterId(), request.beforeId());
+
+    ListEntity prev = refMap.get(request.afterId());
+    ListEntity next = refMap.get(request.beforeId());
+
+    if ((prev != null && prev.getId().equals(listId))
+        || (next != null && next.getId().equals(listId))) {
+      throw new InvalidInputException("Cannot move relative to itself");
+    }
+
+    validateSameBoard(board, prev, next);
+    validateOrder(prev, next);
+
+    if (prev == null && next == null) {
+      BigDecimal maxPos = listsRepository.findMaxPositionByBoardId(board.getId());
+      list.setPosition(maxPos.add(BigDecimal.ONE));
+      return;
+    }
+
+    var result = PositionUtils.resolve(prev, next, ListEntity::getPosition);
+
+    if (result.needRebalance()) {
+      result = handleRebalance(board, request.afterId(), request.beforeId());
+    }
+
+    list.setPosition(result.position());
+  }
+
+  private ListEntity findByBoardSlugAndId(String slug, Integer listId) {
+    return listsRepository
+        .findByBoard_SlugAndId(slug, listId)
+        .orElseThrow(
+            () ->
+                new ResourceNotFoundException(
+                    "List with id " + listId + " not found in board " + slug));
   }
 }

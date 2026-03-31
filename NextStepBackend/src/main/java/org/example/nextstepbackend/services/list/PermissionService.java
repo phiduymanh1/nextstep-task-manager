@@ -28,8 +28,7 @@ public class PermissionService {
 
   public void checkCanUpdateWorkspace(WorkspaceRole role) {
 
-    if (role != WorkspaceRole.OWNER &&
-            role != WorkspaceRole.ADMIN) {
+    if (role != WorkspaceRole.OWNER && role != WorkspaceRole.ADMIN) {
       throw new AccessDeniedException("No permission to update workspace");
     }
   }
