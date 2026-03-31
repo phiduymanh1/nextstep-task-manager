@@ -3,6 +3,7 @@ package org.example.nextstepbackend.controller;
 import jakarta.validation.Valid;
 import org.example.nextstepbackend.controller.base.BaseController;
 import org.example.nextstepbackend.dto.request.BoardRequest;
+import org.example.nextstepbackend.dto.request.BoardUpdateRequest;
 import org.example.nextstepbackend.dto.response.board.BoardDetailResponse;
 import org.example.nextstepbackend.dto.response.common.ApiResponse;
 import org.example.nextstepbackend.enums.MessageConst;
@@ -12,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -47,8 +49,6 @@ public class BoardController extends BaseController {
     return ResponseEntity.ok(success(MessageConst.BOARD_DELETE_SUCCESS, null));
   }
 
-  // TODO: Implement update and get board details APIs
-
   /** Api get list by slug of board */
   @GetMapping("/{slug}")
   public ResponseEntity<ApiResponse<BoardDetailResponse>> getBoardDetail(
@@ -58,4 +58,13 @@ public class BoardController extends BaseController {
     var response = boardService.getBoardDetail(slug, page, size);
     return ResponseEntity.ok((success(null, response)));
   }
+
+  @PatchMapping("/{slug}")
+  public ResponseEntity<ApiResponse<Void>> updateBoard(
+      @PathVariable String slug, @Valid @RequestBody BoardUpdateRequest request) {
+    boardService.updateBoard(slug, request);
+
+    return ResponseEntity.ok(success(MessageConst.BOARD_UPDATE_SUCCESS, null));
+  }
+  // TODO: Implement update and get board details APIs
 }

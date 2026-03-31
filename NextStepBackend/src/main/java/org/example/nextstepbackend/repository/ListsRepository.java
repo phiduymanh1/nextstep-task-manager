@@ -17,4 +17,6 @@ public interface ListsRepository extends JpaRepository<ListEntity, Integer> {
   BigDecimal findMaxPositionByBoardId(@Param("boardId") Integer boardId);
 
   Page<ListEntity> findByBoardSlug(String slug, Pageable pageable);
+
+  ListEntity findByBoard_SlugAndId(String boardSlug, Integer id);
 }

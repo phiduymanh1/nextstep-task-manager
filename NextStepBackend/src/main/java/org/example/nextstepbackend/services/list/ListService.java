@@ -141,4 +141,8 @@ public class ListService {
 
     return PositionUtils.resolve(prev, next, ListEntity::getPosition);
   }
+
+  public void archiveList(String slug, Integer listId) {
+    ListEntity list = listsRepository.findByBoard_SlugAndId(slug, listId);
+  }
 }

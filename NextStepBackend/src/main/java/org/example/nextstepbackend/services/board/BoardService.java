@@ -3,6 +3,7 @@ package org.example.nextstepbackend.services.board;
 import lombok.RequiredArgsConstructor;
 import org.example.nextstepbackend.comm.constants.Const;
 import org.example.nextstepbackend.dto.request.BoardRequest;
+import org.example.nextstepbackend.dto.request.BoardUpdateRequest;
 import org.example.nextstepbackend.dto.response.board.BoardDetailResponse;
 import org.example.nextstepbackend.dto.response.common.PageResponse;
 import org.example.nextstepbackend.dto.response.lists.ListsResponse;
@@ -12,6 +13,7 @@ import org.example.nextstepbackend.entity.User;
 import org.example.nextstepbackend.entity.Workspace;
 import org.example.nextstepbackend.enums.Visibility;
 import org.example.nextstepbackend.exceptions.DuplicateResourceException;
+import org.example.nextstepbackend.exceptions.InvalidInputException;
 import org.example.nextstepbackend.exceptions.InvalidTokenException;
 import org.example.nextstepbackend.exceptions.ResourceNotFoundException;
 import org.example.nextstepbackend.mappers.BoardMapper;
@@ -39,6 +41,8 @@ public class BoardService {
   private final WorkSpaceRepository workSpaceRepository;
   private final ListsRepository listsRepository;
   private final ListMapper listMapper;
+
+  private static final String BOARD_FOUND = "Board not found";
 
   /** Create a new board within a workspace */
   @Transactional
@@ -92,7 +96,7 @@ public class BoardService {
     Board board =
         boardRepository
             .findByWorkspace_SlugAndSlug(workspaceSlug, boardSlug)
-            .orElseThrow(() -> new ResourceNotFoundException("Board not found"));
+            .orElseThrow(() -> new ResourceNotFoundException(BOARD_FOUND));
 
     String emailCurrentUser = authService.getCurrentUser().getEmail();
 
@@ -112,7 +116,7 @@ public class BoardService {
     Board board =
         boardRepository
             .findBoardBySlugAndMember(boardSlug, email)
-            .orElseThrow(() -> new ResourceNotFoundException("Board not found"));
+            .orElseThrow(() -> new ResourceNotFoundException(BOARD_FOUND));
 
     Pageable pageable = PageRequest.of(page, size, Sort.by("position").ascending());
 
@@ -121,7 +125,13 @@ public class BoardService {
     PageResponse<ListsResponse> lists = toPageResponse(listPage.map(listMapper::toResponse));
 
     return new BoardDetailResponse(
-        board.getId(), board.getName(), board.getSlug(), board.getVisibility(), lists);
+        board.getId(),
+        board.getName(),
+        board.getSlug(),
+        board.getBackgroundColor(),
+        board.getBackgroundImageUrl(),
+        board.getVisibility(),
+        lists);
   }
 
   /** Helper method to convert Page of ListsResponse to PageResponse */
@@ -132,5 +142,43 @@ public class BoardService {
         page.getSize(),
         page.getTotalElements(),
         page.getTotalPages());
+  }
+
+  @Transactional
+  public void updateBoard(String boardSlug, BoardUpdateRequest request) {
+    Board board =
+        boardRepository
+            .findBySlug(boardSlug)
+            .orElseThrow(() -> new ResourceNotFoundException(BOARD_FOUND));
+    boolean updated = false;
+
+    if (request.name() != null) {
+      board.setName(request.name());
+      updated = true;
+    }
+
+    if (request.description() != null) {
+      board.setDescription(request.description());
+      updated = true;
+    }
+
+    if (request.backgroundColor() != null) {
+      board.setBackgroundColor(request.backgroundColor());
+      updated = true;
+    }
+
+    if (request.backgroundImageUrl() != null) {
+      board.setBackgroundImageUrl(request.backgroundImageUrl());
+      updated = true;
+    }
+
+    if (request.visibility() != null) {
+      board.setVisibility(request.visibility());
+      updated = true;
+    }
+
+    if (!updated) {
+      throw new InvalidInputException("No fields to update");
+    }
   }
 }

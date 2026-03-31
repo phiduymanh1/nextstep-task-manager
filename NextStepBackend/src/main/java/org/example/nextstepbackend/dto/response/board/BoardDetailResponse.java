@@ -8,5 +8,7 @@ public record BoardDetailResponse(
     Integer id,
     String name,
     String slug,
+    String backgroundColor,
+    String backgroundImageUrl,
     Visibility visibility,
     PageResponse<ListsResponse> lists) {}
