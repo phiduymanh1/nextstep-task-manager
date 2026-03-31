@@ -36,9 +36,10 @@ public class ListController extends BaseController {
         .body(success(MessageConst.LIST_CREATE_SUCCESS, null));
   }
 
-  @DeleteMapping("/{listId}")
-  public ResponseEntity<ApiResponse<Void>> archiveList(@PathVariable Integer listId) {
-
+  @DeleteMapping("/{boardSlug}/{listId}")
+  public ResponseEntity<ApiResponse<Void>> archiveList(
+      @PathVariable String boardSlug, @PathVariable Integer listId) {
+    listService.archiveList(boardSlug, listId);
     return ResponseEntity.ok(success(MessageConst.LIST_ARCHIVE_SUCCESS, null));
   }
 }

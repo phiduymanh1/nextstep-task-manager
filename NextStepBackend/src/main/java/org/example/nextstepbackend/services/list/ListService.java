@@ -11,14 +11,20 @@ import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.example.nextstepbackend.dto.request.ListsRequest;
 import org.example.nextstepbackend.entity.Board;
+import org.example.nextstepbackend.entity.BoardMember;
 import org.example.nextstepbackend.entity.ListEntity;
+import org.example.nextstepbackend.entity.WorkspaceMember;
 import org.example.nextstepbackend.exceptions.InvalidInputException;
 import org.example.nextstepbackend.exceptions.ResourceNotFoundException;
 import org.example.nextstepbackend.mappers.ListMapper;
+import org.example.nextstepbackend.repository.BoardMemberRepository;
 import org.example.nextstepbackend.repository.BoardRepository;
 import org.example.nextstepbackend.repository.ListsRepository;
+import org.example.nextstepbackend.repository.WorkspaceMemberRepository;
+import org.example.nextstepbackend.services.auth.AuthService;
 import org.example.nextstepbackend.utils.PositionUtils;
 import org.example.nextstepbackend.utils.RebalanceUtils;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,10 +35,23 @@ public class ListService {
   private final ListsRepository listsRepository;
   private final BoardRepository boardRepository;
   private final ListMapper listMapper;
+  private final AuthService authService;
+  private final BoardMemberRepository boardMemberRepository;
+  private final WorkspaceMemberRepository workspaceMemberRepository;
+  private final PermissionService permissionService;
 
   /** Create list with position resolved by afterId and beforeId */
   @Transactional
   public void createListByBoardSlug(String boardSlug, ListsRequest request) {
+
+    Integer userId = authService.getCurrentUserId();
+
+    BoardMember boardMember = getBoardMember(boardSlug, userId);
+
+    WorkspaceMember workspaceMember =
+            getWorkspaceMember(boardMember.getBoard().getWorkspace().getId(), userId);
+
+    permissionService.checkCanEdit(workspaceMember, boardMember);
 
     Board board = getBoard(boardSlug);
 
@@ -142,7 +161,43 @@ public class ListService {
     return PositionUtils.resolve(prev, next, ListEntity::getPosition);
   }
 
+  /** Archive list by id (soft delete( */
   public void archiveList(String slug, Integer listId) {
-    ListEntity list = listsRepository.findByBoard_SlugAndId(slug, listId);
+
+    // 1. Get list
+    ListEntity list =
+        listsRepository
+            .findByBoard_SlugAndId(slug, listId)
+            .orElseThrow(
+                () ->
+                    new ResourceNotFoundException(
+                        "List with id " + listId + " not found in board " + slug));
+
+    Integer userId = authService.getCurrentUserId();
+
+    // 2. Get board member
+    BoardMember boardMember = getBoardMember(slug, userId);
+
+    // 3. Get workspace member
+    WorkspaceMember workspaceMember =
+        getWorkspaceMember(list.getBoard().getWorkspace().getId(), userId);
+
+    // 4. Check permission
+    permissionService.checkCanDelete(workspaceMember, boardMember);
+
+    // 5. Delete (soft delete nếu bạn có field archived)
+    listsRepository.delete(list);
+  }
+
+  private BoardMember getBoardMember(String slug, Integer userId) {
+    return boardMemberRepository
+        .findByBoard_SlugAndUser_Id(slug, userId)
+        .orElseThrow(() -> new AccessDeniedException("You are not in this board"));
+  }
+
+  private WorkspaceMember getWorkspaceMember(Integer workspaceId, Integer userId) {
+    return workspaceMemberRepository
+        .findByWorkspace_IdAndUser_Id(workspaceId, userId)
+        .orElseThrow(() -> new AccessDeniedException("You are not in this workspace"));
   }
 }

@@ -21,12 +21,15 @@ import org.example.nextstepbackend.mappers.BoardMapper;
 import org.example.nextstepbackend.mappers.WorkSpaceMapper;
 import org.example.nextstepbackend.repository.BoardRepository;
 import org.example.nextstepbackend.repository.WorkSpaceRepository;
+import org.example.nextstepbackend.repository.WorkspaceMemberRepository;
 import org.example.nextstepbackend.services.auth.AuthService;
+import org.example.nextstepbackend.services.list.PermissionService;
 import org.example.nextstepbackend.utils.SlugUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,6 +42,8 @@ public class WorkSpaceService {
   private final WorkSpaceRepository workSpaceRepository;
   private final BoardRepository boardRepository;
   private final BoardMapper boardMapper;
+  private final PermissionService permissionService;
+  private final WorkspaceMemberRepository workspaceMemberRepository;
 
   /** Create a new workspace */
   @Transactional
@@ -82,6 +87,9 @@ public class WorkSpaceService {
     // Find workspace by slug and current user's email
     Workspace workspace = getWorkspaceBySlugAndCurrentUser(slug, email);
 
+    WorkspaceMember member = getWorkspaceMember(workspace.getId(), authService.getCurrentUserId());
+    permissionService.checkCanUpdateWorkspace(member.getRole());
+
     if (request.name() != null) {
       workspace.setName(request.name());
     }
@@ -101,6 +109,8 @@ public class WorkSpaceService {
   /** Delete workspace by slug and current user's email */
   public void deleteWorkspace(String slug, String email) {
     Workspace workspace = getWorkspaceBySlugAndCurrentUser(slug, email);
+    WorkspaceMember member = getWorkspaceMember(workspace.getId(), authService.getCurrentUserId());
+    permissionService.checkCanDeleteWorkspace(member.getRole());
     workSpaceRepository.delete(workspace);
   }
 
@@ -142,5 +152,11 @@ public class WorkSpaceService {
         page.getSize(),
         page.getTotalElements(),
         page.getTotalPages());
+  }
+
+  private WorkspaceMember getWorkspaceMember(Integer workspaceId, Integer userId) {
+    return workspaceMemberRepository
+            .findByWorkspace_IdAndUser_Id(workspaceId, userId)
+            .orElseThrow(() -> new AccessDeniedException("You are not in this workspace"));
   }
 }

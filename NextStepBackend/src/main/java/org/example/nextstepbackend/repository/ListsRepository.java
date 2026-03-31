@@ -2,6 +2,7 @@ package org.example.nextstepbackend.repository;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import org.example.nextstepbackend.entity.ListEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,5 +19,5 @@ public interface ListsRepository extends JpaRepository<ListEntity, Integer> {
 
   Page<ListEntity> findByBoardSlug(String slug, Pageable pageable);
 
-  ListEntity findByBoard_SlugAndId(String boardSlug, Integer id);
+  Optional<ListEntity> findByBoard_SlugAndId(String boardSlug, Integer id);
 }
