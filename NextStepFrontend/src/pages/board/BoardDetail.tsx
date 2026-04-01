@@ -41,6 +41,9 @@ import {
   SortableColumn,
 } from '@/components/colunm/ColumnComponents';
 import { AddListCard } from '@/components/form/FormComponents';
+import axios from 'axios';
+import type { ApiResponse } from '@/types/api.type';
+import toast from 'react-hot-toast';
 
 // ============================================================
 export default function BoardDetail() {
@@ -163,8 +166,23 @@ export default function BoardDetail() {
           backgroundImageUrl: debouncedBoard.backgroundImageUrl,
         });
         savedBoard.current = debouncedBoard;
-      } catch {
-        // TODO: toast
+      } catch (error: unknown) {
+        if (axios.isAxiosError<ApiResponse>(error)) {
+          const status = error.response?.status;
+          const meta = error.response?.data?.metaData;
+
+          const errors =
+            meta?.errors && meta.errors.length > 0
+              ? meta.errors
+              : [meta?.message || 'Có lỗi xảy ra'];
+
+          if (status === 400) {
+            errors.forEach((err) => toast.error(err));
+            return;
+          }
+        } else {
+          toast.error('Unexpected error');
+        }
       } finally {
         setSaving(false);
       }

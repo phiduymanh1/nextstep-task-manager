@@ -1,6 +1,7 @@
 package org.example.nextstepbackend.services.card;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -222,6 +223,13 @@ public class CardService {
 
     if (request.isCompleted() != null) {
       card.setIsCompleted(request.isCompleted());
+
+      if (Boolean.TRUE.equals(request.isCompleted())) {
+        card.setCompletedAt(LocalDateTime .now());
+      } else {
+        card.setCompletedAt(null);
+      }
+
       updated = true;
     }
 
