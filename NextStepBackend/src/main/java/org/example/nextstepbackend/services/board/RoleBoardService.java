@@ -27,19 +27,16 @@ public class RoleBoardService {
     BoardMember boardMember = getBoardMember(boardSlug, userId);
 
     Integer wsId =
-            (mode.equals(CREATE_MODE)) ? boardMember.getBoard().getWorkspace().getId() : workspaceId;
+        (mode.equals(CREATE_MODE)) ? boardMember.getBoard().getWorkspace().getId() : workspaceId;
 
     WorkspaceMember workspaceMember = getWorkspaceMember(wsId, userId);
 
     switch (mode) {
-      case DELETE_MODE ->
-              permissionService.checkCanDelete(workspaceMember, boardMember);
+      case DELETE_MODE -> permissionService.checkCanDelete(workspaceMember, boardMember);
 
-      case UPDATE_MODE ->
-              permissionService.checkCanEdit(workspaceMember, boardMember);
+      case UPDATE_MODE -> permissionService.checkCanEdit(workspaceMember, boardMember);
 
-      case CREATE_MODE ->
-              permissionService.checkCanUpdateWorkspace(workspaceMember.getRole());
+      case CREATE_MODE -> permissionService.checkCanUpdateWorkspace(workspaceMember.getRole());
 
       default -> throw new IllegalArgumentException("Invalid mode: " + mode);
     }

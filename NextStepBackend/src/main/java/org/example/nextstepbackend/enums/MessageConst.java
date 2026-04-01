@@ -33,6 +33,11 @@ public enum MessageConst {
   LIST_ARCHIVE_SUCCESS("I-LIST-002", HttpStatus.OK),
   LIST_UPDATE_SUCCESS("I-LIST-003", HttpStatus.OK),
 
+  // Card - info messages
+  CARD_CREATE_SUCCESS("I-CARD-001", HttpStatus.OK),
+  CARD_ARCHIVE_SUCCESS("I-CARD-002", HttpStatus.OK),
+  CARD_UPDATE_SUCCESS("I-CARD-003", HttpStatus.OK),
+
   // Auth - error messages
   AUTH_INVALID_CREDENTIALS("E-AUTH-001", HttpStatus.UNAUTHORIZED),
   AUTH_REFRESH_TOKEN_INVALID("E-AUTH-002", HttpStatus.UNAUTHORIZED),

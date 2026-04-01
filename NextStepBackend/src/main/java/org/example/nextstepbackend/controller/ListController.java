@@ -6,12 +6,15 @@ import org.example.nextstepbackend.dto.request.ListPositionRequest;
 import org.example.nextstepbackend.dto.request.ListsRequest;
 import org.example.nextstepbackend.dto.request.ListsUpdateRequest;
 import org.example.nextstepbackend.dto.response.common.ApiResponse;
+import org.example.nextstepbackend.dto.response.lists.ListDetailResponse;
+import org.example.nextstepbackend.dto.response.lists.ListsResponse;
 import org.example.nextstepbackend.enums.MessageConst;
 import org.example.nextstepbackend.services.list.ListService;
 import org.example.nextstepbackend.utils.ApiResponseUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,11 +35,11 @@ public class ListController extends BaseController {
 
   /** Api create list by slug of board */
   @PostMapping("/board/{boardSlug}")
-  public ResponseEntity<ApiResponse<Void>> createList(
+  public ResponseEntity<ApiResponse<ListsResponse>> createList(
       @PathVariable String boardSlug, @Valid @RequestBody ListsRequest request) {
-    listService.createListByBoardSlug(boardSlug, request);
+    ListsResponse response = listService.createListByBoardSlug(boardSlug, request);
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(success(MessageConst.LIST_CREATE_SUCCESS, null));
+        .body(success(MessageConst.LIST_CREATE_SUCCESS, response));
   }
 
   @DeleteMapping("/{boardSlug}/{listId}")
@@ -63,5 +66,13 @@ public class ListController extends BaseController {
 
     listService.updateListPosition(boardSlug, listId, request);
     return ResponseEntity.ok(success(MessageConst.LIST_UPDATE_SUCCESS, null));
+  }
+
+  @GetMapping("/lists/{listId}")
+  public ResponseEntity<ApiResponse<ListDetailResponse>> getListDetail(
+      @PathVariable Integer listId) {
+
+    var response = listService.getListDetail(listId);
+    return ResponseEntity.ok(success(null, response));
   }
 }

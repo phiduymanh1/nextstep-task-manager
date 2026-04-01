@@ -20,4 +20,13 @@ public interface ListsRepository extends JpaRepository<ListEntity, Integer> {
   Page<ListEntity> findByBoardSlug(String slug, Pageable pageable);
 
   Optional<ListEntity> findByBoard_SlugAndId(String boardSlug, Integer id);
+
+  @Query(
+      """
+  SELECT l FROM ListEntity l
+  JOIN l.board b
+  JOIN b.members m
+  WHERE l.id = :listId AND m.user.email = :email
+""")
+  Optional<ListEntity> findByIdAndMember(Integer listId, String email);
 }

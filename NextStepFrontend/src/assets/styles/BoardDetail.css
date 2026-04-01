@@ -1,7 +1,27 @@
 /* ============================================================
-   BoardDetail.css
+   BoardDetail.css  –  Responsive, polished Trello-like board
    ============================================================ */
 
+/* ---- CSS custom properties ---- */
+:root {
+    --col-width: 272px;
+    --col-gap: 12px;
+    --col-radius: 12px;
+    --col-bg: rgba(22, 22, 22, 0.88);
+    --col-blur: blur(10px);
+    --accent: #579dff;
+    --accent-hover: #4a8de8;
+    --danger: #f87168;
+    --card-bg: #2d2d2d;
+    --card-bg-hover: #383838;
+    --text-muted: rgba(255, 255, 255, 0.45);
+    --text-dim: rgba(255, 255, 255, 0.65);
+    --border-subtle: rgba(255, 255, 255, 0.1);
+}
+
+/* ============================================================
+   ROOT CONTAINER
+   ============================================================ */
 .board-container {
     height: 100%;
     display: flex;
@@ -16,7 +36,7 @@
 }
 
 /* ============================================================
-   HEADER BAR — bordered card
+   HEADER BAR
    ============================================================ */
 .board-header-bar {
     flex-shrink: 0;
@@ -28,9 +48,7 @@
     padding: 8px 12px 6px;
     margin-bottom: 10px;
     position: relative;
-    /* tạo stacking context */
     z-index: 10;
-    /* nổi trên columns */
 }
 
 .board-header-inner {
@@ -38,6 +56,8 @@
     align-items: center;
     justify-content: space-between;
     gap: 12px;
+    flex-wrap: wrap;
+    row-gap: 6px;
 }
 
 .board-header-left,
@@ -45,24 +65,27 @@
     display: flex;
     align-items: center;
     gap: 6px;
+    flex-wrap: wrap;
 }
 
-/* Auto-save hint */
 .board-saving-hint {
     font-size: 11px;
-    color: rgba(255, 255, 255, 0.45);
+    color: var(--text-muted);
     font-style: italic;
     white-space: nowrap;
 }
 
 /* ---- Board title ---- */
 .board-title {
-    font-size: clamp(15px, 2vw, 20px);
+    font-size: clamp(14px, 2vw, 20px);
     font-weight: 700;
     cursor: pointer;
     padding: 3px 8px;
     border-radius: 6px;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: min(240px, 40vw);
     transition: background 0.15s;
     user-select: none;
 }
@@ -72,7 +95,7 @@
 }
 
 .board-title-input {
-    font-size: clamp(15px, 2vw, 20px);
+    font-size: clamp(14px, 2vw, 20px);
     font-weight: 700;
     background: rgba(0, 0, 0, 0.3);
     border: 2px solid rgba(255, 255, 255, 0.55);
@@ -80,48 +103,7 @@
     color: white;
     padding: 2px 8px;
     outline: none;
-    width: 200px;
-}
-
-/* ---- Description row ---- */
-.board-description-row {
-    margin-top: 5px;
-    padding: 0 4px;
-    border-top: 1px solid rgba(255, 255, 255, 0.07);
-    padding-top: 5px;
-}
-
-.board-description {
-    font-size: 12px;
-    color: rgba(255, 255, 255, 0.55);
-    cursor: pointer;
-    display: block;
-    padding: 2px 6px;
-    border-radius: 5px;
-    line-height: 1.5;
-    transition: background 0.15s, color 0.15s;
-    user-select: none;
-    white-space: pre-wrap;
-}
-
-.board-description:hover {
-    background: rgba(255, 255, 255, 0.07);
-    color: rgba(255, 255, 255, 0.8);
-}
-
-.board-description-input {
-    font-size: 12px;
-    background: rgba(0, 0, 0, 0.3);
-    border: 1.5px solid rgba(255, 255, 255, 0.4);
-    border-radius: 5px;
-    color: white;
-    padding: 4px 8px;
-    outline: none;
-    width: 100%;
-    box-sizing: border-box;
-    resize: vertical;
-    line-height: 1.5;
-    min-height: 48px;
+    width: clamp(140px, 25vw, 220px);
 }
 
 /* ---- Visibility dropdown ---- */
@@ -164,7 +146,7 @@
     left: 0;
     z-index: 500;
     background: #2c333a;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--border-subtle);
     border-radius: 10px;
     padding: 8px 6px;
     min-width: 240px;
@@ -175,7 +157,7 @@
     font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.45);
+    color: var(--text-muted);
     letter-spacing: 0.06em;
     padding: 2px 8px 8px;
     text-align: center;
@@ -218,11 +200,11 @@
 
 .visibility-item-desc {
     font-size: 11.5px;
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--text-muted);
     line-height: 1.4;
 }
 
-/* ---- Header right buttons ---- */
+/* ---- Header buttons ---- */
 .header-btn {
     display: flex;
     align-items: center;
@@ -238,12 +220,12 @@
 }
 
 .header-btn--share {
-    background: #579dff;
+    background: var(--accent);
     color: #fff;
 }
 
 .header-btn--share:hover {
-    background: #4a8de8;
+    background: var(--accent-hover);
 }
 
 .header-btn--more {
@@ -322,7 +304,7 @@
    ============================================================ */
 .board-columns {
     display: inline-flex;
-    gap: 12px;
+    gap: var(--col-gap);
     align-items: flex-start;
     height: 100%;
     padding: 2px 2px 6px 2px;
@@ -332,29 +314,38 @@
    COLUMN
    ============================================================ */
 .board-column {
-    width: 272px;
+    width: var(--col-width);
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
-    background: rgba(22, 22, 22, 0.85);
-    backdrop-filter: blur(10px);
-    border-radius: 12px;
-    padding: 10px 10px 8px;
+    background: var(--col-bg);
+    backdrop-filter: var(--col-blur);
+    -webkit-backdrop-filter: var(--col-blur);
+    border-radius: var(--col-radius);
+    padding: 10px 8px 8px;
     box-sizing: border-box;
     max-height: 100%;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    transition: box-shadow 0.15s;
+}
+
+.board-column:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
 .board-column.is-col-dragging {
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
     transform: rotate(2deg);
+    border-color: rgba(255, 255, 255, 0.15);
 }
 
+/* ---- Column header ---- */
 .column-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 4px;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
     flex-shrink: 0;
 }
 
@@ -370,15 +361,16 @@
 
 .column-title {
     font-weight: 700;
-    font-size: 14px;
+    font-size: 13.5px;
     display: block;
-    padding: 2px 4px;
+    padding: 3px 6px;
     border-radius: 4px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     transition: background 0.12s;
     user-select: none;
+    line-height: 1.4;
 }
 
 .column-title:hover {
@@ -386,13 +378,13 @@
 }
 
 .column-title-input {
-    font-size: 14px;
+    font-size: 13.5px;
     font-weight: 700;
     background: rgba(0, 0, 0, 0.4);
     border: 2px solid rgba(255, 255, 255, 0.5);
     border-radius: 4px;
     color: white;
-    padding: 1px 6px;
+    padding: 2px 6px;
     outline: none;
     width: 100%;
     box-sizing: border-box;
@@ -402,7 +394,7 @@
     flex-shrink: 0;
     background: transparent;
     border: none;
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--text-muted);
     font-size: 16px;
     letter-spacing: 1px;
     cursor: pointer;
@@ -418,7 +410,7 @@
 }
 
 /* ============================================================
-   TASK LIST & CARD
+   TASK LIST & CARDS
    ============================================================ */
 .task-list {
     display: flex;
@@ -440,20 +432,24 @@
 }
 
 .task-card {
-    background: #2d2d2d;
-    padding: 9px 12px;
+    background: var(--card-bg);
+    padding: 8px 10px;
     border-radius: 8px;
     cursor: grab;
     font-size: 13px;
-    line-height: 1.4;
+    line-height: 1.45;
     word-break: break-word;
-    transition: background 0.15s;
+    transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
     user-select: none;
+    border: 1px solid transparent;
 }
 
 .task-card:hover {
-    background: #383838;
+    background: var(--card-bg-hover);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+    border-color: rgba(255, 255, 255, 0.08);
+    transform: translateY(-1px);
 }
 
 .task-card.is-dragging {
@@ -461,31 +457,176 @@
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
     cursor: grabbing;
     opacity: 0.95;
+    transform: rotate(1.5deg);
+}
+
+.task-card-title {
+    display: block;
+}
+
+/* ---- Column loading state ---- */
+.column-loading {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 2px 0;
+}
+
+/* ---- Column error state ---- */
+.column-error {
+    background: rgba(220, 38, 38, 0.18);
+    border: 1px solid rgba(220, 38, 38, 0.4);
+    border-radius: 7px;
+    padding: 8px 10px;
+    font-size: 12px;
+    color: #fca5a5;
+    line-height: 1.4;
 }
 
 /* ============================================================
    ADD TASK BUTTON (inside column)
    ============================================================ */
 .add-task {
-    margin-top: 8px;
+    margin-top: 6px;
     background: transparent;
     border: none;
-    color: rgba(255, 255, 255, 0.45);
+    color: var(--text-muted);
     cursor: pointer;
     font-size: 13px;
     text-align: left;
-    padding: 4px 2px;
+    padding: 5px 6px;
+    border-radius: 6px;
     flex-shrink: 0;
-    transition: color 0.15s;
+    transition: background 0.15s, color 0.15s;
     width: 100%;
 }
 
 .add-task:hover {
-    color: rgba(255, 255, 255, 0.85);
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.9);
 }
 
 /* ============================================================
-   ADD LIST — button & form (end of column row)
+   ADD CARD FORM
+   ============================================================ */
+.add-card-form {
+    margin-top: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.add-card-input {
+    width: 100%;
+    box-sizing: border-box;
+    background: rgba(255, 255, 255, 0.06);
+    border: 2px solid rgba(87, 157, 255, 0.65);
+    border-radius: 7px;
+    color: white;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 7px 9px;
+    outline: none;
+    resize: none;
+    line-height: 1.4;
+    transition: border-color 0.15s, background 0.15s;
+    font-family: inherit;
+}
+
+.add-card-input::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+    font-weight: 400;
+}
+
+.add-card-input:focus {
+    border-color: var(--accent);
+    background: rgba(255, 255, 255, 0.09);
+}
+
+.add-card-input--error {
+    border-color: var(--danger) !important;
+}
+
+.add-card-error {
+    font-size: 11.5px;
+    color: #fca5a5;
+    padding: 2px 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.add-card-error::before {
+    content: '⚠';
+}
+
+.add-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.add-card-confirm {
+    flex: 1;
+    background: var(--accent);
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 6px 10px;
+    cursor: pointer;
+    transition: background 0.15s, opacity 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 30px;
+}
+
+.add-card-confirm:hover:not(:disabled) {
+    background: var(--accent-hover);
+}
+
+.add-card-confirm:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+/* Spinner inside confirm button */
+.add-card-spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.35);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.add-card-cancel {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 16px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: background 0.12s, color 0.12s;
+}
+
+.add-card-cancel:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+/* ============================================================
+   ADD LIST — button & form
    ============================================================ */
 .add-list-btn {
     flex-shrink: 0;
@@ -497,7 +638,7 @@
     gap: 8px;
     background: rgba(255, 255, 255, 0.18);
     border: 1.5px dashed rgba(255, 255, 255, 0.3);
-    border-radius: 12px;
+    border-radius: var(--col-radius);
     color: white;
     font-size: 14px;
     font-weight: 500;
@@ -522,15 +663,15 @@
     flex-shrink: 0;
     width: 250px;
     align-self: flex-start;
-    background: rgba(22, 22, 22, 0.92);
-    backdrop-filter: blur(10px);
-    border-radius: 12px;
+    background: var(--col-bg);
+    backdrop-filter: var(--col-blur);
+    border-radius: var(--col-radius);
     padding: 10px;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
     gap: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    border: 1px solid var(--border-subtle);
 }
 
 .add-list-input {
@@ -545,6 +686,7 @@
     padding: 7px 10px;
     outline: none;
     transition: border-color 0.15s;
+    font-family: inherit;
 }
 
 .add-list-input::placeholder {
@@ -553,7 +695,7 @@
 }
 
 .add-list-input:focus {
-    border-color: #579dff;
+    border-color: var(--accent);
 }
 
 .add-list-actions {
@@ -564,7 +706,7 @@
 
 .add-list-confirm {
     flex: 1;
-    background: #579dff;
+    background: var(--accent);
     border: none;
     border-radius: 6px;
     color: white;
@@ -576,7 +718,7 @@
 }
 
 .add-list-confirm:hover:not(:disabled) {
-    background: #4a8de8;
+    background: var(--accent-hover);
 }
 
 .add-list-confirm:disabled {
@@ -587,7 +729,7 @@
 .add-list-cancel {
     background: transparent;
     border: none;
-    color: rgba(255, 255, 255, 0.55);
+    color: var(--text-muted);
     font-size: 16px;
     cursor: pointer;
     padding: 4px 8px;
@@ -631,6 +773,8 @@
 
 .board-column--skeleton {
     gap: 8px;
+    display: flex;
+    flex-direction: column;
 }
 
 .skeleton--title {
@@ -643,4 +787,284 @@
     height: 36px;
     width: 100%;
     border-radius: 8px;
+}
+
+/* ============================================================
+   BOARD MENU PANEL
+   ============================================================ */
+.board-menu-wrap {
+    position: relative;
+}
+
+.board-menu-panel {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    width: 304px;
+    background: #282e33;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    z-index: 200;
+    overflow: hidden;
+}
+
+.board-menu-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 16px;
+    position: relative;
+}
+
+.board-menu-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #b6c2cf;
+}
+
+.board-menu-close {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #9fadbc;
+    font-size: 16px;
+    cursor: pointer;
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+}
+
+.board-menu-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #b6c2cf;
+}
+
+.board-menu-divider {
+    height: 1px;
+    background: var(--border-subtle);
+    margin: 4px 0;
+}
+
+.board-menu-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 16px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    color: #b6c2cf;
+    transition: background 0.15s;
+}
+
+.board-menu-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.board-menu-item--danger {
+    color: var(--danger);
+}
+
+.board-menu-item--danger:hover {
+    background: rgba(248, 113, 104, 0.12);
+}
+
+.board-menu-item-icon {
+    font-size: 16px;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.board-menu-item-body {
+    flex: 1;
+}
+
+.board-menu-item-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: inherit;
+    line-height: 1.4;
+}
+
+.board-menu-item-desc {
+    font-size: 12px;
+    color: #8c9bab;
+    margin-top: 2px;
+    line-height: 1.4;
+}
+
+.board-menu-item-arrow {
+    font-size: 12px;
+    color: #8c9bab;
+    margin-left: auto;
+    align-self: center;
+}
+
+.board-menu-sub {
+    padding: 4px 16px 8px;
+    background: rgba(0, 0, 0, 0.15);
+}
+
+/* ============================================================
+   LIST MENU PANEL
+   ============================================================ */
+.list-menu-wrap {
+    position: relative;
+}
+
+.list-menu-panel {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    width: 260px;
+    background: #282e33;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    z-index: 200;
+    overflow: hidden;
+}
+
+.list-menu-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 16px;
+    position: relative;
+}
+
+.list-menu-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #b6c2cf;
+}
+
+.list-menu-close {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #9fadbc;
+    font-size: 15px;
+    cursor: pointer;
+    width: 26px;
+    height: 26px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+}
+
+.list-menu-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #b6c2cf;
+}
+
+.list-menu-divider {
+    height: 1px;
+    background: var(--border-subtle);
+    margin: 4px 0;
+}
+
+.list-menu-item {
+    display: block;
+    width: 100%;
+    padding: 8px 16px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    font-size: 14px;
+    color: #b6c2cf;
+    transition: background 0.15s;
+    line-height: 1.4;
+    font-family: inherit;
+}
+
+.list-menu-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.list-menu-item--danger {
+    color: var(--danger);
+}
+
+.list-menu-item--danger:hover {
+    background: rgba(248, 113, 104, 0.12);
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+/* Tablet: slightly smaller column */
+@media (max-width: 900px) {
+    :root {
+        --col-width: 240px;
+        --col-gap: 10px;
+    }
+
+    .board-container {
+        padding: 8px 10px 12px;
+    }
+
+    .board-menu-panel {
+        width: 280px;
+    }
+
+    .add-list-btn,
+    .add-list-form {
+        width: 220px;
+    }
+}
+
+/* Mobile: full-width columns that still scroll horizontally */
+@media (max-width: 600px) {
+    :root {
+        --col-width: 220px;
+        --col-gap: 8px;
+    }
+
+    .board-container {
+        padding: 6px 8px 10px;
+    }
+
+    .board-header-inner {
+        flex-wrap: wrap;
+        row-gap: 6px;
+    }
+
+    .header-btn--share span:not(:first-child) {
+        display: none;
+    }
+
+    .board-menu-panel {
+        width: min(95vw, 300px);
+        right: -8px;
+    }
+
+    .list-menu-panel {
+        width: min(90vw, 260px);
+        right: -4px;
+    }
+
+    .add-list-btn,
+    .add-list-form {
+        width: 200px;
+    }
+
+    .visibility-menu {
+        min-width: 200px;
+    }
 }

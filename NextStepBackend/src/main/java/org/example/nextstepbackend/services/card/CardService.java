@@ -1,0 +1,328 @@
+package org.example.nextstepbackend.services.card;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import lombok.RequiredArgsConstructor;
+import org.example.nextstepbackend.dto.request.CardPositionRequest;
+import org.example.nextstepbackend.dto.request.CardRequest;
+import org.example.nextstepbackend.dto.request.CardUpdateRequest;
+import org.example.nextstepbackend.dto.response.card.CardResponse;
+import org.example.nextstepbackend.entity.Card;
+import org.example.nextstepbackend.entity.ListEntity;
+import org.example.nextstepbackend.exceptions.InvalidInputException;
+import org.example.nextstepbackend.exceptions.ResourceNotFoundException;
+import org.example.nextstepbackend.mappers.CardMapper;
+import org.example.nextstepbackend.repository.CardRepository;
+import org.example.nextstepbackend.repository.ListsRepository;
+import org.example.nextstepbackend.repository.UserRepository;
+import org.example.nextstepbackend.services.auth.AuthService;
+import org.example.nextstepbackend.services.board.RoleBoardService;
+import org.example.nextstepbackend.utils.PositionUtils;
+import org.example.nextstepbackend.utils.RebalanceUtils;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@RequiredArgsConstructor
+public class CardService {
+
+  private final AuthService authService;
+  private final ListsRepository listsRepository;
+  private final RoleBoardService roleBoardService;
+
+  private static final String DELETE_MODE = "DELETE";
+  private static final String CREATE_MODE = "CREATE";
+  private static final String UPDATE_MODE = "UPDATE";
+  private final UserRepository userRepository;
+  private final CardRepository cardRepository;
+  private final CardMapper cardMapper;
+
+  @Transactional
+  public CardResponse createCard(Integer listId, CardRequest request) {
+
+    Integer userId = authService.getCurrentUserId();
+
+    ListEntity list =
+        listsRepository
+            .findById(listId)
+            .orElseThrow(() -> new ResourceNotFoundException("List not found"));
+
+    roleBoardService.checkRoleBoard(list.getBoard().getSlug(), userId, null, CREATE_MODE);
+
+    // 2. Load prev & next card
+    Map<Integer, Card> refMap = getReferenceCards(request.afterId(), request.beforeId());
+
+    // New: if client provided ids but they were not found, return 404 so client knows refs are
+    // invalid
+    if (request.afterId() != null && !refMap.containsKey(request.afterId())) {
+      throw new ResourceNotFoundException("Prev card not found");
+    }
+    if (request.beforeId() != null && !refMap.containsKey(request.beforeId())) {
+      throw new ResourceNotFoundException("Next card not found");
+    }
+
+    Card prev = request.afterId() != null ? refMap.get(request.afterId()) : null;
+    Card next = request.beforeId() != null ? refMap.get(request.beforeId()) : null;
+
+    // New: disallow referencing archived cards
+    if (prev != null && Boolean.TRUE.equals(prev.getIsArchived())) {
+      throw new InvalidInputException("Prev card is archived");
+    }
+    if (next != null && Boolean.TRUE.equals(next.getIsArchived())) {
+      throw new InvalidInputException("Next card is archived");
+    }
+
+    // 3. Validate
+    validateSameList(list, prev, next);
+    validateOrder(prev, next);
+
+    // 4. Append case
+    if (prev == null && next == null) {
+      return createAtEnd(list, request);
+    }
+
+    // 5. Resolve position
+    var result = PositionUtils.resolve(prev, next, Card::getPosition);
+
+    // 6. Rebalance nếu cần
+    if (result.needRebalance()) {
+      result = handleRebalanceCard(list, request.afterId(), request.beforeId());
+    }
+
+    // 7. Create card
+    Card card =
+        Card.builder()
+            .title(request.title())
+            .description(request.description())
+            .list(list)
+            .position(result.position())
+            .createdBy(userRepository.getReferenceById(userId))
+            .build();
+
+    Card saved = cardRepository.save(card);
+
+    return cardMapper.toCardResponse(saved);
+  }
+
+  private Map<Integer, Card> getReferenceCards(Integer afterId, Integer beforeId) {
+
+    Set<Integer> ids =
+        Stream.of(afterId, beforeId).filter(Objects::nonNull).collect(Collectors.toSet());
+
+    if (ids.isEmpty()) return Map.of();
+
+    return cardRepository.findByIdIn(ids).stream().collect(Collectors.toMap(Card::getId, c -> c));
+  }
+
+  private void validateSameList(ListEntity list, Card prev, Card next) {
+
+    if (prev != null && !prev.getList().getId().equals(list.getId())) {
+      throw new InvalidInputException("Prev card not in same list");
+    }
+
+    if (next != null && !next.getList().getId().equals(list.getId())) {
+      throw new InvalidInputException("Next card not in same list");
+    }
+  }
+
+  private void validateOrder(Card prev, Card next) {
+    if (prev != null
+            && next != null
+            && prev.getPosition().compareTo(next.getPosition()) >= 0) {
+      throw new InvalidInputException("Invalid card order");
+    }
+  }
+
+  private CardResponse createAtEnd(ListEntity list, CardRequest request) {
+
+    var maxPosition =
+        cardRepository.findMaxPositionByListId(list.getId()).orElse(java.math.BigDecimal.ZERO);
+
+    Card card =
+        Card.builder()
+            .title(request.title())
+            .description(request.description())
+            .list(list)
+            .position(maxPosition.add(java.math.BigDecimal.valueOf(1000)))
+            .createdBy(userRepository.getReferenceById(authService.getCurrentUserId()))
+            .build();
+
+    return cardMapper.toCardResponse(cardRepository.save(card));
+  }
+
+  private PositionUtils.MoveResult<Card> handleRebalanceCard(
+      ListEntity list, Integer afterId, Integer beforeId) {
+
+    List<Card> cards =
+        cardRepository.findByListIdAndIsArchivedFalseOrderByPositionAsc(list.getId());
+
+    RebalanceUtils.rebalance(cards, Card::setPosition);
+
+    cardRepository.saveAll(cards);
+
+    Map<Integer, Card> map =
+        cards.stream().collect(Collectors.toMap(Card::getId, Function.identity()));
+
+    Card prev = (afterId != null) ? map.get(afterId) : null;
+    Card next = (beforeId != null) ? map.get(beforeId) : null;
+
+    return PositionUtils.resolve(prev, next, Card::getPosition);
+  }
+
+  @Transactional
+  public void archiveCard(Integer cardId) {
+
+    Card card = getCard(cardId);
+
+    Integer userId = authService.getCurrentUserId();
+
+    roleBoardService.checkRoleBoard(
+        card.getList().getBoard().getSlug(),
+        userId,
+        card.getList().getBoard().getWorkspace().getId(),
+        DELETE_MODE);
+
+    card.setIsArchived(true);
+  }
+
+  @Transactional
+  public void updateCard(Integer cardId, CardUpdateRequest request) {
+
+    Card card = getCard(cardId);
+
+    // check quyền qua board
+    roleBoardService.checkRoleBoard(
+        card.getList().getBoard().getSlug(),
+        authService.getCurrentUserId(),
+        card.getList().getBoard().getWorkspace().getId(),
+        UPDATE_MODE);
+
+    boolean updated = false;
+
+    if (request.title() != null) {
+      card.setTitle(request.title());
+      updated = true;
+    }
+
+    if (request.description() != null) {
+      card.setDescription(request.description());
+      updated = true;
+    }
+
+    if (request.dueDate() != null) {
+      card.setDueDate(request.dueDate());
+      updated = true;
+    }
+
+    if (request.isCompleted() != null) {
+      card.setIsCompleted(request.isCompleted());
+      updated = true;
+    }
+
+    if (request.coverColor() != null) {
+      card.setCoverColor(request.coverColor());
+      updated = true;
+    }
+
+    if (request.coverImageUrl() != null) {
+      card.setCoverImageUrl(request.coverImageUrl());
+      updated = true;
+    }
+
+    if (!updated) {
+      throw new InvalidInputException("No fields to update");
+    }
+  }
+
+  @Transactional
+  public void updateCardPosition(Integer cardId, CardPositionRequest request) {
+
+    Integer userId = authService.getCurrentUserId();
+
+    // 1. Get current card
+    Card card = getCard(cardId);
+
+    // 2. Get target list
+    ListEntity targetList =
+        listsRepository
+            .findById(request.listId())
+            .orElseThrow(() -> new ResourceNotFoundException("List not found"));
+
+    // 3. Permission (qua board)
+    roleBoardService.checkRoleBoard(
+        targetList.getBoard().getSlug(),
+        userId,
+        targetList.getBoard().getWorkspace().getId(),
+        UPDATE_MODE);
+
+    // 4. Load prev & next
+    Map<Integer, Card> refMap = getReferenceCards(request.afterId(), request.beforeId());
+
+    Card prev = refMap.get(request.afterId());
+    Card next = refMap.get(request.beforeId());
+
+    // New: if client provided ids but they were not found, return 404 so client knows refs are
+    // invalid
+    if (request.afterId() != null && !refMap.containsKey(request.afterId())) {
+      throw new ResourceNotFoundException("Prev card not found");
+    }
+    if (request.beforeId() != null && !refMap.containsKey(request.beforeId())) {
+      throw new ResourceNotFoundException("Next card not found");
+    }
+
+    // New: disallow referencing archived cards
+    if (prev != null && Boolean.TRUE.equals(prev.getIsArchived())) {
+      throw new InvalidInputException("Prev card is archived");
+    }
+    if (next != null && Boolean.TRUE.equals(next.getIsArchived())) {
+      throw new InvalidInputException("Next card is archived");
+    }
+
+    // Not cho move relative với chính nó
+    if ((prev != null && prev.getId().equals(cardId))
+        || (next != null && next.getId().equals(cardId))) {
+      throw new InvalidInputException("Cannot move relative to itself");
+    }
+
+    // 5. Validate same list (target list)
+    validateSameList(targetList, prev, next);
+    validateOrder(prev, next);
+
+    // 6. Move sang list mới nếu cần
+    card.setList(targetList);
+
+    // 7. Append case
+    if (prev == null && next == null) {
+
+      BigDecimal maxPos =
+          cardRepository.findMaxPositionByListId(targetList.getId()).orElse(BigDecimal.ZERO);
+
+      BigDecimal newPos = maxPos.add(new BigDecimal("1000"));
+      card.setPosition(newPos);
+      return;
+    }
+
+    // 8. Resolve position
+    var result = PositionUtils.resolve(prev, next, Card::getPosition);
+
+    // 9. Rebalance nếu cần
+    if (result.needRebalance()) {
+      result = handleRebalanceCard(targetList, request.afterId(), request.beforeId());
+    }
+
+    // 10. Set position
+    card.setPosition(result.position());
+  }
+
+  private Card getCard(Integer cardId) {
+    return cardRepository
+        .findById(cardId)
+        .orElseThrow(() -> new ResourceNotFoundException("Card not found"));
+  }
+}

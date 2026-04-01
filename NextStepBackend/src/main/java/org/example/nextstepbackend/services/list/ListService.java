@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -12,12 +13,18 @@ import lombok.RequiredArgsConstructor;
 import org.example.nextstepbackend.dto.request.ListPositionRequest;
 import org.example.nextstepbackend.dto.request.ListsRequest;
 import org.example.nextstepbackend.dto.request.ListsUpdateRequest;
+import org.example.nextstepbackend.dto.response.card.CardResponse;
+import org.example.nextstepbackend.dto.response.lists.ListDetailResponse;
+import org.example.nextstepbackend.dto.response.lists.ListsResponse;
 import org.example.nextstepbackend.entity.Board;
+import org.example.nextstepbackend.entity.Card;
 import org.example.nextstepbackend.entity.ListEntity;
 import org.example.nextstepbackend.exceptions.InvalidInputException;
 import org.example.nextstepbackend.exceptions.ResourceNotFoundException;
+import org.example.nextstepbackend.mappers.CardMapper;
 import org.example.nextstepbackend.mappers.ListMapper;
 import org.example.nextstepbackend.repository.BoardRepository;
+import org.example.nextstepbackend.repository.CardRepository;
 import org.example.nextstepbackend.repository.ListsRepository;
 import org.example.nextstepbackend.services.auth.AuthService;
 import org.example.nextstepbackend.services.board.RoleBoardService;
@@ -39,10 +46,12 @@ public class ListService {
   private static final String DELETE_MODE = "DELETE";
   private static final String CREATE_MODE = "CREATE";
   private static final String UPDATE_MODE = "UPDATE";
+  private final CardRepository cardRepository;
+  private final CardMapper cardMapper;
 
   /** Create list with position resolved by afterId and beforeId */
   @Transactional
-  public void createListByBoardSlug(String boardSlug, ListsRequest request) {
+  public ListsResponse createListByBoardSlug(String boardSlug, ListsRequest request) {
 
     Integer userId = authService.getCurrentUserId();
 
@@ -62,8 +71,7 @@ public class ListService {
 
     // 3. Append case (fast path)
     if (prev == null && next == null) {
-      createAtEnd(board, request);
-      return;
+      return createAtEnd(board, request);
     }
 
     // 4. Resolve position
@@ -79,7 +87,8 @@ public class ListService {
     entity.setBoard(board);
     entity.setPosition(result.position());
 
-    listsRepository.save(entity);
+    ListEntity list = listsRepository.save(entity);
+    return new ListsResponse(list.getId(), list.getName(), list.getIsArchived());
   }
 
   /** Get board by slug or throw 404 */
@@ -96,8 +105,19 @@ public class ListService {
 
     if (ids.isEmpty()) return Collections.emptyMap();
 
-    return listsRepository.findAllById(ids).stream()
-        .collect(Collectors.toMap(ListEntity::getId, Function.identity()));
+    Map<Integer, ListEntity> map =
+        listsRepository.findAllById(ids).stream()
+            .collect(Collectors.toMap(ListEntity::getId, Function.identity()));
+
+    // If caller provided ids but some were not found in DB, surface a 404 rather than silently
+    // treating as null.
+    Set<Integer> missing =
+        ids.stream().filter(id -> !map.containsKey(id)).collect(Collectors.toSet());
+    if (!missing.isEmpty()) {
+      throw new ResourceNotFoundException("List(s) with id(s) " + missing + " not found");
+    }
+
+    return map;
   }
 
   private void validateSameBoard(Board board, ListEntity prev, ListEntity next) {
@@ -119,7 +139,7 @@ public class ListService {
   }
 
   /** Create list at the end of the board (when no afterId and beforeId) */
-  private void createAtEnd(Board board, ListsRequest request) {
+  private ListsResponse createAtEnd(Board board, ListsRequest request) {
 
     BigDecimal maxPos = listsRepository.findMaxPositionByBoardId(board.getId());
     BigDecimal newPos = (maxPos == null) ? BigDecimal.ONE : maxPos.add(new BigDecimal("1000"));
@@ -128,7 +148,9 @@ public class ListService {
     entity.setBoard(board);
     entity.setPosition(newPos);
 
-    listsRepository.save(entity);
+    ListEntity list = listsRepository.save(entity);
+
+    return new ListsResponse(list.getId(), list.getName(), list.getIsArchived());
   }
 
   /** Rebalanced positions of all lists in the board and resolve position for new list */
@@ -215,9 +237,11 @@ public class ListService {
     validateSameBoard(board, prev, next);
     validateOrder(prev, next);
 
+    // If both references missing -> append to end. Handle null maxPos and use consistent step.
     if (prev == null && next == null) {
       BigDecimal maxPos = listsRepository.findMaxPositionByBoardId(board.getId());
-      list.setPosition(maxPos.add(BigDecimal.ONE));
+      BigDecimal newPos = (maxPos == null) ? BigDecimal.ONE : maxPos.add(new BigDecimal("1000"));
+      list.setPosition(newPos);
       return;
     }
 
@@ -237,5 +261,22 @@ public class ListService {
             () ->
                 new ResourceNotFoundException(
                     "List with id " + listId + " not found in board " + slug));
+  }
+
+  public ListDetailResponse getListDetail(Integer listId) {
+
+    String email = authService.getCurrentUser().getEmail();
+
+    // check quyền + lấy list
+    ListEntity list =
+        listsRepository
+            .findByIdAndMember(listId, email)
+            .orElseThrow(() -> new ResourceNotFoundException("List not found"));
+
+    List<Card> cards = cardRepository.findByListIdAndIsArchivedFalseOrderByPositionAsc(listId);
+
+    List<CardResponse> cardResponses = cards.stream().map(cardMapper::toCardResponse).toList();
+
+    return new ListDetailResponse(list.getId(), list.getName(), list.getPosition(), cardResponses);
   }
 }
