@@ -1,15 +1,7 @@
 package org.example.nextstepbackend.services.card;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
+import org.example.nextstepbackend.comm.constants.Const;
 import org.example.nextstepbackend.dto.request.AttachmentResponse;
 import org.example.nextstepbackend.dto.request.CardDetailResponse;
 import org.example.nextstepbackend.dto.request.CardPositionRequest;
@@ -48,6 +40,16 @@ import org.example.nextstepbackend.utils.RebalanceUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 @Service
 @RequiredArgsConstructor
 public class CardService {
@@ -55,10 +57,6 @@ public class CardService {
   private final AuthService authService;
   private final ListsRepository listsRepository;
   private final RoleBoardService roleBoardService;
-
-  private static final String DELETE_MODE = "DELETE";
-  private static final String CREATE_MODE = "CREATE";
-  private static final String UPDATE_MODE = "UPDATE";
   private final UserRepository userRepository;
   private final CardRepository cardRepository;
   private final CardMapper cardMapper;
@@ -81,7 +79,7 @@ public class CardService {
             .findById(listId)
             .orElseThrow(() -> new ResourceNotFoundException("List not found"));
 
-    roleBoardService.checkRoleBoard(list.getBoard().getSlug(), userId, null, CREATE_MODE);
+    roleBoardService.checkRoleBoard(list.getBoard().getSlug(), userId, null, Const.CREATE_MODE);
 
     // 2. Load prev & next card
     Map<Integer, Card> refMap = getReferenceCards(request.afterId(), request.beforeId());
@@ -219,7 +217,7 @@ public class CardService {
         card.getList().getBoard().getSlug(),
         userId,
         card.getList().getBoard().getWorkspace().getId(),
-        DELETE_MODE);
+        Const.DELETE_MODE);
 
     card.setIsArchived(true);
   }
@@ -234,7 +232,7 @@ public class CardService {
         card.getList().getBoard().getSlug(),
         authService.getCurrentUserId(),
         card.getList().getBoard().getWorkspace().getId(),
-        UPDATE_MODE);
+        Const.UPDATE_MODE);
 
     boolean updated = false;
 
@@ -299,7 +297,7 @@ public class CardService {
         targetList.getBoard().getSlug(),
         userId,
         targetList.getBoard().getWorkspace().getId(),
-        UPDATE_MODE);
+        Const.UPDATE_MODE);
 
     // 4. Load prev & next
     Map<Integer, Card> refMap = getReferenceCards(request.afterId(), request.beforeId());

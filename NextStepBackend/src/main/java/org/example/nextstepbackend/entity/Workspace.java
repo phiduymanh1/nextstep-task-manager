@@ -14,8 +14,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.util.HashSet;
-import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,6 +23,9 @@ import org.example.nextstepbackend.entity.embedded.FullAudit;
 import org.example.nextstepbackend.enums.Visibility;
 import org.hibernate.annotations.SoftDelete;
 import org.hibernate.annotations.SoftDeleteType;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "workspaces")

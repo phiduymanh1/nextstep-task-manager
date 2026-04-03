@@ -1,13 +1,14 @@
 package org.example.nextstepbackend.mappers;
 
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import org.example.nextstepbackend.dto.request.ChecklistItemResponse;
 import org.example.nextstepbackend.dto.request.ChecklistResponse;
 import org.example.nextstepbackend.entity.Checklist;
 import org.example.nextstepbackend.entity.ChecklistItem;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Component
 public class ChecklistMapper {

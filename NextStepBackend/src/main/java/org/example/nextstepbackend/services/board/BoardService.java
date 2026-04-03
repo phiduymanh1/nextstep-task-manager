@@ -51,9 +51,6 @@ public class BoardService {
   private final PermissionService permissionService;
 
   private static final String BOARD_FOUND = "Board not found";
-  private static final String DELETE_MODE = "DELETE";
-  private static final String CREATE_MODE = "CREATE";
-  private static final String UPDATE_MODE = "UPDATE";
   private final RoleBoardService roleBoardService;
 
   /** Create a new board within a workspace */
@@ -119,7 +116,7 @@ public class BoardService {
             .orElseThrow(() -> new ResourceNotFoundException(BOARD_FOUND));
 
     roleBoardService.checkRoleBoard(
-        boardSlug, authService.getCurrentUserId(), board.getWorkspace().getId(), DELETE_MODE);
+        boardSlug, authService.getCurrentUserId(), board.getWorkspace().getId(), Const.DELETE_MODE);
 
     boardRepository.delete(board);
   }
@@ -169,7 +166,7 @@ public class BoardService {
             .orElseThrow(() -> new ResourceNotFoundException(BOARD_FOUND));
 
     roleBoardService.checkRoleBoard(
-        boardSlug, authService.getCurrentUserId(), board.getWorkspace().getId(), UPDATE_MODE);
+        boardSlug, authService.getCurrentUserId(), board.getWorkspace().getId(), Const.UPDATE_MODE);
 
     boolean updated = false;
 

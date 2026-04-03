@@ -1,15 +1,7 @@
 package org.example.nextstepbackend.services.list;
 
-import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
+import org.example.nextstepbackend.comm.constants.Const;
 import org.example.nextstepbackend.dto.request.ListPositionRequest;
 import org.example.nextstepbackend.dto.request.ListsRequest;
 import org.example.nextstepbackend.dto.request.ListsUpdateRequest;
@@ -33,6 +25,16 @@ import org.example.nextstepbackend.utils.RebalanceUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 @Service
 @RequiredArgsConstructor
 public class ListService {
@@ -43,9 +45,6 @@ public class ListService {
   private final AuthService authService;
   private final RoleBoardService roleBoardService;
 
-  private static final String DELETE_MODE = "DELETE";
-  private static final String CREATE_MODE = "CREATE";
-  private static final String UPDATE_MODE = "UPDATE";
   private final CardRepository cardRepository;
   private final CardMapper cardMapper;
 
@@ -55,7 +54,7 @@ public class ListService {
 
     Integer userId = authService.getCurrentUserId();
 
-    roleBoardService.checkRoleBoard(boardSlug, userId, null, CREATE_MODE);
+    roleBoardService.checkRoleBoard(boardSlug, userId, null, Const.CREATE_MODE);
 
     Board board = getBoard(boardSlug);
 
@@ -185,7 +184,7 @@ public class ListService {
     Integer userId = authService.getCurrentUserId();
 
     roleBoardService.checkRoleBoard(
-        slug, userId, list.getBoard().getWorkspace().getId(), DELETE_MODE);
+        slug, userId, list.getBoard().getWorkspace().getId(), Const.DELETE_MODE);
 
     // 2. Delete (soft delete nếu bạn có field archived)
     listsRepository.delete(list);
@@ -196,7 +195,10 @@ public class ListService {
     ListEntity list = findByBoardSlugAndId(slug, listId);
 
     roleBoardService.checkRoleBoard(
-        slug, authService.getCurrentUserId(), list.getBoard().getWorkspace().getId(), UPDATE_MODE);
+        slug,
+        authService.getCurrentUserId(),
+        list.getBoard().getWorkspace().getId(),
+        Const.UPDATE_MODE);
 
     boolean updated = false;
 
@@ -220,7 +222,7 @@ public class ListService {
 
     // 2. Permission
     roleBoardService.checkRoleBoard(
-        slug, userId, list.getBoard().getWorkspace().getId(), UPDATE_MODE);
+        slug, userId, list.getBoard().getWorkspace().getId(), Const.UPDATE_MODE);
 
     Board board = list.getBoard();
 

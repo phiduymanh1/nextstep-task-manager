@@ -1,12 +1,13 @@
 package org.example.nextstepbackend.repository;
 
-import java.util.List;
-import java.util.Optional;
 import org.example.nextstepbackend.entity.Workspace;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
+import java.util.List;
+import java.util.Optional;
 
 public interface WorkSpaceRepository extends JpaRepository<Workspace, Integer> {
 

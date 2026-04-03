@@ -1,6 +1,7 @@
 package org.example.nextstepbackend.services.board;
 
 import lombok.RequiredArgsConstructor;
+import org.example.nextstepbackend.comm.constants.Const;
 import org.example.nextstepbackend.entity.BoardMember;
 import org.example.nextstepbackend.entity.WorkspaceMember;
 import org.example.nextstepbackend.repository.BoardMemberRepository;
@@ -14,9 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class RoleBoardService {
 
-  private static final String DELETE_MODE = "DELETE";
-  private static final String CREATE_MODE = "CREATE";
-  private static final String UPDATE_MODE = "UPDATE";
   private final PermissionService permissionService;
   private final BoardMemberRepository boardMemberRepository;
   private final WorkspaceMemberRepository workspaceMemberRepository;
@@ -27,16 +25,19 @@ public class RoleBoardService {
     BoardMember boardMember = getBoardMember(boardSlug, userId);
 
     Integer wsId =
-        (mode.equals(CREATE_MODE)) ? boardMember.getBoard().getWorkspace().getId() : workspaceId;
+        (mode.equals(Const.CREATE_MODE))
+            ? boardMember.getBoard().getWorkspace().getId()
+            : workspaceId;
 
     WorkspaceMember workspaceMember = getWorkspaceMember(wsId, userId);
 
     switch (mode) {
-      case DELETE_MODE -> permissionService.checkCanDelete(workspaceMember, boardMember);
+      case Const.DELETE_MODE -> permissionService.checkCanDelete(workspaceMember, boardMember);
 
-      case UPDATE_MODE -> permissionService.checkCanEdit(workspaceMember, boardMember);
+      case Const.UPDATE_MODE -> permissionService.checkCanEdit(workspaceMember, boardMember);
 
-      case CREATE_MODE -> permissionService.checkCanUpdateWorkspace(workspaceMember.getRole());
+      case Const.CREATE_MODE ->
+          permissionService.checkCanUpdateWorkspace(workspaceMember.getRole());
 
       default -> throw new IllegalArgumentException("Invalid mode: " + mode);
     }

@@ -1,7 +1,6 @@
 package org.example.nextstepbackend.controller;
 
 import jakarta.validation.Valid;
-import java.util.List;
 import org.example.nextstepbackend.controller.base.BaseController;
 import org.example.nextstepbackend.dto.request.WorkSpaceRequest;
 import org.example.nextstepbackend.dto.request.WorkSpaceUpdateRequest;
@@ -24,6 +23,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/work-space")

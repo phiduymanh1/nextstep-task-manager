@@ -15,8 +15,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import java.util.HashSet;
-import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -26,6 +24,9 @@ import org.example.nextstepbackend.entity.embedded.FullAudit;
 import org.example.nextstepbackend.enums.Visibility;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @SuppressWarnings("deprecation")
 @Entity

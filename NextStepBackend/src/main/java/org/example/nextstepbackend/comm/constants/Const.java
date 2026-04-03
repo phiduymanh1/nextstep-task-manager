@@ -20,4 +20,8 @@ public class Const {
 
   public static final String BLANK = "";
   public static final String HYPHEN = "-";
+
+  public static final String DELETE_MODE = "DELETE";
+  public static final String CREATE_MODE = "CREATE";
+  public static final String UPDATE_MODE = "UPDATE";
 }

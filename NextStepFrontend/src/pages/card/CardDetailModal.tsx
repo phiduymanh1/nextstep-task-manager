@@ -181,6 +181,12 @@ export default function CardDetailModal({
               contentEditable
               suppressContentEditableWarning
               onBlur={handleUpdateTitle}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  (e.target as HTMLElement).blur();
+                }
+              }}
             >
               {title}
             </h2>
