@@ -1,5 +1,10 @@
 import api from '@/api';
-import type { CardCreateRequest, CardPositionRequest } from '@/types/card.type';
+import type { ApiResponse } from '@/types/api.type';
+import type {
+  CardCreateRequest,
+  CardData,
+  CardPositionRequest,
+} from '@/types/card.type';
 
 const baseUserUrl = '/cards';
 
@@ -16,4 +21,32 @@ export const updateCardPosition = async (
   body: CardPositionRequest
 ) => {
   await api.patch(`${baseUserUrl}/${cardId}/position`, body);
+};
+
+export const getCardDetail = async (cardId: string): Promise<CardData> => {
+  const res = await api.get<ApiResponse<CardData>>(
+    `${baseUserUrl}/${cardId}/detail`
+  );
+  return res.data.data;
+};
+
+export interface UpdateCardPayload {
+  title?: string;
+  description?: string;
+  dueDate?: string | null;
+  dueReminder?: boolean;
+  isCompleted?: boolean;
+  coverColor?: string;
+  coverImageUrl?: string;
+}
+
+export const updateCard = async (
+  cardId: string,
+  payload: UpdateCardPayload
+) => {
+  const res = await api.patch<ApiResponse<unknown>>(
+    `${baseUserUrl}/${cardId}`,
+    payload
+  );
+  return res.data.data;
 };

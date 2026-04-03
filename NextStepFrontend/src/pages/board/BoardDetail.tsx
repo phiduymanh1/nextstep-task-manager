@@ -18,6 +18,7 @@ import {
 } from '@dnd-kit/sortable';
 
 import '@/assets/styles/BoardDetail.css';
+import '@/assets/styles/CardDetailModal.css';
 import { getBoardDetail, updateBoard } from '@/services/board.service';
 import type { BoardState, Card, Column } from '@/types/card.type';
 import type { Visibility } from '@/types/workspace.type';
@@ -41,9 +42,10 @@ import {
   SortableColumn,
 } from '@/components/colunm/ColumnComponents';
 import { AddListCard } from '@/components/form/FormComponents';
-import axios from 'axios';
-import type { ApiResponse } from '@/types/api.type';
 import toast from 'react-hot-toast';
+import type { ApiResponse } from '@/types/api.type';
+import axios from 'axios';
+import CardDetailModal from '../card/CardDetailModal';
 
 // ============================================================
 export default function BoardDetail() {
@@ -60,6 +62,7 @@ export default function BoardDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
 
   const savedBoard = useRef<BoardState>(board);
   const boardReady = useRef(false);
@@ -93,7 +96,6 @@ export default function BoardDetail() {
         }));
       setColumns(initialCols);
 
-      // Load cards for each list in parallel
       initialCols.forEach((col) => loadCardsForColumn(col.id));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Lỗi không xác định');
@@ -101,7 +103,7 @@ export default function BoardDetail() {
       setLoading(false);
       boardReady.current = true;
     }
-  }, [boardSlug]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [boardSlug]);
 
   const loadCardsForColumn = async (colId: string) => {
     try {
@@ -117,6 +119,7 @@ export default function BoardDetail() {
                   id: String(card.id),
                   title: card.title,
                   description: card.description,
+                  isCompleted: card.isCompleted ?? false, // <-- THÊM DÒNG NÀY
                 })),
               }
             : c
@@ -180,6 +183,8 @@ export default function BoardDetail() {
             errors.forEach((err) => toast.error(err));
             return;
           }
+
+          toast.error(meta?.message || 'Lỗi hệ thống');
         } else {
           toast.error('Unexpected error');
         }
@@ -225,11 +230,27 @@ export default function BoardDetail() {
               ...c,
               cards: [
                 ...c.cards,
-                { id: String(newCard.id), title: newCard.title },
+                {
+                  id: String(newCard.id),
+                  title: newCard.title,
+                  isCompleted: false, // <-- THÊM DÒNG NÀY
+                },
               ],
             }
           : c
       )
+    );
+  };
+
+  // ===== Toggle card completion — CẬP NHẬT STATE TOÀN CỤC =====
+  const handleToggleCardComplete = (cardId: string, isCompleted: boolean) => {
+    setColumns((prev) =>
+      prev.map((col) => ({
+        ...col,
+        cards: col.cards.map((card) =>
+          card.id === cardId ? { ...card, isCompleted } : card
+        ),
+      }))
     );
   };
 
@@ -356,7 +377,6 @@ export default function BoardDetail() {
             ? parseInt(reordered[newIdx + 1].id, 10)
             : null;
 
-        // Fire-and-forget API call
         const payload = CardPositionSchema.parse({
           listId: parseInt(col.id, 10),
           beforeId,
@@ -447,6 +467,8 @@ export default function BoardDetail() {
                       )
                     }
                     onAddCard={handleAddCard}
+                    onToggleCardComplete={handleToggleCardComplete}
+                    onOpenCard={(cardId) => setSelectedCardId(cardId)}
                     onCopyList={handleCopyList}
                     onMoveList={handleMoveList}
                     onMoveAllCards={handleMoveAllCards}
@@ -462,6 +484,13 @@ export default function BoardDetail() {
               {activeColumn && <ColumnOverlay col={activeColumn} />}
             </DragOverlay>
           </DndContext>
+        )}
+        {selectedCardId && (
+          <CardDetailModal
+            cardId={selectedCardId}
+            onClose={() => setSelectedCardId(null)}
+            onToggleComplete={handleToggleCardComplete}
+          />
         )}
       </div>
     </div>

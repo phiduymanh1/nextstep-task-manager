@@ -10,16 +10,35 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
+import org.example.nextstepbackend.dto.request.AttachmentResponse;
+import org.example.nextstepbackend.dto.request.CardDetailResponse;
 import org.example.nextstepbackend.dto.request.CardPositionRequest;
 import org.example.nextstepbackend.dto.request.CardRequest;
 import org.example.nextstepbackend.dto.request.CardUpdateRequest;
+import org.example.nextstepbackend.dto.request.ChecklistResponse;
+import org.example.nextstepbackend.dto.request.LabelGroupResponse;
 import org.example.nextstepbackend.dto.response.card.CardResponse;
+import org.example.nextstepbackend.entity.Attachment;
 import org.example.nextstepbackend.entity.Card;
+import org.example.nextstepbackend.entity.CardLabel;
+import org.example.nextstepbackend.entity.CardMember;
+import org.example.nextstepbackend.entity.Checklist;
+import org.example.nextstepbackend.entity.ChecklistItem;
+import org.example.nextstepbackend.entity.Label;
 import org.example.nextstepbackend.entity.ListEntity;
+import org.example.nextstepbackend.entity.User;
 import org.example.nextstepbackend.exceptions.InvalidInputException;
 import org.example.nextstepbackend.exceptions.ResourceNotFoundException;
+import org.example.nextstepbackend.mappers.AttachmentMapper;
 import org.example.nextstepbackend.mappers.CardMapper;
+import org.example.nextstepbackend.mappers.ChecklistMapper;
+import org.example.nextstepbackend.mappers.LabelGroupMapper;
+import org.example.nextstepbackend.repository.AttachmentRepository;
+import org.example.nextstepbackend.repository.CardLabelRepository;
 import org.example.nextstepbackend.repository.CardRepository;
+import org.example.nextstepbackend.repository.ChecklistItemRepository;
+import org.example.nextstepbackend.repository.ChecklistRepository;
+import org.example.nextstepbackend.repository.LabelRepository;
 import org.example.nextstepbackend.repository.ListsRepository;
 import org.example.nextstepbackend.repository.UserRepository;
 import org.example.nextstepbackend.services.auth.AuthService;
@@ -43,6 +62,14 @@ public class CardService {
   private final UserRepository userRepository;
   private final CardRepository cardRepository;
   private final CardMapper cardMapper;
+  private final LabelRepository labelRepository;
+  private final CardLabelRepository cardLabelRepository;
+  private final ChecklistRepository checklistRepository;
+  private final ChecklistItemRepository checklistItemRepository;
+  private final AttachmentRepository attachmentRepository;
+  private final LabelGroupMapper labelGroupMapper;
+  private final ChecklistMapper checklistMapper;
+  private final AttachmentMapper attachmentMapper;
 
   @Transactional
   public CardResponse createCard(Integer listId, CardRequest request) {
@@ -95,6 +122,7 @@ public class CardService {
     if (result.needRebalance()) {
       result = handleRebalanceCard(list, request.afterId(), request.beforeId());
     }
+    User user = userRepository.getReferenceById(userId);
 
     // 7. Create card
     Card card =
@@ -103,8 +131,14 @@ public class CardService {
             .description(request.description())
             .list(list)
             .position(result.position())
-            .createdBy(userRepository.getReferenceById(userId))
+            .createdBy(user)
             .build();
+
+    CardMember member = new CardMember();
+    member.setAssignedAt(LocalDateTime.now());
+
+    user.addCardAssignment(member);
+    card.addMember(member);
 
     Card saved = cardRepository.save(card);
 
@@ -133,9 +167,7 @@ public class CardService {
   }
 
   private void validateOrder(Card prev, Card next) {
-    if (prev != null
-            && next != null
-            && prev.getPosition().compareTo(next.getPosition()) >= 0) {
+    if (prev != null && next != null && prev.getPosition().compareTo(next.getPosition()) >= 0) {
       throw new InvalidInputException("Invalid card order");
     }
   }
@@ -225,7 +257,7 @@ public class CardService {
       card.setIsCompleted(request.isCompleted());
 
       if (Boolean.TRUE.equals(request.isCompleted())) {
-        card.setCompletedAt(LocalDateTime .now());
+        card.setCompletedAt(LocalDateTime.now());
       } else {
         card.setCompletedAt(null);
       }
@@ -292,7 +324,7 @@ public class CardService {
       throw new InvalidInputException("Next card is archived");
     }
 
-    // Not cho move relative với chính nó
+    // Not move relative với chính nó
     if ((prev != null && prev.getId().equals(cardId))
         || (next != null && next.getId().equals(cardId))) {
       throw new InvalidInputException("Cannot move relative to itself");
@@ -332,5 +364,44 @@ public class CardService {
     return cardRepository
         .findById(cardId)
         .orElseThrow(() -> new ResourceNotFoundException("Card not found"));
+  }
+
+  @Transactional
+  public CardDetailResponse getCardDetail(Integer cardId) {
+
+    Card card = cardRepository.findById(cardId).orElseThrow();
+
+    List<Label> boardLabels = labelRepository.findByBoardId(card.getList().getBoard().getId());
+    List<CardLabel> cardLabels = cardLabelRepository.findByCardId(cardId);
+
+    List<Checklist> checklists = checklistRepository.findByCardIdOrderByPosition(cardId);
+    List<ChecklistItem> items = checklistItemRepository.findByChecklist_Card_Id(cardId);
+
+    List<Attachment> attachments = attachmentRepository.findByCardId(cardId);
+
+    return buildResponse(card, boardLabels, cardLabels, checklists, items, attachments);
+  }
+
+  private CardDetailResponse buildResponse(
+      Card card,
+      List<Label> boardLabels,
+      List<CardLabel> cardLabels,
+      List<Checklist> checklists,
+      List<ChecklistItem> items,
+      List<Attachment> attachments) {
+    LabelGroupResponse labels = labelGroupMapper.map(boardLabels, cardLabels);
+    List<ChecklistResponse> checklistRes = checklistMapper.map(checklists, items);
+    List<AttachmentResponse> attachmentRes = attachmentMapper.toList(attachments);
+
+    return new CardDetailResponse(
+        card.getId(),
+        card.getTitle(),
+        card.getDescription(),
+        card.getIsCompleted(),
+        card.getDueDate(),
+        card.getDueReminder(),
+        labels,
+        checklistRes,
+        attachmentRes);
   }
 }

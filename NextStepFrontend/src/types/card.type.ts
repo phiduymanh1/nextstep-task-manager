@@ -1,4 +1,3 @@
-
 export type Visibility = 'PRIVATE' | 'PUBLIC' | 'WORKSPACE';
 
 // ===== Domain Types =====
@@ -6,6 +5,7 @@ export interface Card {
   id: string;
   title: string;
   description?: string;
+  isCompleted?: boolean;
 }
 
 export interface Column {
@@ -50,8 +50,11 @@ export interface CardResponse {
   id: number;
   title: string;
   description?: string;
+  position: number;
+  isCompleted: boolean;
+  isArchived: boolean;
+  dueDate?: string;
 }
-
 export interface ListDetailResponse {
   id: number;
   name: string;
@@ -85,3 +88,42 @@ export const VISIBILITY_OPTIONS: {
     desc: 'Bất kỳ ai trên internet đều có thể xem bảng này.',
   },
 ];
+
+export interface CardData {
+  id: string;
+  title: string;
+  description: string;
+  isCompleted: boolean;
+  dueDate: string | null;
+  dueReminder: boolean;
+  labels: {
+    selectedLabelIds: string[];
+    boardLabels: BoardLabel[];
+  };
+  checklists: Checklist[];
+  attachments: Attachment[];
+}
+
+export interface BoardLabel {
+  id: string;
+  name: string;
+  color: string;
+}
+
+export interface ChecklistItem {
+  id: string;
+  content: string;
+  isCompleted: boolean;
+}
+
+export interface Checklist {
+  id: string;
+  title: string;
+  items: ChecklistItem[];
+}
+
+export interface Attachment {
+  id: string;
+  fileName: string;
+  fileUrl: string;
+}

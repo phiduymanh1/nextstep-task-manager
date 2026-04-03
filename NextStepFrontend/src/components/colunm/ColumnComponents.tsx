@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState} from 'react';
 import {
   SortableContext,
   useSortable,
@@ -12,9 +12,22 @@ import { InlineEdit } from '../shared/SharedComponents';
 import { ListMenu } from '../menu/MenuComponents';
 import { AddCardForm } from '../form/FormComponents';
 
+// ============================================================
+// SORTABLE CARD
+// ============================================================
 
-// ===== SortableCard =====
-export function SortableCard({ card }: { card: Card }) {
+export function SortableCard({
+  card,
+  onToggleComplete,
+  onClick,
+}: {
+  card: Card;
+  listName: string;
+  onToggleComplete: (cardId: string, isCompleted: boolean) => void;
+  onClick?: () => void;
+}) {
+  const [saving, setSaving] = useState(false);
+
   const {
     attributes,
     listeners,
@@ -23,6 +36,20 @@ export function SortableCard({ card }: { card: Card }) {
     transition,
     isDragging,
   } = useSortable({ id: card.id, data: { type: 'card', card } });
+
+  const handleToggle = async (e: React.MouseEvent) => {
+    e.stopPropagation(); // Ngăn chặn sự kiện click mở modal khi bấm nút hoàn thành
+    if (saving) return;
+    setSaving(true);
+    try {
+      const nextStatus = !card.isCompleted;
+      onToggleComplete(card.id, nextStatus);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div
@@ -35,26 +62,50 @@ export function SortableCard({ card }: { card: Card }) {
       className="task-card"
       {...attributes}
       {...listeners}
+      onClick={onClick} // Gọi hàm mở modal từ BoardDetail
     >
-      <span className="task-card-title">{card.title}</span>
+      <button
+        className={`card-complete-toggle ${card.isCompleted ? 'is-done' : ''} ${saving ? 'is-saving' : ''}`}
+        onClick={handleToggle}
+        disabled={saving}
+      >
+        {card.isCompleted ? '✓' : ''}
+      </button>
+      <span
+        className={`task-card-title ${card.isCompleted ? 'is-completed' : ''}`}
+      >
+        {card.title}
+      </span>
     </div>
   );
 }
+
+// ============================================================
+// CARD OVERLAY (drag ghost)
+// ============================================================
 
 export function CardOverlay({ card }: { card: Card }) {
   return (
     <div className="task-card is-dragging">
+      <button className="card-complete-toggle">
+        {card.isCompleted ? '✓' : ''}
+      </button>
       <span className="task-card-title">{card.title}</span>
     </div>
   );
 }
 
-// ===== SortableColumn =====
+// ============================================================
+// SORTABLE COLUMN
+// ============================================================
+
 interface SortableColumnProps {
   col: Column;
   boardSlug: string;
   onRename: (id: string, name: string) => void;
   onAddCard: (colId: string, title: string) => Promise<void>;
+  onToggleCardComplete: (cardId: string, isCompleted: boolean) => void;
+  onOpenCard: (cardId: string) => void;
   onCopyList: (col: Column) => void;
   onMoveList: (col: Column) => void;
   onMoveAllCards: (col: Column) => void;
@@ -66,6 +117,8 @@ export function SortableColumn({
   boardSlug,
   onRename,
   onAddCard,
+  onToggleCardComplete,
+  onOpenCard,
   onCopyList,
   onMoveList,
   onMoveAllCards,
@@ -84,15 +137,12 @@ export function SortableColumn({
 
   const handleRename = async (newName: string) => {
     const parsed = ListUpdateSchema.safeParse({ name: newName });
-    if (!parsed.success) {
-      console.error('Validation error:', parsed.error.issues);
-      return;
-    }
+    if (!parsed.success) return;
     try {
       await updateList(boardSlug, col.id, { name: parsed.data.name });
       onRename(col.id, parsed.data.name);
     } catch (err) {
-      console.error('Failed to rename list:', err);
+      console.error(err);
     }
   };
 
@@ -111,7 +161,6 @@ export function SortableColumn({
       }}
       className="board-column"
     >
-      {/* Column header */}
       <div className="column-header">
         <div className="column-drag-handle" {...attributes} {...listeners}>
           <InlineEdit
@@ -131,33 +180,28 @@ export function SortableColumn({
         />
       </div>
 
-      {/* Cards list */}
       <SortableContext
         items={col.cards.map((c) => c.id)}
         strategy={verticalListSortingStrategy}
       >
         <div className="task-list">
-          {col.loading && (
-            <div className="column-loading">
-              {[1, 2].map((i) => (
-                <div key={i} className="skeleton skeleton--card" />
-              ))}
-            </div>
-          )}
-
-          {col.error && (
-            <div className="column-error">
-              <span>⚠ {col.error}</span>
-            </div>
-          )}
+          {col.loading && <div className="skeleton--card" />}
+          {col.error && <div className="column-error">⚠ {col.error}</div>}
 
           {!col.loading &&
             !col.error &&
-            col.cards.map((card) => <SortableCard key={card.id} card={card} />)}
+            col.cards.map((card) => (
+              <SortableCard
+                key={card.id}
+                card={card}
+                listName={col.title}
+                onToggleComplete={onToggleCardComplete}
+                onClick={() => onOpenCard(card.id)}
+              />
+            ))}
         </div>
       </SortableContext>
 
-      {/* Add card form or button */}
       {addingCard ? (
         <AddCardForm
           onAdd={handleAddCard}
@@ -171,6 +215,10 @@ export function SortableColumn({
     </div>
   );
 }
+
+// ============================================================
+// COLUMN OVERLAY
+// ============================================================
 
 export function ColumnOverlay({ col }: { col: Column }) {
   return (
