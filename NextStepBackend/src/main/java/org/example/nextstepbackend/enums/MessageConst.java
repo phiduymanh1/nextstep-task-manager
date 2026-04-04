@@ -44,6 +44,7 @@ public enum MessageConst {
 
   // Checklist - info message
   CHECKLIST_CREATE_SUCCESS("I-CHECKLIST-001", HttpStatus.OK),
+  CHECKLIST_ITEM_CREATE_SUCCESS("I-CHECKLIST-002", HttpStatus.OK),
 
   // Auth - error messages
   AUTH_INVALID_CREDENTIALS("E-AUTH-001", HttpStatus.UNAUTHORIZED),

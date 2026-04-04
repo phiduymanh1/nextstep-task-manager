@@ -2,15 +2,18 @@ package org.example.nextstepbackend.services.checklist;
 
 import lombok.RequiredArgsConstructor;
 import org.example.nextstepbackend.comm.constants.Const;
+import org.example.nextstepbackend.dto.request.ChecklistItemRequest;
+import org.example.nextstepbackend.dto.request.ChecklistItemResponse;
 import org.example.nextstepbackend.dto.request.ChecklistRequest;
 import org.example.nextstepbackend.dto.request.ChecklistResponse;
 import org.example.nextstepbackend.entity.Card;
 import org.example.nextstepbackend.entity.Checklist;
+import org.example.nextstepbackend.entity.ChecklistItem;
 import org.example.nextstepbackend.exceptions.InvalidInputException;
 import org.example.nextstepbackend.exceptions.ResourceNotFoundException;
 import org.example.nextstepbackend.mappers.CheckListsMapper;
-import org.example.nextstepbackend.mappers.ChecklistMapper;
 import org.example.nextstepbackend.repository.CardRepository;
+import org.example.nextstepbackend.repository.ChecklistItemRepository;
 import org.example.nextstepbackend.repository.ChecklistRepository;
 import org.example.nextstepbackend.services.auth.AuthService;
 import org.example.nextstepbackend.services.board.RoleBoardService;
@@ -20,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -33,8 +37,8 @@ public class ChecklistService {
     private final CardRepository cardRepository;
     private final RoleBoardService roleBoardService;
     private final ChecklistRepository checklistRepository;
-    private final ChecklistMapper checklistMapper;
     private final CheckListsMapper checkListsMapper;
+    private final ChecklistItemRepository checklistItemRepository;
 
     @Transactional
     public ChecklistResponse createChecklist(Integer cardId, ChecklistRequest request) {
@@ -160,5 +164,144 @@ public class ChecklistService {
         Checklist next = (beforeId != null) ? map.get(beforeId) : null;
 
         return PositionUtils.resolve(prev, next, Checklist::getPosition);
+    }
+
+    @Transactional
+    public ChecklistItemResponse createChecklistItem(Integer checklistId, ChecklistItemRequest request) {
+        Checklist checklist = findChecklistOrThrow(checklistId);
+
+        ChecklistItem prev = null;
+        ChecklistItem next = null;
+
+        Map<Integer, ChecklistItem> refMap =
+                getReferenceItems(request.afterId(), request.beforeId(), checklist);
+
+        if (request.afterId() != null) prev = refMap.get(request.afterId());
+        if (request.beforeId() != null) next = refMap.get(request.beforeId());
+
+        validateOrder(prev, next);
+
+        BigDecimal position = resolvePosition(checklist, prev, next);
+
+        ChecklistItem saved = saveChecklistItem(checklist, request, position);
+
+        return mapToResponse(saved);
+    }
+
+    private void validateOrder(ChecklistItem prev, ChecklistItem next) {
+        if (prev != null && next != null &&
+                prev.getPosition().compareTo(next.getPosition()) >= 0) {
+            throw new InvalidInputException("Invalid checklist item order");
+        }
+    }
+
+    private Checklist findChecklistOrThrow(Integer checklistId) {
+        return checklistRepository.findById(checklistId)
+                .orElseThrow(() -> new ResourceNotFoundException("Checklist not found with id: " + checklistId));
+    }
+
+    private BigDecimal resolvePosition(Checklist checklist, ChecklistItem prev, ChecklistItem next) {
+
+        if (prev == null && next == null) {
+            return appendToEnd(checklist);
+        }
+
+        if (prev == null) {
+            return insertBefore(next);
+        }
+
+        if (next == null) {
+            return insertAfter(prev);
+        }
+
+        return insertBetween(checklist, prev, next);
+    }
+
+    private BigDecimal appendToEnd(Checklist checklist) {
+        return findMaxItemPosition(checklist).add(BigDecimal.valueOf(1000));
+    }
+
+    private BigDecimal insertBefore(ChecklistItem next) {
+        return next.getPosition().subtract(BigDecimal.valueOf(1000));
+    }
+
+    private BigDecimal insertAfter(ChecklistItem prev) {
+        return prev.getPosition().add(BigDecimal.valueOf(1000));
+    }
+
+    private BigDecimal insertBetween(Checklist checklist, ChecklistItem prev, ChecklistItem next) {
+        BigDecimal gap = next.getPosition().subtract(prev.getPosition());
+
+        if (gap.compareTo(BigDecimal.ONE) <= 0) {
+            rebalance(checklist);
+            return prev.getPosition().add(BigDecimal.valueOf(500));
+        }
+
+        return prev.getPosition().add(next.getPosition())
+                .divide(BigDecimal.valueOf(2), 10, RoundingMode.HALF_UP);
+    }
+
+    private void rebalance(Checklist checklist) {
+        List<ChecklistItem> items = checklist.getItems()
+                .stream()
+                .sorted(Comparator.comparing(ChecklistItem::getPosition))
+                .toList();
+
+        BigDecimal pos = BigDecimal.valueOf(1000);
+
+        for (ChecklistItem item : items) {
+            item.setPosition(pos);
+            pos = pos.add(BigDecimal.valueOf(1000));
+        }
+
+        checklistItemRepository.saveAll(items);
+    }
+
+    private ChecklistItem saveChecklistItem(Checklist checklist,
+                                            ChecklistItemRequest request,
+                                            BigDecimal position) {
+
+        ChecklistItem item = ChecklistItem.builder()
+                .checklist(checklist)
+                .content(request.content())
+                .position(position)
+                .isCompleted(false)
+                .dueDate(request.dueDate())
+                .build();
+
+        return checklistItemRepository.save(item);
+    }
+
+    private ChecklistItemResponse mapToResponse(ChecklistItem saved) {
+        return new ChecklistItemResponse(
+                saved.getId(),
+                saved.getContent(),
+                saved.getIsCompleted(),
+                saved.getCompletedBy() != null ? saved.getCompletedBy().getId() : null,
+                saved.getCompletedAt(),
+                saved.getPosition(),
+                saved.getDueDate()
+        );
+    }
+
+    private Map<Integer, ChecklistItem> getReferenceItems(Integer afterId, Integer beforeId, Checklist checklist) {
+        Set<Integer> ids = Stream.of(afterId, beforeId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        if (ids.isEmpty()) return Map.of();
+
+        return checklist.getItems()
+                .stream()
+                .filter(item -> ids.contains(item.getId()))
+                .collect(Collectors.toMap(ChecklistItem::getId, Function.identity()));
+    }
+
+    private BigDecimal findMaxItemPosition(Checklist checklist) {
+        return checklist.getItems()
+                .stream()
+                .map(ChecklistItem::getPosition)
+                .max(BigDecimal::compareTo)
+                .orElse(BigDecimal.ZERO);
     }
 }

@@ -2,6 +2,8 @@ package org.example.nextstepbackend.controller;
 
 import jakarta.validation.Valid;
 import org.example.nextstepbackend.controller.base.BaseController;
+import org.example.nextstepbackend.dto.request.ChecklistItemRequest;
+import org.example.nextstepbackend.dto.request.ChecklistItemResponse;
 import org.example.nextstepbackend.dto.request.ChecklistRequest;
 import org.example.nextstepbackend.dto.request.ChecklistResponse;
 import org.example.nextstepbackend.dto.response.common.ApiResponse;
@@ -27,4 +29,11 @@ public class ChecklistController extends BaseController {
         ChecklistResponse response =  checklistService.createChecklist(cardId, request);
         return ResponseEntity.ok(success(MessageConst.CHECKLIST_CREATE_SUCCESS,response));
     }
+
+    @PostMapping("/{checklistId}/items")
+    public ResponseEntity<ApiResponse<ChecklistItemResponse>> createChecklistItem(@PathVariable Integer checklistId, @Valid @RequestBody ChecklistItemRequest request){
+        ChecklistItemResponse response = checklistService.createChecklistItem(checklistId, request);
+        return ResponseEntity.ok(success(MessageConst.CHECKLIST_ITEM_CREATE_SUCCESS, response));
+    }
+    
 }

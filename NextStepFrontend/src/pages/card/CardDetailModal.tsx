@@ -24,6 +24,10 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { createBoardLabel } from '@/services/label.service';
 import { useParams } from 'react-router-dom';
+import {
+  createChecklist,
+  createChecklistItem,
+} from '@/services/checklist.service';
 
 // ============================================================
 // 1. TYPES
@@ -347,13 +351,46 @@ function DateModal({
 // 6. CHECKLIST MODAL (tạo checklist mới)
 // ============================================================
 function ChecklistModal({
+  cardId,
   onAdd,
   onClose,
 }: {
-  onAdd: (title: string) => void;
+  cardId: number;
+  onAdd: (checklist: Checklist) => void;
   onClose: () => void;
 }) {
   const [title, setTitle] = useState('Việc cần làm');
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async () => {
+    if (!title.trim()) return;
+
+    try {
+      setLoading(true);
+
+      const res = await createChecklist(cardId, {
+        title: title.trim(),
+      });
+
+      const mapped: Checklist = {
+        id: String(res.id),
+        title: res.title,
+        position: Number(res.position),
+        items: (res.items || []).map((item) => ({
+          id: String(item.id),
+          content: item.content,
+          isCompleted: item.isDone,
+        })),
+      };
+
+      onAdd(mapped);
+      onClose();
+    } catch (err) {
+      console.error('Create checklist error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <ModalOverlay onClose={onClose}>
@@ -363,31 +400,27 @@ function ChecklistModal({
           ✕
         </button>
       </div>
+
       <div className="cdm-inner-modal-body">
         <p className="cdm-field-label">Tiêu đề</p>
+
         <input
           className="cdm-inner-input"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === 'Enter' && title.trim()) {
-              onAdd(title.trim());
-              onClose();
-            }
+            if (e.key === 'Enter') handleSubmit();
           }}
           autoFocus
         />
+
         <button
           className="cdm-datepicker-confirm"
           style={{ marginTop: '10px', width: '100%' }}
-          onClick={() => {
-            if (title.trim()) {
-              onAdd(title.trim());
-              onClose();
-            }
-          }}
+          onClick={handleSubmit}
+          disabled={loading}
         >
-          Thêm
+          {loading ? 'Đang thêm...' : 'Thêm'}
         </button>
       </div>
     </ModalOverlay>
@@ -599,17 +632,6 @@ export default function CardDetailModal({
   };
 
   // Add checklist
-  const handleAddChecklist = async (title: string) => {
-    const newCl: Checklist = {
-      id: `cl-${Date.now()}`,
-      title,
-      items: [],
-    };
-    setCard((prev) =>
-      prev ? { ...prev, checklists: [...prev.checklists, newCl] } : null
-    );
-    // TODO: call API to persist
-  };
 
   // Toggle checklist item
   const handleToggleChecklistItem = (clId: string, itemId: string) => {
@@ -634,21 +656,34 @@ export default function CardDetailModal({
   };
 
   // Add checklist item inline
-  const handleAddChecklistItem = (clId: string, content: string) => {
-    const newItem: ChecklistItem = {
-      id: `item-${Date.now()}`,
-      content,
-      isCompleted: false,
-    };
-    setCard((prev) => {
-      if (!prev) return null;
-      return {
-        ...prev,
-        checklists: prev.checklists.map((cl) =>
-          cl.id === clId ? { ...cl, items: [...cl.items, newItem] } : cl
-        ),
+  const handleAddChecklistItem = async (clId: string, content: string) => {
+    try {
+      const res = await createChecklistItem(Number(clId), {
+        content,
+        position: Date.now(), // hoặc null nếu BE tự xử
+        dueDate: null,
+        afterId: null,
+        beforeId: null,
+      });
+
+      const newItem: ChecklistItem = {
+        id: String(res.id),
+        content: res.content,
+        isCompleted: res.isDone,
       };
-    });
+
+      setCard((prev) => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          checklists: prev.checklists.map((cl) =>
+            cl.id === clId ? { ...cl, items: [...cl.items, newItem] } : cl
+          ),
+        };
+      });
+    } catch (err) {
+      console.error('Create checklist item error:', err);
+    }
   };
 
   // Delete checklist
@@ -758,7 +793,7 @@ export default function CardDetailModal({
             selectedIds={labels.selectedLabelIds}
             onToggle={handleToggleLabel}
             onClose={closeModal}
-            boardSlug={boardSlug!} 
+            boardSlug={boardSlug!}
             onAddLabel={(newLabel) =>
               setCard((prev) =>
                 prev
@@ -785,7 +820,20 @@ export default function CardDetailModal({
         );
       case 'checklist':
         return (
-          <ChecklistModal onAdd={handleAddChecklist} onClose={closeModal} />
+          <ChecklistModal
+            cardId={Number(cardId)}
+            onAdd={(newChecklist) =>
+              setCard((prev) =>
+                prev
+                  ? {
+                      ...prev,
+                      checklists: [...prev.checklists, newChecklist],
+                    }
+                  : null
+              )
+            }
+            onClose={closeModal}
+          />
         );
       case 'attachment':
         return <AttachmentModal onAttach={handleAttach} onClose={closeModal} />;
