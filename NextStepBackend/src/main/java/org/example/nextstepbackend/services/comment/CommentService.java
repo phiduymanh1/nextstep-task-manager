@@ -42,15 +42,20 @@ public class CommentService {
   }
 
   @Transactional
-  public CommentResponse commentCard(Integer cardId,CommentRequest request){
+  public CommentResponse commentCard(Integer cardId, CommentRequest request) {
 
-    Card card = cardRepository.findById(cardId).orElseThrow(
-            () -> new ResourceNotFoundException("Card not found with id: " + cardId)
-    );
+    Card card =
+        cardRepository
+            .findById(cardId)
+            .orElseThrow(() -> new ResourceNotFoundException("Card not found with id: " + cardId));
 
-    User user = userRepository.findById(authService.getCurrentUserId()).orElseThrow(
-            () -> new ResourceNotFoundException("User not found with id: " + authService.getCurrentUserId())
-    );
+    User user =
+        userRepository
+            .findById(authService.getCurrentUserId())
+            .orElseThrow(
+                () ->
+                    new ResourceNotFoundException(
+                        "User not found with id: " + authService.getCurrentUserId()));
 
     Comment comment = new Comment();
     comment.setCard(card);

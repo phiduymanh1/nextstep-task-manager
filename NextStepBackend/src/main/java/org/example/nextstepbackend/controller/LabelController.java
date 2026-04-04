@@ -31,15 +31,16 @@ public class LabelController extends BaseController {
   @PostMapping("/{boardSlug}")
   public ResponseEntity<ApiResponse<LabelResponse>> createBoardLabel(
       @PathVariable String boardSlug, @Valid @RequestBody BoardLabelRequest request) {
-    LabelResponse res =  labelService.createBoardLabel(boardSlug,request);
+    LabelResponse res = labelService.createBoardLabel(boardSlug, request);
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(success(MessageConst.LABEL_CREATE_SUCCESS, res));
   }
 
-    @PostMapping("/selected")
-  public ResponseEntity<ApiResponse<Void>> selectedLabel(@Valid @RequestBody SelectedCardLabelRequest request){
+  @PostMapping("/selected")
+  public ResponseEntity<ApiResponse<Void>> selectedLabel(
+      @Valid @RequestBody SelectedCardLabelRequest request) {
 
     labelService.selectedCardLabel(request);
-    return ResponseEntity.ok(success(MessageConst.LABEL_SELECTED_SUCCESS,null));
+    return ResponseEntity.ok(success(MessageConst.LABEL_SELECTED_SUCCESS, null));
   }
 }

@@ -55,22 +55,24 @@ public class LabelService {
   }
 
   @Transactional
-  public void selectedCardLabel(SelectedCardLabelRequest request){
-    Card card = cardRepository.findById(request.cardId())
-            .orElseThrow(() ->
-                    new ResourceNotFoundException("Card not found with id: " + request.cardId())
-            );
+  public void selectedCardLabel(SelectedCardLabelRequest request) {
+    Card card =
+        cardRepository
+            .findById(request.cardId())
+            .orElseThrow(
+                () -> new ResourceNotFoundException("Card not found with id: " + request.cardId()));
 
-    Label label = labelRepository.findById(request.labelId())
-            .orElseThrow(() ->
-                    new ResourceNotFoundException("Label not found with id: " + request.labelId())
-            );
+    Label label =
+        labelRepository
+            .findById(request.labelId())
+            .orElseThrow(
+                () ->
+                    new ResourceNotFoundException("Label not found with id: " + request.labelId()));
 
     CardLabel cardLabel = new CardLabel();
     cardLabel.setCard(card);
     cardLabel.setLabel(label);
 
     cardLabelRepository.save(cardLabel);
-
   }
 }

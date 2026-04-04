@@ -8,11 +8,9 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 public interface CheckListsMapper {
 
+  ChecklistResponse toResponse(Checklist checklist);
 
-    ChecklistResponse toResponse(Checklist checklist);
-
-    default Integer map(User user) {
-        return user != null ? user.getId() : null;
-    }
-
+  default Integer map(User user) {
+    return user != null ? user.getId() : null;
+  }
 }

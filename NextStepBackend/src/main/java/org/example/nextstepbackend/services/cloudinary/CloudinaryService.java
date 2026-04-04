@@ -1,14 +1,13 @@
 package org.example.nextstepbackend.services.cloudinary;
 
 import com.cloudinary.Cloudinary;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.example.nextstepbackend.dto.response.cloud.UploadResult;
 import org.example.nextstepbackend.exceptions.AppException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor

@@ -8,5 +8,4 @@ public record ChecklistItemRequest(
     BigDecimal position,
     LocalDateTime dueDate,
     Integer afterId,
-    Integer beforeId
-) {}
+    Integer beforeId) {}

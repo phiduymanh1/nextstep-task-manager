@@ -1,9 +1,8 @@
 package org.example.nextstepbackend.repository;
 
+import java.util.Optional;
 import org.example.nextstepbackend.entity.WorkspaceMember;
 import org.springframework.data.jpa.repository.JpaRepository;
-
-import java.util.Optional;
 
 public interface WorkspaceMemberRepository extends JpaRepository<WorkspaceMember, Integer> {
 

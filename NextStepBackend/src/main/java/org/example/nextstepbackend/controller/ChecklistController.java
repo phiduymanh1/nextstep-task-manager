@@ -11,29 +11,34 @@ import org.example.nextstepbackend.enums.MessageConst;
 import org.example.nextstepbackend.services.checklist.ChecklistService;
 import org.example.nextstepbackend.utils.ApiResponseUtil;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/checklists")
 public class ChecklistController extends BaseController {
 
-    private final ChecklistService checklistService;
+  private final ChecklistService checklistService;
 
-    public ChecklistController(ApiResponseUtil responseUtil, ChecklistService checklistService) {
-        super(responseUtil);
-        this.checklistService = checklistService;
-    }
+  public ChecklistController(ApiResponseUtil responseUtil, ChecklistService checklistService) {
+    super(responseUtil);
+    this.checklistService = checklistService;
+  }
 
-    @PostMapping("/{cardId}")
-    public ResponseEntity<ApiResponse<ChecklistResponse>> createChecklists(@PathVariable Integer cardId, @Valid @RequestBody ChecklistRequest request){
-        ChecklistResponse response =  checklistService.createChecklist(cardId, request);
-        return ResponseEntity.ok(success(MessageConst.CHECKLIST_CREATE_SUCCESS,response));
-    }
+  @PostMapping("/{cardId}")
+  public ResponseEntity<ApiResponse<ChecklistResponse>> createChecklists(
+      @PathVariable Integer cardId, @Valid @RequestBody ChecklistRequest request) {
+    ChecklistResponse response = checklistService.createChecklist(cardId, request);
+    return ResponseEntity.ok(success(MessageConst.CHECKLIST_CREATE_SUCCESS, response));
+  }
 
-    @PostMapping("/{checklistId}/items")
-    public ResponseEntity<ApiResponse<ChecklistItemResponse>> createChecklistItem(@PathVariable Integer checklistId, @Valid @RequestBody ChecklistItemRequest request){
-        ChecklistItemResponse response = checklistService.createChecklistItem(checklistId, request);
-        return ResponseEntity.ok(success(MessageConst.CHECKLIST_ITEM_CREATE_SUCCESS, response));
-    }
-    
+  @PostMapping("/{checklistId}/items")
+  public ResponseEntity<ApiResponse<ChecklistItemResponse>> createChecklistItem(
+      @PathVariable Integer checklistId, @Valid @RequestBody ChecklistItemRequest request) {
+    ChecklistItemResponse response = checklistService.createChecklistItem(checklistId, request);
+    return ResponseEntity.ok(success(MessageConst.CHECKLIST_ITEM_CREATE_SUCCESS, response));
+  }
 }
