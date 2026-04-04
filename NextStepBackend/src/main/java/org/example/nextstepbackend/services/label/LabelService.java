@@ -3,6 +3,7 @@ package org.example.nextstepbackend.services.label;
 import lombok.RequiredArgsConstructor;
 import org.example.nextstepbackend.comm.constants.Const;
 import org.example.nextstepbackend.dto.request.BoardLabelRequest;
+import org.example.nextstepbackend.dto.request.LabelResponse;
 import org.example.nextstepbackend.dto.request.SelectedCardLabelRequest;
 import org.example.nextstepbackend.entity.Board;
 import org.example.nextstepbackend.entity.Card;
@@ -32,7 +33,7 @@ public class LabelService {
   private final CardLabelRepository cardLabelRepository;
 
   @Transactional
-  public void createBoardLabel(String boardSlug, BoardLabelRequest request) {
+  public LabelResponse createBoardLabel(String boardSlug, BoardLabelRequest request) {
 
     Board board =
         boardRepository
@@ -48,18 +49,22 @@ public class LabelService {
     Label label = labelMapper.toEntity(request);
     label.setBoard(board);
 
-    labelRepository.save(label);
+    Label res = labelRepository.save(label);
+
+    return labelMapper.toResponse(res);
   }
 
   @Transactional
   public void selectedCardLabel(SelectedCardLabelRequest request){
-    Card card = cardRepository.findById(request.cardId()).orElseThrow(
-            () -> new ResourceNotFoundException("")
-    );
+    Card card = cardRepository.findById(request.cardId())
+            .orElseThrow(() ->
+                    new ResourceNotFoundException("Card not found with id: " + request.cardId())
+            );
 
-    Label label = labelRepository.findById(request.labelId()).orElseThrow(
-            () -> new ResourceNotFoundException("")
-    );
+    Label label = labelRepository.findById(request.labelId())
+            .orElseThrow(() ->
+                    new ResourceNotFoundException("Label not found with id: " + request.labelId())
+            );
 
     CardLabel cardLabel = new CardLabel();
     cardLabel.setCard(card);

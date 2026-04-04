@@ -3,6 +3,7 @@ package org.example.nextstepbackend.controller;
 import jakarta.validation.Valid;
 import org.example.nextstepbackend.controller.base.BaseController;
 import org.example.nextstepbackend.dto.request.BoardLabelRequest;
+import org.example.nextstepbackend.dto.request.LabelResponse;
 import org.example.nextstepbackend.dto.request.SelectedCardLabelRequest;
 import org.example.nextstepbackend.dto.response.common.ApiResponse;
 import org.example.nextstepbackend.enums.MessageConst;
@@ -28,14 +29,14 @@ public class LabelController extends BaseController {
   }
 
   @PostMapping("/{boardSlug}")
-  public ResponseEntity<ApiResponse<Void>> createBoardLabel(
+  public ResponseEntity<ApiResponse<LabelResponse>> createBoardLabel(
       @PathVariable String boardSlug, @Valid @RequestBody BoardLabelRequest request) {
-    labelService.createBoardLabel(boardSlug,request);
+    LabelResponse res =  labelService.createBoardLabel(boardSlug,request);
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(success(MessageConst.LABEL_CREATE_SUCCESS, null));
+        .body(success(MessageConst.LABEL_CREATE_SUCCESS, res));
   }
 
-  @PostMapping("/selected")
+    @PostMapping("/selected")
   public ResponseEntity<ApiResponse<Void>> selectedLabel(@Valid @RequestBody SelectedCardLabelRequest request){
 
     labelService.selectedCardLabel(request);

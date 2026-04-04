@@ -8,4 +8,5 @@ public record CardUpdateRequest(
     LocalDateTime dueDate,
     Boolean isCompleted,
     @jakarta.validation.constraints.Size(max = 20) String coverColor,
-    @jakarta.validation.constraints.Size(max = 500) String coverImageUrl) {}
+    @jakarta.validation.constraints.Size(max = 500) String coverImageUrl,
+    Boolean dueReminder) {}

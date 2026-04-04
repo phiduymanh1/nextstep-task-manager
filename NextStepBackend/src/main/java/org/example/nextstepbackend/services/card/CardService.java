@@ -273,6 +273,11 @@ public class CardService {
       updated = true;
     }
 
+    if (request.dueReminder() != null) {
+      card.setDueReminder(request.dueReminder());
+      updated = true;
+    }
+
     if (!updated) {
       throw new InvalidInputException("No fields to update");
     }

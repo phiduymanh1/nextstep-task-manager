@@ -42,6 +42,9 @@ public enum MessageConst {
   LABEL_CREATE_SUCCESS("I-LABEL-001", HttpStatus.OK),
   LABEL_SELECTED_SUCCESS("I-LABEL-002", HttpStatus.OK),
 
+  // Checklist - info message
+  CHECKLIST_CREATE_SUCCESS("I-CHECKLIST-001", HttpStatus.OK),
+
   // Auth - error messages
   AUTH_INVALID_CREDENTIALS("E-AUTH-001", HttpStatus.UNAUTHORIZED),
   AUTH_REFRESH_TOKEN_INVALID("E-AUTH-002", HttpStatus.UNAUTHORIZED),

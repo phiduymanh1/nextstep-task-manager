@@ -18,12 +18,18 @@
 }
 
 @keyframes cdm-fade-in {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 /* ── Modal box ────────────────────────────────────────────────────────────── */
 .cdm-modal {
+  position: relative;
   width: 100%;
   max-width: 780px;
   background: #1d2125;
@@ -37,8 +43,15 @@
 }
 
 @keyframes cdm-slide-up {
-  from { transform: translateY(24px); opacity: 0; }
-  to   { transform: translateY(0);    opacity: 1; }
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 /* ── Header ───────────────────────────────────────────────────────────────── */
@@ -79,7 +92,10 @@
   line-height: 1;
 }
 
-.cdm-icon-btn:hover { background: rgba(255,255,255,0.14); color: #dfe4ea; }
+.cdm-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: #dfe4ea;
+}
 
 .cdm-close-btn:hover {
   background: rgba(220, 38, 38, 0.22);
@@ -94,7 +110,6 @@
   margin-bottom: 10px;
 }
 
-/* Completion circle */
 .cdm-complete-btn {
   flex-shrink: 0;
   width: 24px;
@@ -114,11 +129,22 @@
   line-height: 1;
 }
 
-.cdm-complete-btn:hover        { border-color: #4ade80; color: rgba(74,222,128,0.55); }
-.cdm-complete-btn.is-done      { border-color: #4ade80; background: #4ade80; color: #fff; }
-.cdm-complete-btn.is-saving    { opacity: 0.5; cursor: not-allowed; }
+.cdm-complete-btn:hover {
+  border-color: #4ade80;
+  color: rgba(74, 222, 128, 0.55);
+}
 
-/* Card title */
+.cdm-complete-btn.is-done {
+  border-color: #4ade80;
+  background: #4ade80;
+  color: #fff;
+}
+
+.cdm-complete-btn.is-saving {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .cdm-card-title {
   flex: 1;
   font-size: 19px;
@@ -135,19 +161,22 @@
   transition: background 0.12s;
 }
 
-.cdm-card-title:focus      { background: rgba(255,255,255,0.06); }
+.cdm-card-title:focus {
+  background: rgba(255, 255, 255, 0.06);
+}
+
 .cdm-card-title.is-completed {
   text-decoration: line-through;
   color: rgba(255, 255, 255, 0.38);
 }
 
-/* ── Header meta row (labels + due when they exist) ──────────────────────── */
+/* ── Header meta row ──────────────────────────────────────────────────────── */
 .cdm-header-meta {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 10px;
-  padding-left: 34px; /* align with title (skip circle width + gap) */
+  padding-left: 34px;
   margin-top: 4px;
 }
 
@@ -165,9 +194,19 @@
   font-weight: 600;
   color: #fff;
   user-select: none;
+  transition: opacity 0.12s;
 }
 
-/* Due badge */
+.cdm-label:hover {
+  opacity: 0.85;
+}
+
+.cdm-label--edit {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 11px;
+}
+
 .cdm-meta-due {
   display: flex;
   align-items: center;
@@ -190,10 +229,16 @@
   white-space: nowrap;
 }
 
-.cdm-due-badge:hover        { background: rgba(255,255,255,0.14); color: #fff; }
-.cdm-due-badge.done         { border-color: #4ade80; color: #4ade80; }
+.cdm-due-badge:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+}
 
-/* Reminder checkbox */
+.cdm-due-badge.done {
+  border-color: #4ade80;
+  color: #4ade80;
+}
+
 .cdm-reminder-check {
   display: flex;
   align-items: center;
@@ -211,7 +256,7 @@
   cursor: pointer;
 }
 
-/* ── Body (left + right) ──────────────────────────────────────────────────── */
+/* ── Body ─────────────────────────────────────────────────────────────────── */
 .cdm-body {
   display: flex;
   gap: 0;
@@ -219,7 +264,6 @@
   min-height: 0;
 }
 
-/* ── LEFT ─────────────────────────────────────────────────────────────────── */
 .cdm-left {
   flex: 1;
   min-width: 0;
@@ -229,7 +273,6 @@
   gap: 0;
 }
 
-/* ── RIGHT ────────────────────────────────────────────────────────────────── */
 .cdm-right {
   flex-shrink: 0;
   width: 176px;
@@ -239,7 +282,7 @@
   padding-top: 2px;
 }
 
-/* ── Action row ───────────────────────────────────────────────────────────── */
+/* ── Action row (quick add buttons) ──────────────────────────────────────── */
 .cdm-actions-row {
   display: flex;
   flex-wrap: wrap;
@@ -277,46 +320,106 @@
   color: #82b8ff;
 }
 
-/* ── "Thêm" dropdown ─────────────────────────────────────────────────────── */
-.cdm-add-wrap { position: relative; }
-
-.cdm-add-menu {
-  position: absolute;
-  top: calc(100% + 5px);
-  left: 0;
-  z-index: 300;
-  background: #282e33;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 9px;
-  padding: 5px;
-  min-width: 180px;
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.55);
-}
-
-.cdm-add-menu-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  padding: 8px 10px;
-  background: transparent;
-  border: none;
-  color: #b6c2cf;
+/* "Thêm" button — distinct style */
+.cdm-action-btn--more {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #dfe4ea;
+  font-weight: 600;
+  border-radius: 6px;
+  padding: 5px 14px;
   font-size: 13px;
   cursor: pointer;
-  border-radius: 6px;
-  text-align: left;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
   font-family: inherit;
-  transition: background 0.12s, color 0.12s;
 }
 
-.cdm-add-menu-item:hover {
-  background: rgba(255, 255, 255, 0.09);
+.cdm-action-btn--more:hover {
+  background: rgba(255, 255, 255, 0.17);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+/* ── Inner overlay modal (used for label/date/checklist/attachment) ────────── */
+.cdm-inner-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.55);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: cdm-fade-in 0.1s ease;
+}
+
+.cdm-inner-modal {
+  background: #282e33;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  width: 300px;
+  max-height: 70vh;
+  overflow-y: auto;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.65);
+  display: flex;
+  flex-direction: column;
+  animation: cdm-slide-up 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.cdm-inner-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 14px 11px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #b6c2cf;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+}
+
+.cdm-inner-modal-body {
+  padding: 12px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Shared field label */
+.cdm-field-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.38);
+  margin: 0 0 4px;
+}
+
+/* Shared text input */
+.cdm-inner-input {
+  width: 100%;
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1.5px solid rgba(255, 255, 255, 0.14);
+  border-radius: 7px;
+  color: #b6c2cf;
+  font-size: 13px;
+  padding: 8px 10px;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+
+.cdm-inner-input:focus {
+  border-color: rgba(87, 157, 255, 0.55);
+  background: rgba(255, 255, 255, 0.1);
   color: #fff;
 }
 
 /* ── Sections ─────────────────────────────────────────────────────────────── */
-.cdm-section { margin-bottom: 18px; }
+.cdm-section {
+  margin-bottom: 18px;
+}
 
 .cdm-section-label {
   font-size: 11px;
@@ -341,6 +444,7 @@
   resize: vertical;
   font-family: inherit;
   line-height: 1.55;
+  min-height: 72px;
   transition: border-color 0.15s, background 0.15s;
 }
 
@@ -350,7 +454,9 @@
   color: #fff;
 }
 
-.cdm-description::placeholder { color: rgba(255, 255, 255, 0.22); }
+.cdm-description::placeholder {
+  color: rgba(255, 255, 255, 0.22);
+}
 
 /* ── Checklist ────────────────────────────────────────────────────────────── */
 .cdm-checklist {
@@ -380,7 +486,6 @@
   color: #579dff;
 }
 
-/* Progress bar */
 .cdm-progress-bar {
   height: 4px;
   background: rgba(255, 255, 255, 0.1);
@@ -391,15 +496,14 @@
 
 .cdm-progress-fill {
   height: 100%;
-  background: #579dff;
   border-radius: 99px;
-  transition: width 0.35s ease;
+  transition: width 0.35s ease, background 0.35s ease;
 }
 
 .cdm-checklist-items {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 
 .cdm-checklist-item {
@@ -413,7 +517,9 @@
   transition: background 0.1s;
 }
 
-.cdm-checklist-item:hover { background: rgba(255, 255, 255, 0.05); }
+.cdm-checklist-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
 
 .cdm-checklist-item input[type="checkbox"] {
   accent-color: #579dff;
@@ -428,7 +534,27 @@
   color: rgba(255, 255, 255, 0.32);
 }
 
-/* Inline add buttons */
+/* Drag handle */
+.cdm-drag-handle {
+  color: rgba(255, 255, 255, 0.2);
+  font-size: 14px;
+  cursor: grab;
+  user-select: none;
+  padding: 0 2px;
+  flex-shrink: 0;
+  transition: color 0.12s;
+  line-height: 1;
+}
+
+.cdm-drag-handle:active {
+  cursor: grabbing;
+}
+
+.cdm-checklist-item:hover .cdm-drag-handle {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+/* Inline add */
 .cdm-add-inline-btn {
   width: 100%;
   background: rgba(255, 255, 255, 0.06);
@@ -464,6 +590,11 @@
   border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: 8px;
   padding: 8px 12px;
+  transition: border-color 0.12s;
+}
+
+.cdm-attachment:hover {
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
 .cdm-attachment-thumb {
@@ -484,7 +615,9 @@
   object-fit: cover;
 }
 
-.cdm-attachment-icon { font-size: 20px; }
+.cdm-attachment-icon {
+  font-size: 20px;
+}
 
 .cdm-attachment-info {
   flex: 1;
@@ -504,7 +637,9 @@
   text-overflow: ellipsis;
 }
 
-.cdm-attachment-name:hover { text-decoration: underline; }
+.cdm-attachment-name:hover {
+  text-decoration: underline;
+}
 
 .cdm-attachment-date {
   font-size: 11px;
@@ -519,7 +654,56 @@
   padding: 1px 6px;
   font-size: 11px;
   font-weight: 600;
-  width: fit-content;
+}
+
+/* ── Dropzone ─────────────────────────────────────────────────────────────── */
+.cdm-dropzone {
+  border: 2px dashed rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  padding: 28px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.45);
+  text-align: center;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+
+.cdm-dropzone:hover,
+.cdm-dropzone.dragging {
+  border-color: #579dff;
+  background: rgba(87, 157, 255, 0.07);
+  color: #579dff;
+}
+
+.cdm-dropzone-icon {
+  font-size: 26px;
+}
+
+/* ── Add menu items ───────────────────────────────────────────────────────── */
+.cdm-add-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  background: transparent;
+  border: none;
+  color: #b6c2cf;
+  font-size: 13px;
+  cursor: pointer;
+  border-radius: 8px;
+  text-align: left;
+  font-family: inherit;
+  transition: background 0.12s, color 0.12s;
+}
+
+.cdm-add-menu-item:hover {
+  background: rgba(255, 255, 255, 0.09);
+  color: #fff;
 }
 
 /* ── Comments ─────────────────────────────────────────────────────────────── */
@@ -550,7 +734,7 @@
   resize: none;
   font-family: inherit;
   line-height: 1.45;
-  transition: border-color 0.15s, background 0.15s, rows 0.2s;
+  transition: border-color 0.15s, background 0.15s;
 }
 
 .cdm-comment-input:focus {
@@ -559,7 +743,9 @@
   color: #fff;
 }
 
-.cdm-comment-input::placeholder { color: rgba(255, 255, 255, 0.22); }
+.cdm-comment-input::placeholder {
+  color: rgba(255, 255, 255, 0.22);
+}
 
 .cdm-comment-actions {
   display: flex;
@@ -579,8 +765,14 @@
   font-family: inherit;
 }
 
-.cdm-comment-submit:hover:not(:disabled) { background: #4a8de8; }
-.cdm-comment-submit:disabled { opacity: 0.45; cursor: not-allowed; }
+.cdm-comment-submit:hover:not(:disabled) {
+  background: #4a8de8;
+}
+
+.cdm-comment-submit:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
 
 .cdm-comment-cancel {
   background: transparent;
@@ -599,7 +791,6 @@
   color: #fff;
 }
 
-/* Comment bubble */
 .cdm-comment-bubble {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.09);
@@ -616,7 +807,7 @@
   word-break: break-word;
 }
 
-/* ── Activity list ────────────────────────────────────────────────────────── */
+/* ── Activity ─────────────────────────────────────────────────────────────── */
 .cdm-activity-list {
   display: flex;
   flex-direction: column;
@@ -640,7 +831,9 @@
   color: #b6c2cf;
 }
 
-.cdm-activity-text { color: rgba(255, 255, 255, 0.55); }
+.cdm-activity-text {
+  color: rgba(255, 255, 255, 0.55);
+}
 
 .cdm-activity-time {
   font-size: 11px;
@@ -698,10 +891,19 @@
   font-family: inherit;
 }
 
-.cdm-sidebar-btn:hover { background: rgba(255,255,255,0.13); color: #fff; }
+.cdm-sidebar-btn:hover {
+  background: rgba(255, 255, 255, 0.13);
+  color: #fff;
+}
 
-.cdm-sidebar-btn--danger { color: #f87168; }
-.cdm-sidebar-btn--danger:hover { background: rgba(248,113,104,0.14); color: #fca5a5; }
+.cdm-sidebar-btn--danger {
+  color: #f87168;
+}
+
+.cdm-sidebar-btn--danger:hover {
+  background: rgba(248, 113, 104, 0.14);
+  color: #fca5a5;
+}
 
 .cdm-sidebar-divider {
   height: 1px;
@@ -709,53 +911,75 @@
   margin: 4px 0;
 }
 
-/* ── Label modal ──────────────────────────────────────────────────────────── */
-.cdm-label-modal-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 1100;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0, 0, 0, 0.45);
-}
-
-.cdm-label-modal {
-  background: #282e33;
-  border-radius: 10px;
-  width: 300px;
-  max-height: 70vh;
-  overflow-y: auto;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
-  display: flex;
-  flex-direction: column;
-}
-
-.cdm-label-modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 16px 10px;
-  font-weight: 600;
-  font-size: 14px;
+/* ── Date picker ──────────────────────────────────────────────────────────── */
+.cdm-datepicker-input {
+  width: 100%;
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1.5px solid rgba(87, 157, 255, 0.45);
+  border-radius: 7px;
   color: #b6c2cf;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 13px;
+  padding: 8px 10px;
+  outline: none;
+  font-family: inherit;
+  color-scheme: dark;
+  transition: border-color 0.15s;
 }
 
-.cdm-label-modal-body {
-  padding: 10px 14px 14px;
+.cdm-datepicker-input:focus {
+  border-color: #579dff;
+  color: #fff;
+}
+
+.cdm-datepicker-actions {
   display: flex;
-  flex-direction: column;
-  gap: 7px;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 4px;
 }
 
+.cdm-datepicker-clear {
+  background: rgba(248, 113, 104, 0.14);
+  border: 1px solid rgba(248, 113, 104, 0.3);
+  color: #f87168;
+  border-radius: 5px;
+  padding: 5px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.12s;
+}
+
+.cdm-datepicker-clear:hover {
+  background: rgba(248, 113, 104, 0.25);
+}
+
+.cdm-datepicker-confirm {
+  background: #579dff;
+  border: none;
+  color: #fff;
+  border-radius: 5px;
+  padding: 5px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.12s;
+}
+
+.cdm-datepicker-confirm:hover {
+  background: #4a8de8;
+}
+
+/* ── Label option ─────────────────────────────────────────────────────────── */
 .cdm-label-option {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
   cursor: pointer;
-  padding: 4px 0;
+  padding: 3px 0;
 }
 
 .cdm-label-color-pill {
@@ -766,6 +990,11 @@
   font-weight: 600;
   color: #fff;
   display: block;
+  transition: opacity 0.12s;
+}
+
+.cdm-label-option:hover .cdm-label-color-pill {
+  opacity: 0.85;
 }
 
 .cdm-label-checkbox {
@@ -783,125 +1012,26 @@
   margin: 8px 0;
 }
 
-/* ── Date picker popup ────────────────────────────────────────────────────── */
-.cdm-datepicker-popup {
-  position: absolute;
-  top: calc(100% + 6px);
-  left: 0;
-  z-index: 400;
-  background: #282e33;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  padding: 14px;
-  width: 260px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
-}
-
-.cdm-datepicker-global {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 1200;
-}
-
-.cdm-datepicker-global .cdm-datepicker-popup {
-  position: static;
-  transform: none;
-}
-
-.cdm-datepicker-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #b6c2cf;
-}
-
-.cdm-datepicker-input {
-  width: 100%;
-  box-sizing: border-box;
-  background: rgba(255, 255, 255, 0.07);
-  border: 1.5px solid rgba(87, 157, 255, 0.45);
-  border-radius: 7px;
-  color: #b6c2cf;
-  font-size: 13px;
-  padding: 8px 10px;
-  outline: none;
-  margin-bottom: 12px;
-  font-family: inherit;
-  color-scheme: dark;
-}
-
-.cdm-datepicker-input:focus {
-  border-color: #579dff;
-  color: #fff;
-}
-
-.cdm-datepicker-actions {
-  display: flex;
-  gap: 8px;
-  justify-content: flex-end;
-}
-
-.cdm-datepicker-clear {
-  background: rgba(248, 113, 104, 0.14);
-  border: 1px solid rgba(248, 113, 104, 0.3);
-  color: #f87168;
-  border-radius: 5px;
-  padding: 5px 12px;
-  font-size: 12px;
-  cursor: pointer;
-  font-family: inherit;
-  transition: background 0.12s;
-}
-
-.cdm-datepicker-clear:hover { background: rgba(248, 113, 104, 0.25); }
-
-.cdm-datepicker-confirm {
-  background: #579dff;
-  border: none;
-  color: #fff;
-  border-radius: 5px;
-  padding: 5px 14px;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: inherit;
-  transition: background 0.12s;
-}
-
-.cdm-datepicker-confirm:hover { background: #4a8de8; }
-
 /* ── Loading skeleton ─────────────────────────────────────────────────────── */
-.cdm-loading {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 4px 0;
-}
-
 @keyframes shimmer {
-  0%   { background-position: -600px 0; }
-  100% { background-position:  600px 0; }
+  0% {
+    background-position: -600px 0;
+  }
+
+  100% {
+    background-position: 600px 0;
+  }
 }
 
 .cdm-skeleton {
   border-radius: 7px;
-  background: linear-gradient(
-    90deg,
-    rgba(255,255,255,0.05) 25%,
-    rgba(255,255,255,0.11) 50%,
-    rgba(255,255,255,0.05) 75%
-  );
+  background: linear-gradient(90deg,
+      rgba(255, 255, 255, 0.05) 25%,
+      rgba(255, 255, 255, 0.11) 50%,
+      rgba(255, 255, 255, 0.05) 75%);
   background-size: 600px 100%;
   animation: shimmer 1.4s infinite linear;
 }
-
-.cdm-skeleton--full  { height: 18px; width: 100%; }
-.cdm-skeleton--half  { height: 14px; width: 55%;  }
 
 /* ── Responsive ───────────────────────────────────────────────────────────── */
 @media (max-width: 640px) {
@@ -922,7 +1052,9 @@
     padding: 12px 14px 20px;
   }
 
-  .cdm-left  { padding-right: 0; }
+  .cdm-left {
+    padding-right: 0;
+  }
 
   .cdm-right {
     width: 100%;
@@ -930,6 +1062,12 @@
     flex-wrap: wrap;
   }
 
-  .cdm-sidebar-btn    { flex: 1; min-width: 120px; }
-  .cdm-sidebar-label  { width: 100%; }
+  .cdm-sidebar-btn {
+    flex: 1;
+    min-width: 120px;
+  }
+
+  .cdm-sidebar-label {
+    width: 100%;
+  }
 }
