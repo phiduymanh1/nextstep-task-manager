@@ -41,4 +41,11 @@ public class ChecklistController extends BaseController {
     ChecklistItemResponse response = checklistService.createChecklistItem(checklistId, request);
     return ResponseEntity.ok(success(MessageConst.CHECKLIST_ITEM_CREATE_SUCCESS, response));
   }
+
+  @PostMapping("/{checklistItemId}/toggle")
+  public ResponseEntity<ApiResponse<ChecklistItemResponse>> toggleChecklistItem(
+      @PathVariable Integer checklistItemId) {
+    ChecklistItemResponse response = checklistService.toggleChecklistItem(checklistItemId);
+    return ResponseEntity.ok(success(MessageConst.CHECKLIST_ITEM_TOGGLE_SUCCESS, response));
+  }
 }

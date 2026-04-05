@@ -116,7 +116,7 @@ public class BoardService {
             .orElseThrow(() -> new ResourceNotFoundException(BOARD_FOUND));
 
     roleBoardService.checkRoleBoard(
-        boardSlug, authService.getCurrentUserId(), board.getWorkspace().getId(), Const.DELETE_MODE);
+        boardSlug, authService.getCurrentUserId(), Const.DELETE_MODE);
 
     boardRepository.delete(board);
   }
@@ -166,7 +166,7 @@ public class BoardService {
             .orElseThrow(() -> new ResourceNotFoundException(BOARD_FOUND));
 
     roleBoardService.checkRoleBoard(
-        boardSlug, authService.getCurrentUserId(), board.getWorkspace().getId(), Const.UPDATE_MODE);
+        boardSlug, authService.getCurrentUserId(), Const.UPDATE_MODE);
 
     boolean updated = false;
 

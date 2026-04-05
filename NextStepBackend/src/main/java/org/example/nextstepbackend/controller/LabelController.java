@@ -36,11 +36,16 @@ public class LabelController extends BaseController {
         .body(success(MessageConst.LABEL_CREATE_SUCCESS, res));
   }
 
-  @PostMapping("/selected")
+  @PostMapping("/toggle")
   public ResponseEntity<ApiResponse<Void>> selectedLabel(
       @Valid @RequestBody SelectedCardLabelRequest request) {
 
-    labelService.selectedCardLabel(request);
-    return ResponseEntity.ok(success(MessageConst.LABEL_SELECTED_SUCCESS, null));
+    labelService.toggleCardLabel(request);
+    return ResponseEntity.ok(
+        success(
+            request.selected()
+                ? MessageConst.LABEL_SELECTED_SUCCESS
+                : MessageConst.LABEL_UNSELECTED_SUCCESS,
+            null));
   }
 }

@@ -54,7 +54,7 @@ public class ChecklistService {
             .orElseThrow(() -> new ResourceNotFoundException("Card not found"));
 
     roleBoardService.checkRoleBoard(
-        card.getList().getBoard().getSlug(), userId, null, Const.CREATE_MODE);
+        card.getList().getBoard().getSlug(), userId, Const.CREATE_MODE);
 
     // 2. Load prev & next checklist
     Map<Integer, Checklist> refMap = getReferenceChecklists(request.afterId(), request.beforeId());
@@ -293,5 +293,19 @@ public class ChecklistService {
         .map(ChecklistItem::getPosition)
         .max(BigDecimal::compareTo)
         .orElse(BigDecimal.ZERO);
+  }
+
+  @Transactional
+  public ChecklistItemResponse toggleChecklistItem(Integer itemId) {
+    ChecklistItem item = checklistItemRepository.findById(itemId)
+        .orElseThrow(() -> new RuntimeException("Checklist item not found"));
+    
+    roleBoardService.checkRoleBoard(
+        item.getChecklist().getCard().getList().getBoard().getSlug(), authService.getCurrentUserId(), Const.UPDATE_MODE);
+
+    item.setIsCompleted(!item.getIsCompleted());
+    ChecklistItem saved = checklistItemRepository.save(item);
+    
+    return mapToResponse(saved);
   }
 }

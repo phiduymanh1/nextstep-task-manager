@@ -78,7 +78,7 @@ public class CardService {
             .findById(listId)
             .orElseThrow(() -> new ResourceNotFoundException("List not found"));
 
-    roleBoardService.checkRoleBoard(list.getBoard().getSlug(), userId, null, Const.CREATE_MODE);
+    roleBoardService.checkRoleBoard(list.getBoard().getSlug(), userId, Const.CREATE_MODE);
 
     // 2. Load prev & next card
     Map<Integer, Card> refMap = getReferenceCards(request.afterId(), request.beforeId());
@@ -215,7 +215,6 @@ public class CardService {
     roleBoardService.checkRoleBoard(
         card.getList().getBoard().getSlug(),
         userId,
-        card.getList().getBoard().getWorkspace().getId(),
         Const.DELETE_MODE);
 
     card.setIsArchived(true);
@@ -230,7 +229,6 @@ public class CardService {
     roleBoardService.checkRoleBoard(
         card.getList().getBoard().getSlug(),
         authService.getCurrentUserId(),
-        card.getList().getBoard().getWorkspace().getId(),
         Const.UPDATE_MODE);
 
     boolean updated = false;
@@ -300,7 +298,6 @@ public class CardService {
     roleBoardService.checkRoleBoard(
         targetList.getBoard().getSlug(),
         userId,
-        targetList.getBoard().getWorkspace().getId(),
         Const.UPDATE_MODE);
 
     // 4. Load prev & next

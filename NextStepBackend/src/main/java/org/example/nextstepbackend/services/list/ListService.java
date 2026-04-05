@@ -53,7 +53,7 @@ public class ListService {
 
     Integer userId = authService.getCurrentUserId();
 
-    roleBoardService.checkRoleBoard(boardSlug, userId, null, Const.CREATE_MODE);
+    roleBoardService.checkRoleBoard(boardSlug, userId, Const.CREATE_MODE);
 
     Board board = getBoard(boardSlug);
 
@@ -183,7 +183,7 @@ public class ListService {
     Integer userId = authService.getCurrentUserId();
 
     roleBoardService.checkRoleBoard(
-        slug, userId, list.getBoard().getWorkspace().getId(), Const.DELETE_MODE);
+        slug, userId, Const.DELETE_MODE);
 
     // 2. Delete (soft delete nếu bạn có field archived)
     listsRepository.delete(list);
@@ -196,7 +196,6 @@ public class ListService {
     roleBoardService.checkRoleBoard(
         slug,
         authService.getCurrentUserId(),
-        list.getBoard().getWorkspace().getId(),
         Const.UPDATE_MODE);
 
     boolean updated = false;
@@ -221,7 +220,7 @@ public class ListService {
 
     // 2. Permission
     roleBoardService.checkRoleBoard(
-        slug, userId, list.getBoard().getWorkspace().getId(), Const.UPDATE_MODE);
+        slug, userId, Const.UPDATE_MODE);
 
     Board board = list.getBoard();
 

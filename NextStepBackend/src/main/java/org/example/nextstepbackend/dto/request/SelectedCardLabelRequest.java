@@ -7,4 +7,5 @@ public record SelectedCardLabelRequest(
     @NotNull(message = "CardId is required") @Positive(message = "CardId must be > 0")
         Integer cardId,
     @NotNull(message = "LabelId is required") @Positive(message = "LabelId must be > 0")
-        Integer labelId) {}
+        Integer labelId,
+    @NotNull(message = "Selected status is required") Boolean selected) {}

@@ -20,14 +20,11 @@ public class RoleBoardService {
   private final WorkspaceMemberRepository workspaceMemberRepository;
 
   @Transactional
-  public void checkRoleBoard(String boardSlug, Integer userId, Integer workspaceId, String mode) {
+  public void checkRoleBoard(String boardSlug, Integer userId, String mode) {
 
     BoardMember boardMember = getBoardMember(boardSlug, userId);
 
-    Integer wsId =
-        (mode.equals(Const.CREATE_MODE))
-            ? boardMember.getBoard().getWorkspace().getId()
-            : workspaceId;
+    Integer wsId = boardMember.getBoard().getWorkspace().getId();
 
     WorkspaceMember workspaceMember = getWorkspaceMember(wsId, userId);
 

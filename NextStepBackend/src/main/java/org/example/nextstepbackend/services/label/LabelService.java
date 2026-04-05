@@ -44,7 +44,7 @@ public class LabelService {
                         String.format("Board with slug '%s' not found", boardSlug)));
 
     roleBoardService.checkRoleBoard(
-        boardSlug, authService.getCurrentUserId(), board.getWorkspace().getId(), Const.CREATE_MODE);
+        boardSlug, authService.getCurrentUserId(), Const.CREATE_MODE);
 
     Label label = labelMapper.toEntity(request);
     label.setBoard(board);
@@ -55,7 +55,7 @@ public class LabelService {
   }
 
   @Transactional
-  public void selectedCardLabel(SelectedCardLabelRequest request) {
+  public void toggleCardLabel(SelectedCardLabelRequest request) {
     Card card =
         cardRepository
             .findById(request.cardId())
@@ -69,10 +69,19 @@ public class LabelService {
                 () ->
                     new ResourceNotFoundException("Label not found with id: " + request.labelId()));
 
-    CardLabel cardLabel = new CardLabel();
-    cardLabel.setCard(card);
-    cardLabel.setLabel(label);
+    boolean isAlreadySelected = cardLabelRepository.existsByCardAndLabel(card, label);
 
-    cardLabelRepository.save(cardLabel);
+    if (request.selected()) {
+      if (!isAlreadySelected) {
+        CardLabel cardLabel = new CardLabel();
+        cardLabel.setCard(card);
+        cardLabel.setLabel(label);
+        cardLabelRepository.save(cardLabel);
+      }
+    } else {
+      if (isAlreadySelected) {
+        cardLabelRepository.deleteByCardAndLabel(card, label);
+      }
+    }
   }
 }

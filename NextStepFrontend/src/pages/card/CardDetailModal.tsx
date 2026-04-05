@@ -22,11 +22,12 @@ import {
   arrayMove,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { createBoardLabel } from '@/services/label.service';
+import { createBoardLabel, toggleCardLabel } from '@/services/label.service';
 import { useParams } from 'react-router-dom';
 import {
   createChecklist,
   createChecklistItem,
+  toggleChecklistItem,
 } from '@/services/checklist.service';
 
 // ============================================================
@@ -215,12 +216,12 @@ function LabelModal({
               >
                 {l.name}
               </span>
+
               <input
                 type="checkbox"
                 className="cdm-label-checkbox"
                 checked={checked}
-                onChange={() => onToggle(l.id)}
-                onClick={(e) => e.stopPropagation()}
+                readOnly
               />
             </div>
           );
@@ -611,16 +612,44 @@ export default function CardDetailModal({
   // Label toggle
   const handleToggleLabel = async (labelId: string) => {
     if (!card) return;
-    const current = card.labels.selectedLabelIds;
-    const updated = current.includes(labelId)
-      ? current.filter((id) => id !== labelId)
-      : [...current, labelId];
+
+    const isSelected = card.labels.selectedLabelIds.includes(labelId);
+
+    // optimistic UI
+    const updated = isSelected
+      ? card.labels.selectedLabelIds.filter((id) => id !== labelId)
+      : [...card.labels.selectedLabelIds, labelId];
+
     setCard((prev) =>
       prev
         ? { ...prev, labels: { ...prev.labels, selectedLabelIds: updated } }
         : null
     );
-    // await updateCard(cardId, { selectedLabelIds: updated }); TODO:
+
+    try {
+      await toggleCardLabel({
+        cardId: Number(cardId),
+        labelId: Number(labelId),
+        selected: !isSelected,
+      });
+    } catch (err) {
+      console.error('Toggle label failed', err);
+
+      // rollback
+      setCard((prev) =>
+        prev
+          ? {
+              ...prev,
+              labels: {
+                ...prev.labels,
+                selectedLabelIds: isSelected
+                  ? [...prev.labels.selectedLabelIds, labelId]
+                  : prev.labels.selectedLabelIds.filter((id) => id !== labelId),
+              },
+            }
+          : null
+      );
+    }
   };
 
   // Date save
@@ -634,7 +663,12 @@ export default function CardDetailModal({
   // Add checklist
 
   // Toggle checklist item
-  const handleToggleChecklistItem = (clId: string, itemId: string) => {
+  const handleToggleChecklistItem = async (clId: string, itemId: string) => {
+    const isCompleted = card?.checklists
+      .find((cl) => cl.id === clId)
+      ?.items.find((i) => i.id === itemId)?.isCompleted;
+
+    // optimistic UI
     setCard((prev) => {
       if (!prev) return null;
       return {
@@ -653,6 +687,32 @@ export default function CardDetailModal({
         ),
       };
     });
+
+    try {
+      await toggleChecklistItem(Number(itemId));
+    } catch (err) {
+      console.error('Toggle checklist item failed', err);
+
+      // rollback nếu lỗi
+      setCard((prev) => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          checklists: prev.checklists.map((cl) =>
+            cl.id === clId
+              ? {
+                  ...cl,
+                  items: cl.items.map((item) =>
+                    item.id === itemId
+                      ? { ...item, isCompleted: isCompleted ?? false }
+                      : item
+                  ),
+                }
+              : cl
+          ),
+        };
+      });
+    }
   };
 
   // Add checklist item inline
