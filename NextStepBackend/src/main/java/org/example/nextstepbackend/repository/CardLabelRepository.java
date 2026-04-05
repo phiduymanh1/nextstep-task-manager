@@ -1,7 +1,6 @@
 package org.example.nextstepbackend.repository;
 
 import java.util.List;
-
 import org.example.nextstepbackend.entity.Card;
 import org.example.nextstepbackend.entity.CardLabel;
 import org.example.nextstepbackend.entity.Label;

@@ -75,5 +75,4 @@ public class ListController extends BaseController {
     var response = listService.getListDetail(listId);
     return ResponseEntity.ok(success(null, response));
   }
-
 }

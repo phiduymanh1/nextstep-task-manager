@@ -29,6 +29,10 @@ import {
   createChecklistItem,
   toggleChecklistItem,
 } from '@/services/checklist.service';
+import {
+  deleteAttachment,
+  uploadAttachment,
+} from '@/services/attachment.service';
 
 // ============================================================
 // 1. TYPES
@@ -779,8 +783,54 @@ export default function CardDetailModal({
 
   // Attachment
   const handleAttach = async (file: File) => {
-    console.log('Attach file:', file.name);
-    // TODO: call upload API
+    try {
+      const res = await uploadAttachment(Number(cardId), file);
+
+      const newAttachment: Attachment = {
+        id: String(res.id),
+        fileName: res.fileName,
+        fileUrl: res.fileUrl,
+        fileSize: res.fileSize,
+        mimeType: res.mimeType,
+        isCover: res.isCover,
+      };
+
+      setCard((prev) =>
+        prev
+          ? {
+              ...prev,
+              attachments: [...prev.attachments, newAttachment],
+            }
+          : null
+      );
+    } catch (err) {
+      console.error('Upload attachment error:', err);
+    }
+  };
+
+  const handleDeleteAttachment = async (id: string) => {
+    // optimistic UI
+    const oldAttachments = card?.attachments || [];
+
+    setCard((prev) =>
+      prev
+        ? {
+            ...prev,
+            attachments: prev.attachments.filter((a) => a.id !== id),
+          }
+        : null
+    );
+
+    try {
+      await deleteAttachment(Number(id));
+    } catch (err) {
+      console.error('Delete attachment failed', err);
+
+      // rollback
+      setCard((prev) =>
+        prev ? { ...prev, attachments: oldAttachments } : null
+      );
+    }
   };
 
   // Comment submit
@@ -1144,7 +1194,13 @@ export default function CardDetailModal({
                               Ảnh bìa
                             </span>
                           )}{' '}
-                          • <u style={{ cursor: 'pointer' }}>Xóa</u>
+                          •{' '}
+                          <u
+                            style={{ cursor: 'pointer' }}
+                            onClick={() => handleDeleteAttachment(a.id)}
+                          >
+                            Xóa
+                          </u>
                         </span>
                       </div>
                     </div>

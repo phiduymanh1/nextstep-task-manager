@@ -212,10 +212,7 @@ public class CardService {
 
     Integer userId = authService.getCurrentUserId();
 
-    roleBoardService.checkRoleBoard(
-        card.getList().getBoard().getSlug(),
-        userId,
-        Const.DELETE_MODE);
+    roleBoardService.checkRoleBoard(card.getList().getBoard().getSlug(), userId, Const.DELETE_MODE);
 
     card.setIsArchived(true);
   }
@@ -227,9 +224,7 @@ public class CardService {
 
     // check quyền qua board
     roleBoardService.checkRoleBoard(
-        card.getList().getBoard().getSlug(),
-        authService.getCurrentUserId(),
-        Const.UPDATE_MODE);
+        card.getList().getBoard().getSlug(), authService.getCurrentUserId(), Const.UPDATE_MODE);
 
     boolean updated = false;
 
@@ -295,10 +290,7 @@ public class CardService {
             .orElseThrow(() -> new ResourceNotFoundException("List not found"));
 
     // 3. Permission (qua board)
-    roleBoardService.checkRoleBoard(
-        targetList.getBoard().getSlug(),
-        userId,
-        Const.UPDATE_MODE);
+    roleBoardService.checkRoleBoard(targetList.getBoard().getSlug(), userId, Const.UPDATE_MODE);
 
     // 4. Load prev & next
     Map<Integer, Card> refMap = getReferenceCards(request.afterId(), request.beforeId());

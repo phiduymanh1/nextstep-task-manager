@@ -40,7 +40,7 @@ axiosInstance.interceptors.request.use((config) => {
     config.headers[HTTP_HEADER.AUTHORIZATION] = `Bearer ${token}`;
   }
   // Set Content-Type to application/json if data is present
-  if (config.data) {
+  if (config.data && !(config.data instanceof FormData)) {
     config.headers[HTTP_HEADER.CONTENT_TYPE] = MIME_TYPE.JSON;
   }
   return config; // Return modified config

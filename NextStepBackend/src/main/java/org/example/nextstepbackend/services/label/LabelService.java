@@ -43,8 +43,7 @@ public class LabelService {
                     new ResourceNotFoundException(
                         String.format("Board with slug '%s' not found", boardSlug)));
 
-    roleBoardService.checkRoleBoard(
-        boardSlug, authService.getCurrentUserId(), Const.CREATE_MODE);
+    roleBoardService.checkRoleBoard(boardSlug, authService.getCurrentUserId(), Const.CREATE_MODE);
 
     Label label = labelMapper.toEntity(request);
     label.setBoard(board);

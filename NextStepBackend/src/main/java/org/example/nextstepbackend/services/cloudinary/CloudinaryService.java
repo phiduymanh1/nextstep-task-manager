@@ -15,6 +15,8 @@ public class CloudinaryService {
 
   private final Cloudinary cloudinary;
 
+  private static final String PUBLIC_ID = "public_id";
+
   /**
    * Upload avatar to Cloudinary
    *
@@ -27,7 +29,7 @@ public class CloudinaryService {
       Map<String, Object> options =
           Map.of(
               "folder", "avatars",
-              "public_id", publicId,
+                  PUBLIC_ID, publicId,
               "overwrite", true,
               "resource_type", "image",
               "transformation", "w_256,h_256,c_fill,g_face");
@@ -36,11 +38,31 @@ public class CloudinaryService {
       Map<String, Object> result = cloudinary.uploader().upload(file.getBytes(), options);
 
       return new UploadResult(
-          result.get("secure_url").toString(), result.get("public_id").toString());
+          result.get("secure_url").toString(), result.get(PUBLIC_ID).toString());
 
     } catch (Exception e) {
       throw new AppException(
           HttpStatus.INTERNAL_SERVER_ERROR, "Upload avatar failed", "UPLOAD-FAILED");
+    }
+  }
+
+  public UploadResult uploadAttachment(MultipartFile file, String publicId) {
+    try {
+      Map<String, Object> options =
+          Map.of(
+              "folder", "attachments",
+                  PUBLIC_ID, publicId,
+              "resource_type", "auto" // 🔥 hỗ trợ mọi file
+              );
+
+      Map<String, Object> result = cloudinary.uploader().upload(file.getBytes(), options);
+
+      return new UploadResult(
+          result.get("secure_url").toString(), result.get(PUBLIC_ID).toString());
+
+    } catch (Exception e) {
+      throw new AppException(
+          HttpStatus.INTERNAL_SERVER_ERROR, "Upload attachment failed", "UPLOAD-FAILED");
     }
   }
 

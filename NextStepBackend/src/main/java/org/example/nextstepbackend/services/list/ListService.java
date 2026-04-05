@@ -182,8 +182,7 @@ public class ListService {
 
     Integer userId = authService.getCurrentUserId();
 
-    roleBoardService.checkRoleBoard(
-        slug, userId, Const.DELETE_MODE);
+    roleBoardService.checkRoleBoard(slug, userId, Const.DELETE_MODE);
 
     // 2. Delete (soft delete nếu bạn có field archived)
     listsRepository.delete(list);
@@ -193,10 +192,7 @@ public class ListService {
   public void updateList(String slug, Integer listId, ListsUpdateRequest request) {
     ListEntity list = findByBoardSlugAndId(slug, listId);
 
-    roleBoardService.checkRoleBoard(
-        slug,
-        authService.getCurrentUserId(),
-        Const.UPDATE_MODE);
+    roleBoardService.checkRoleBoard(slug, authService.getCurrentUserId(), Const.UPDATE_MODE);
 
     boolean updated = false;
 
@@ -219,8 +215,7 @@ public class ListService {
     ListEntity list = findByBoardSlugAndId(slug, listId);
 
     // 2. Permission
-    roleBoardService.checkRoleBoard(
-        slug, userId, Const.UPDATE_MODE);
+    roleBoardService.checkRoleBoard(slug, userId, Const.UPDATE_MODE);
 
     Board board = list.getBoard();
 
