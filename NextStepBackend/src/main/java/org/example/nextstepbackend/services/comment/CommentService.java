@@ -12,6 +12,7 @@ import org.example.nextstepbackend.mappers.CommentMapper;
 import org.example.nextstepbackend.repository.CardRepository;
 import org.example.nextstepbackend.repository.CommentRepository;
 import org.example.nextstepbackend.repository.UserRepository;
+import org.example.nextstepbackend.services.ActivityService;
 import org.example.nextstepbackend.services.auth.AuthService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,6 +28,7 @@ public class CommentService {
   private final CardRepository cardRepository;
   private final UserRepository userRepository;
   private final AuthService authService;
+  private final ActivityService activityService;
 
   @Transactional
   public PageResponse<CommentResponse> getComments(Integer cardId, Pageable pageable) {

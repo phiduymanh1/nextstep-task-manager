@@ -1,6 +1,10 @@
 import React, { useEffect, useState, useRef } from 'react';
 import '@/assets/styles/CardDetailModal.css';
-import { getCardDetail, updateCard } from '@/services/card.service';
+import {
+  getCardDetail,
+  updateCard,
+  archiveCard,
+} from '@/services/card.service';
 import {
   getComments,
   createComment,
@@ -28,6 +32,8 @@ import {
   createChecklist,
   createChecklistItem,
   toggleChecklistItem,
+  deleteChecklist,
+  deleteChecklistItem,
 } from '@/services/checklist.service';
 import {
   deleteAttachment,
@@ -68,6 +74,7 @@ interface Attachment {
 interface Activity {
   id: string;
   message: string;
+  createdAt?: string;
 }
 
 interface CardData {
@@ -89,6 +96,10 @@ interface Props {
   cardId: string;
   onClose: () => void;
   onToggleComplete: (cardId: string, isCompleted: boolean) => void;
+  /** Yêu cầu 3: callback trả về card state mới nhất khi đóng modal */
+  onCardUpdated?: (cardId: string, updatedCard: Partial<CardData>) => void;
+  /** Yêu cầu 4: callback khi card bị xóa */
+  onCardDeleted?: (cardId: string) => void;
 }
 
 // ============================================================
@@ -97,9 +108,11 @@ interface Props {
 function SortableChecklistItem({
   item,
   onToggle,
+  onDelete,
 }: {
   item: ChecklistItem;
   onToggle: (id: string) => void;
+  onDelete: (id: string) => void;
 }) {
   const {
     attributes,
@@ -127,6 +140,19 @@ function SortableChecklistItem({
         onChange={() => onToggle(item.id)}
       />
       <span className={item.isCompleted ? 'done' : ''}>{item.content}</span>
+
+      {/* Yêu cầu 1: nút xóa checklist item */}
+      <button
+        className="cdm-checklist-item-delete"
+        title="Xóa mục"
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onDelete(item.id);
+        }}
+      >
+        ✕
+      </button>
     </label>
   );
 }
@@ -172,20 +198,16 @@ function LabelModal({
   const [name, setName] = useState('');
   const [color, setColor] = useState('#579dff');
   const [loading, setLoading] = useState(false);
+
   const handleCreate = async () => {
     if (!name.trim()) return;
-
     try {
       setLoading(true);
-
       const newLabel = await createBoardLabel(boardSlug, {
         name: name.trim(),
         color,
       });
-
-      // update UI (cách chuẩn)
       onAddLabel?.(newLabel);
-
       setName('');
       setCreating(false);
     } catch (err) {
@@ -194,6 +216,7 @@ function LabelModal({
       setLoading(false);
     }
   };
+
   return (
     <ModalOverlay onClose={onClose}>
       <div className="cdm-inner-modal-header">
@@ -220,7 +243,6 @@ function LabelModal({
               >
                 {l.name}
               </span>
-
               <input
                 type="checkbox"
                 className="cdm-label-checkbox"
@@ -230,7 +252,6 @@ function LabelModal({
             </div>
           );
         })}
-        {/* ===== CREATE LABEL ===== */}
         {!creating ? (
           <button
             className="cdm-add-inline-btn"
@@ -247,14 +268,12 @@ function LabelModal({
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
-
             <input
               type="color"
               value={color}
               onChange={(e) => setColor(e.target.value)}
               style={{ marginTop: '6px', width: '100%', height: '36px' }}
             />
-
             <div style={{ display: 'flex', gap: '6px', marginTop: '6px' }}>
               <button
                 className="cdm-comment-submit"
@@ -263,7 +282,6 @@ function LabelModal({
               >
                 {loading ? 'Đang tạo...' : 'Tạo'}
               </button>
-
               <button
                 className="cdm-comment-cancel"
                 onClick={() => setCreating(false)}
@@ -353,30 +371,27 @@ function DateModal({
 }
 
 // ============================================================
-// 6. CHECKLIST MODAL (tạo checklist mới)
+// 6. CHECKLIST MODAL
 // ============================================================
 function ChecklistModal({
   cardId,
   onAdd,
   onClose,
+  onCreated,
 }: {
   cardId: number;
   onAdd: (checklist: Checklist) => void;
   onClose: () => void;
+  onCreated?: () => void;
 }) {
   const [title, setTitle] = useState('Việc cần làm');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
     if (!title.trim()) return;
-
     try {
       setLoading(true);
-
-      const res = await createChecklist(cardId, {
-        title: title.trim(),
-      });
-
+      const res = await createChecklist(cardId, { title: title.trim() });
       const mapped: Checklist = {
         id: String(res.id),
         title: res.title,
@@ -387,8 +402,8 @@ function ChecklistModal({
           isCompleted: item.isDone,
         })),
       };
-
       onAdd(mapped);
+      onCreated?.();
       onClose();
     } catch (err) {
       console.error('Create checklist error:', err);
@@ -405,10 +420,8 @@ function ChecklistModal({
           ✕
         </button>
       </div>
-
       <div className="cdm-inner-modal-body">
         <p className="cdm-field-label">Tiêu đề</p>
-
         <input
           className="cdm-inner-input"
           value={title}
@@ -418,7 +431,6 @@ function ChecklistModal({
           }}
           autoFocus
         />
-
         <button
           className="cdm-datepicker-confirm"
           style={{ marginTop: '10px', width: '100%' }}
@@ -493,7 +505,7 @@ function AttachmentModal({
 }
 
 // ============================================================
-// 8. ADD BUTTON MODAL (danh sách hành động)
+// 8. ADD BUTTON MODAL
 // ============================================================
 type AddModalType = 'label' | 'date' | 'checklist' | 'attachment' | null;
 
@@ -542,6 +554,8 @@ export default function CardDetailModal({
   cardId,
   onClose,
   onToggleComplete,
+  onCardUpdated,
+  onCardDeleted,
 }: Props) {
   const { boardSlug } = useParams<{ boardSlug: string }>();
   const [loading, setLoading] = useState(true);
@@ -550,8 +564,8 @@ export default function CardDetailModal({
   const [activities, setActivities] = useState<Activity[]>([]);
   const [commentInput, setCommentInput] = useState('');
   const [submittingComment, setSubmittingComment] = useState(false);
+  const [deletingCard, setDeletingCard] = useState(false);
 
-  // Modal state
   const [activeModal, setActiveModal] = useState<AddModalType | 'addMenu'>(
     null
   );
@@ -565,14 +579,13 @@ export default function CardDetailModal({
     const loadData = async () => {
       setLoading(true);
       try {
-        const [detail, cmt, act] = await Promise.all([
+        const [detail, cmt] = await Promise.all([
           getCardDetail(cardId),
           getComments(cardId),
-          getActivities(cardId),
         ]);
         setCard(detail);
         setComments(cmt);
-        setActivities(act);
+        await loadActivities();
       } catch (error) {
         console.error('Lỗi load card:', error);
       } finally {
@@ -582,9 +595,34 @@ export default function CardDetailModal({
     loadData();
   }, [cardId]);
 
-  const closeModal = () => setActiveModal(null);
+  const loadActivities = async () => {
+    try {
+      const act = await getActivities(cardId);
+      setActivities(act);
+    } catch (err) {
+      console.error('Load activities error', err);
+    }
+  };
 
+  const closeModal = () => setActiveModal(null);
   const openModal = (type: AddModalType | 'addMenu') => setActiveModal(type);
+
+  // ===== Yêu cầu 3: đóng modal và trả state mới nhất ra ngoài =====
+  const handleClose = () => {
+    if (card) {
+      onCardUpdated?.(cardId, {
+        title: card.title,
+        description: card.description,
+        isCompleted: card.isCompleted,
+        dueDate: card.dueDate,
+        dueReminder: card.dueReminder,
+        labels: card.labels,
+        checklists: card.checklists,
+        attachments: card.attachments,
+      });
+    }
+    onClose();
+  };
 
   // ===== Handlers =====
   const handleUpdateTitle = async (e: React.FocusEvent<HTMLHeadingElement>) => {
@@ -616,10 +654,7 @@ export default function CardDetailModal({
   // Label toggle
   const handleToggleLabel = async (labelId: string) => {
     if (!card) return;
-
     const isSelected = card.labels.selectedLabelIds.includes(labelId);
-
-    // optimistic UI
     const updated = isSelected
       ? card.labels.selectedLabelIds.filter((id) => id !== labelId)
       : [...card.labels.selectedLabelIds, labelId];
@@ -636,10 +671,9 @@ export default function CardDetailModal({
         labelId: Number(labelId),
         selected: !isSelected,
       });
+      loadActivities();
     } catch (err) {
       console.error('Toggle label failed', err);
-
-      // rollback
       setCard((prev) =>
         prev
           ? {
@@ -664,15 +698,12 @@ export default function CardDetailModal({
     );
   };
 
-  // Add checklist
-
   // Toggle checklist item
   const handleToggleChecklistItem = async (clId: string, itemId: string) => {
     const isCompleted = card?.checklists
       .find((cl) => cl.id === clId)
       ?.items.find((i) => i.id === itemId)?.isCompleted;
 
-    // optimistic UI
     setCard((prev) => {
       if (!prev) return null;
       return {
@@ -694,10 +725,9 @@ export default function CardDetailModal({
 
     try {
       await toggleChecklistItem(Number(itemId));
+      loadActivities();
     } catch (err) {
       console.error('Toggle checklist item failed', err);
-
-      // rollback nếu lỗi
       setCard((prev) => {
         if (!prev) return null;
         return {
@@ -719,12 +749,40 @@ export default function CardDetailModal({
     }
   };
 
+  // ===== Yêu cầu 1: xóa checklist item =====
+  const handleDeleteChecklistItem = async (clId: string, itemId: string) => {
+    // snapshot để rollback
+    const snapshot = card?.checklists ?? [];
+
+    // optimistic UI
+    setCard((prev) => {
+      if (!prev) return null;
+      return {
+        ...prev,
+        checklists: prev.checklists.map((cl) =>
+          cl.id === clId
+            ? { ...cl, items: cl.items.filter((i) => i.id !== itemId) }
+            : cl
+        ),
+      };
+    });
+
+    try {
+      await deleteChecklistItem(Number(itemId));
+      loadActivities();
+    } catch (err) {
+      console.error('Delete checklist item failed', err);
+      // rollback
+      setCard((prev) => (prev ? { ...prev, checklists: snapshot } : null));
+    }
+  };
+
   // Add checklist item inline
   const handleAddChecklistItem = async (clId: string, content: string) => {
     try {
       const res = await createChecklistItem(Number(clId), {
         content,
-        position: Date.now(), // hoặc null nếu BE tự xử
+        position: Date.now(),
         dueDate: null,
         afterId: null,
         beforeId: null,
@@ -745,13 +803,17 @@ export default function CardDetailModal({
           ),
         };
       });
+      loadActivities();
     } catch (err) {
       console.error('Create checklist item error:', err);
     }
   };
 
-  // Delete checklist
-  const handleDeleteChecklist = (clId: string) => {
+  // ===== Yêu cầu 2: xóa checklist — gọi API =====
+  const handleDeleteChecklist = async (clId: string) => {
+    const snapshot = card?.checklists ?? [];
+
+    // optimistic UI
     setCard((prev) =>
       prev
         ? {
@@ -760,6 +822,15 @@ export default function CardDetailModal({
           }
         : null
     );
+
+    try {
+      await deleteChecklist(Number(clId));
+      loadActivities(); // Yêu cầu 5
+    } catch (err) {
+      console.error('Delete checklist failed', err);
+      // rollback
+      setCard((prev) => (prev ? { ...prev, checklists: snapshot } : null));
+    }
   };
 
   // Drag end for checklist items
@@ -785,7 +856,6 @@ export default function CardDetailModal({
   const handleAttach = async (file: File) => {
     try {
       const res = await uploadAttachment(Number(cardId), file);
-
       const newAttachment: Attachment = {
         id: String(res.id),
         fileName: res.fileName,
@@ -794,42 +864,46 @@ export default function CardDetailModal({
         mimeType: res.mimeType,
         isCover: res.isCover,
       };
-
       setCard((prev) =>
         prev
-          ? {
-              ...prev,
-              attachments: [...prev.attachments, newAttachment],
-            }
+          ? { ...prev, attachments: [...prev.attachments, newAttachment] }
           : null
       );
+      loadActivities();
     } catch (err) {
       console.error('Upload attachment error:', err);
     }
   };
 
   const handleDeleteAttachment = async (id: string) => {
-    // optimistic UI
     const oldAttachments = card?.attachments || [];
-
     setCard((prev) =>
       prev
-        ? {
-            ...prev,
-            attachments: prev.attachments.filter((a) => a.id !== id),
-          }
+        ? { ...prev, attachments: prev.attachments.filter((a) => a.id !== id) }
         : null
     );
-
     try {
       await deleteAttachment(Number(id));
+      loadActivities();
     } catch (err) {
       console.error('Delete attachment failed', err);
-
-      // rollback
       setCard((prev) =>
         prev ? { ...prev, attachments: oldAttachments } : null
       );
+    }
+  };
+
+  // ===== Yêu cầu 4: xóa card =====
+  const handleDeleteCard = async () => {
+    if (!window.confirm('Bạn có chắc muốn lưu trữ thẻ này không?')) return;
+    setDeletingCard(true);
+    try {
+      await archiveCard(Number(cardId));
+      onCardDeleted?.(cardId);
+      onClose();
+    } catch (err) {
+      console.error('Delete card failed', err);
+      setDeletingCard(false);
     }
   };
 
@@ -935,13 +1009,11 @@ export default function CardDetailModal({
             onAdd={(newChecklist) =>
               setCard((prev) =>
                 prev
-                  ? {
-                      ...prev,
-                      checklists: [...prev.checklists, newChecklist],
-                    }
+                  ? { ...prev, checklists: [...prev.checklists, newChecklist] }
                   : null
               )
             }
+            onCreated={loadActivities}
             onClose={closeModal}
           />
         );
@@ -953,7 +1025,7 @@ export default function CardDetailModal({
   };
 
   return (
-    <div className="cdm-backdrop" onClick={onClose}>
+    <div className="cdm-backdrop" onClick={handleClose}>
       <div className="cdm-modal" onClick={(e) => e.stopPropagation()}>
         {/* HEADER */}
         <div className="cdm-header">
@@ -961,7 +1033,7 @@ export default function CardDetailModal({
             <div className="cdm-header-actions">
               <button
                 className="cdm-icon-btn cdm-close-btn"
-                onClick={onClose}
+                onClick={handleClose}
                 title="Đóng"
               >
                 ✕
@@ -1003,9 +1075,8 @@ export default function CardDetailModal({
         <div className="cdm-body">
           {/* LEFT */}
           <div className="cdm-left">
-            {/* Action bar: quick add buttons + Thêm button */}
+            {/* Action bar */}
             <div className="cdm-actions-row">
-              {/* Labels quick button */}
               {labels.selectedLabelIds.length === 0 && (
                 <button
                   className="cdm-action-btn cdm-action-btn--add"
@@ -1014,7 +1085,6 @@ export default function CardDetailModal({
                   + Nhãn
                 </button>
               )}
-              {/* Date quick button */}
               {!dueDate && (
                 <button
                   className="cdm-action-btn cdm-action-btn--add"
@@ -1023,7 +1093,6 @@ export default function CardDetailModal({
                   + Ngày
                 </button>
               )}
-              {/* "Thêm" button */}
               <button
                 className="cdm-action-btn cdm-action-btn--more"
                 onClick={() => openModal('addMenu')}
@@ -1112,6 +1181,7 @@ export default function CardDetailModal({
                       }}
                     >
                       <span className="cdm-checklist-pct">{pct}%</span>
+                      {/* Yêu cầu 2: nút Xóa checklist giờ gọi API */}
                       <button
                         className="cdm-action-btn"
                         onClick={() => handleDeleteChecklist(cl.id)}
@@ -1147,6 +1217,10 @@ export default function CardDetailModal({
                             item={item}
                             onToggle={(itemId) =>
                               handleToggleChecklistItem(cl.id, itemId)
+                            }
+                            /* Yêu cầu 1: truyền handler xóa item */
+                            onDelete={(itemId) =>
+                              handleDeleteChecklistItem(cl.id, itemId)
                             }
                           />
                         ))}
@@ -1254,10 +1328,7 @@ export default function CardDetailModal({
                   <div key={c.id} className="cdm-activity-item">
                     <div
                       className="cdm-avatar"
-                      style={{
-                        background: '#8590a2',
-                        overflow: 'hidden',
-                      }}
+                      style={{ background: '#8590a2', overflow: 'hidden' }}
                     >
                       {c.avatarUrl ? (
                         <img
@@ -1334,8 +1405,14 @@ export default function CardDetailModal({
             <button className="cdm-sidebar-btn">→ Di chuyển</button>
             <button className="cdm-sidebar-btn">❐ Sao chép</button>
             <div className="cdm-sidebar-divider"></div>
-            <button className="cdm-sidebar-btn cdm-sidebar-btn--danger">
-              ☒ Lưu trữ
+
+            {/* Yêu cầu 4: nút Lưu trữ gọi deleteCard */}
+            <button
+              className="cdm-sidebar-btn cdm-sidebar-btn--danger"
+              onClick={handleDeleteCard}
+              disabled={deletingCard}
+            >
+              {deletingCard ? '⏳ Đang xóa...' : '☒ Lưu trữ'}
             </button>
           </div>
         </div>

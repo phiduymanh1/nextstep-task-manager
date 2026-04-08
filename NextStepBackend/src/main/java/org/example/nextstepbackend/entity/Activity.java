@@ -3,6 +3,8 @@ package org.example.nextstepbackend.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -16,6 +18,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.example.nextstepbackend.entity.embedded.CreateAudit;
+import org.example.nextstepbackend.enums.ActionType;
+import org.example.nextstepbackend.enums.EntityType;
 
 @Entity
 @Table(name = "activities")
@@ -42,11 +46,13 @@ public class Activity {
   @JoinColumn(name = "user_id", nullable = false)
   private User user;
 
+  @Enumerated(EnumType.STRING)
   @Column(name = "action_type", length = 50, nullable = false)
-  private String actionType;
+  private ActionType actionType;
 
+  @Enumerated(EnumType.STRING)
   @Column(name = "entity_type", length = 50, nullable = false)
-  private String entityType;
+  private EntityType entityType;
 
   @Column(name = "entity_id")
   private Integer entityId;

@@ -28,11 +28,16 @@ public class CloudinaryService {
     try {
       Map<String, Object> options =
           Map.of(
-              "folder", "avatars",
-                  PUBLIC_ID, publicId,
-              "overwrite", true,
-              "resource_type", "image",
-              "transformation", "w_256,h_256,c_fill,g_face");
+              "folder",
+              "avatars",
+              PUBLIC_ID,
+              publicId,
+              "overwrite",
+              true,
+              "resource_type",
+              "image",
+              "transformation",
+              "w_256,h_256,c_fill,g_face");
 
       @SuppressWarnings("unchecked")
       Map<String, Object> result = cloudinary.uploader().upload(file.getBytes(), options);
@@ -50,9 +55,12 @@ public class CloudinaryService {
     try {
       Map<String, Object> options =
           Map.of(
-              "folder", "attachments",
-                  PUBLIC_ID, publicId,
-              "resource_type", "auto" // 🔥 hỗ trợ mọi file
+              "folder",
+              "attachments",
+              PUBLIC_ID,
+              publicId,
+              "resource_type",
+              "auto" // 🔥 hỗ trợ mọi file
               );
 
       Map<String, Object> result = cloudinary.uploader().upload(file.getBytes(), options);

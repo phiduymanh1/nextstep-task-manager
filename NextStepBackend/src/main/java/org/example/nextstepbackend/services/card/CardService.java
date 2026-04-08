@@ -42,6 +42,7 @@ import org.example.nextstepbackend.repository.ChecklistRepository;
 import org.example.nextstepbackend.repository.LabelRepository;
 import org.example.nextstepbackend.repository.ListsRepository;
 import org.example.nextstepbackend.repository.UserRepository;
+import org.example.nextstepbackend.services.ActivityService;
 import org.example.nextstepbackend.services.auth.AuthService;
 import org.example.nextstepbackend.services.board.RoleBoardService;
 import org.example.nextstepbackend.utils.PositionUtils;
@@ -67,6 +68,7 @@ public class CardService {
   private final LabelGroupMapper labelGroupMapper;
   private final ChecklistMapper checklistMapper;
   private final AttachmentMapper attachmentMapper;
+  private final ActivityService activityService;
 
   @Transactional
   public CardResponse createCard(Integer listId, CardRequest request) {
@@ -107,9 +109,11 @@ public class CardService {
     validateSameList(list, prev, next);
     validateOrder(prev, next);
 
+    User user = userRepository.getReferenceById(userId);
+
     // 4. Append case
     if (prev == null && next == null) {
-      return createAtEnd(list, request);
+      return createAtEnd(list, request, user);
     }
 
     // 5. Resolve position
@@ -119,7 +123,6 @@ public class CardService {
     if (result.needRebalance()) {
       result = handleRebalanceCard(list, request.afterId(), request.beforeId());
     }
-    User user = userRepository.getReferenceById(userId);
 
     // 7. Create card
     Card card =
@@ -138,6 +141,8 @@ public class CardService {
     card.addMember(member);
 
     Card saved = cardRepository.save(card);
+
+    activityService.logCreateCard(saved, user);
 
     return cardMapper.toCardResponse(saved);
   }
@@ -169,7 +174,7 @@ public class CardService {
     }
   }
 
-  private CardResponse createAtEnd(ListEntity list, CardRequest request) {
+  private CardResponse createAtEnd(ListEntity list, CardRequest request, User user) {
 
     var maxPosition =
         cardRepository.findMaxPositionByListId(list.getId()).orElse(java.math.BigDecimal.ZERO);
@@ -180,10 +185,12 @@ public class CardService {
             .description(request.description())
             .list(list)
             .position(maxPosition.add(java.math.BigDecimal.valueOf(1000)))
-            .createdBy(userRepository.getReferenceById(authService.getCurrentUserId()))
+            .createdBy(user)
             .build();
+    Card cardRes = cardRepository.save(card);
 
-    return cardMapper.toCardResponse(cardRepository.save(card));
+    activityService.logCreateCard(cardRes, user);
+    return cardMapper.toCardResponse(cardRes);
   }
 
   private PositionUtils.MoveResult<Card> handleRebalanceCard(
@@ -215,6 +222,9 @@ public class CardService {
     roleBoardService.checkRoleBoard(card.getList().getBoard().getSlug(), userId, Const.DELETE_MODE);
 
     card.setIsArchived(true);
+
+    User user = userRepository.getReferenceById(userId);
+    activityService.logDeleteCard(card, user);
   }
 
   @Transactional

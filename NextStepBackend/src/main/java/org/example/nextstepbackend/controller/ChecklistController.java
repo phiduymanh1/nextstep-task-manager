@@ -11,6 +11,7 @@ import org.example.nextstepbackend.enums.MessageConst;
 import org.example.nextstepbackend.services.checklist.ChecklistService;
 import org.example.nextstepbackend.utils.ApiResponseUtil;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -47,5 +48,18 @@ public class ChecklistController extends BaseController {
       @PathVariable Integer checklistItemId) {
     ChecklistItemResponse response = checklistService.toggleChecklistItem(checklistItemId);
     return ResponseEntity.ok(success(MessageConst.CHECKLIST_ITEM_TOGGLE_SUCCESS, response));
+  }
+
+  @DeleteMapping("/checklist-items/{checklistItemId}")
+  public ResponseEntity<ApiResponse<Void>> deleteChecklistItem(
+      @PathVariable Integer checklistItemId) {
+    checklistService.deleteChecklistItem(checklistItemId);
+    return ResponseEntity.ok(success(MessageConst.CHECKLIST_ITEM_DELETE_SUCCESS, null));
+  }
+
+  @DeleteMapping("/checklists/{checklistId}")
+  public ResponseEntity<ApiResponse<Void>> deleteChecklist(@PathVariable Integer checklistId) {
+    checklistService.deleteChecklist(checklistId);
+    return ResponseEntity.ok(success(MessageConst.CHECKLIST_DELETE_SUCCESS, null));
   }
 }

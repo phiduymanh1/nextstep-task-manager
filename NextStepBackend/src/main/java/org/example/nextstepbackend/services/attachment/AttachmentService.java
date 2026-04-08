@@ -10,6 +10,8 @@ import org.example.nextstepbackend.exceptions.AppException;
 import org.example.nextstepbackend.exceptions.ResourceNotFoundException;
 import org.example.nextstepbackend.repository.AttachmentRepository;
 import org.example.nextstepbackend.repository.CardRepository;
+import org.example.nextstepbackend.repository.UserRepository;
+import org.example.nextstepbackend.services.ActivityService;
 import org.example.nextstepbackend.services.auth.AuthService;
 import org.example.nextstepbackend.services.cloudinary.CloudinaryService;
 import org.springframework.http.HttpStatus;
@@ -25,6 +27,8 @@ public class AttachmentService {
   private final FileStorageService fileStorageService;
   private final AttachmentRepository attachmentRepository;
   private final CloudinaryService cloudinaryService;
+  private final ActivityService activityService;
+  private final UserRepository userRepository;
 
   public AttachmentResponse upload(Integer cardId, MultipartFile file) {
 
@@ -56,6 +60,8 @@ public class AttachmentService {
 
     attachmentRepository.save(attachment);
 
+    activityService.logAddAttachment(card, user, attachment);
+
     return mapToResponse(attachment);
   }
 
@@ -74,6 +80,8 @@ public class AttachmentService {
     }
 
     attachmentRepository.delete(attachment);
+    User user = userRepository.getReferenceById(authService.getCurrentUserId());
+    activityService.logDeleteAttachment(attachment.getCard(), user, attachment);
   }
 
   private AttachmentResponse mapToResponse(Attachment a) {

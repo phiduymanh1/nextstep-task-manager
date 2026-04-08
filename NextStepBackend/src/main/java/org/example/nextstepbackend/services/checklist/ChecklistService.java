@@ -19,12 +19,15 @@ import org.example.nextstepbackend.dto.request.ChecklistResponse;
 import org.example.nextstepbackend.entity.Card;
 import org.example.nextstepbackend.entity.Checklist;
 import org.example.nextstepbackend.entity.ChecklistItem;
+import org.example.nextstepbackend.entity.User;
 import org.example.nextstepbackend.exceptions.InvalidInputException;
 import org.example.nextstepbackend.exceptions.ResourceNotFoundException;
 import org.example.nextstepbackend.mappers.CheckListsMapper;
 import org.example.nextstepbackend.repository.CardRepository;
 import org.example.nextstepbackend.repository.ChecklistItemRepository;
 import org.example.nextstepbackend.repository.ChecklistRepository;
+import org.example.nextstepbackend.repository.UserRepository;
+import org.example.nextstepbackend.services.ActivityService;
 import org.example.nextstepbackend.services.auth.AuthService;
 import org.example.nextstepbackend.services.board.RoleBoardService;
 import org.example.nextstepbackend.utils.PositionUtils;
@@ -42,6 +45,8 @@ public class ChecklistService {
   private final ChecklistRepository checklistRepository;
   private final CheckListsMapper checkListsMapper;
   private final ChecklistItemRepository checklistItemRepository;
+  private final ActivityService activityService;
+  private final UserRepository userRepository;
 
   @Transactional
   public ChecklistResponse createChecklist(Integer cardId, ChecklistRequest request) {
@@ -72,9 +77,13 @@ public class ChecklistService {
     validateSameCard(card, prev, next);
     validateOrder(prev, next);
 
+    User user =
+        userRepository
+            .findById(userId)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     // 4. Append case
     if (prev == null && next == null) {
-      return createChecklistAtEnd(card, request);
+      return createChecklistAtEnd(card, request, user);
     }
 
     // 5. Resolve position
@@ -90,6 +99,8 @@ public class ChecklistService {
         Checklist.builder().title(request.title()).card(card).position(result.position()).build();
 
     Checklist saved = checklistRepository.save(checklist);
+
+    activityService.logCreateChecklist(card, user, saved);
 
     return checkListsMapper.toResponse(saved);
   }
@@ -122,7 +133,7 @@ public class ChecklistService {
     }
   }
 
-  private ChecklistResponse createChecklistAtEnd(Card card, ChecklistRequest request) {
+  private ChecklistResponse createChecklistAtEnd(Card card, ChecklistRequest request, User user) {
 
     var maxPosition =
         checklistRepository.findMaxPositionByCardId(card.getId()).orElse(BigDecimal.ZERO);
@@ -134,7 +145,10 @@ public class ChecklistService {
             .position(maxPosition.add(BigDecimal.valueOf(1000)))
             .build();
 
-    return checkListsMapper.toResponse(checklistRepository.save(checklist));
+    Checklist res = checklistRepository.save(checklist);
+    activityService.logCreateChecklist(card, user, res);
+
+    return checkListsMapper.toResponse(res);
   }
 
   private PositionUtils.MoveResult<Checklist> handleRebalanceChecklist(
@@ -174,6 +188,9 @@ public class ChecklistService {
     BigDecimal position = resolvePosition(checklist, prev, next);
 
     ChecklistItem saved = saveChecklistItem(checklist, request, position);
+    User user = userRepository.getReferenceById(authService.getCurrentUserId());
+
+    activityService.logAddChecklistItem(saved.getChecklist().getCard(), user, saved);
 
     return mapToResponse(saved);
   }
@@ -308,7 +325,42 @@ public class ChecklistService {
 
     item.setIsCompleted(!item.getIsCompleted());
     ChecklistItem saved = checklistItemRepository.save(item);
+    User user = userRepository.getReferenceById(authService.getCurrentUserId());
+
+    activityService.logCompleteChecklistItem(saved.getChecklist().getCard(), user, saved);
 
     return mapToResponse(saved);
+  }
+
+  @Transactional
+  public void deleteChecklistItem(Integer itemId) {
+    ChecklistItem item =
+        checklistItemRepository
+            .findById(itemId)
+            .orElseThrow(() -> new RuntimeException("Checklist item not found"));
+
+    Card card = item.getChecklist().getCard();
+
+    roleBoardService.checkRoleBoard(
+        card.getList().getBoard().getSlug(), authService.getCurrentUserId(), Const.DELETE_MODE);
+
+    checklistItemRepository.delete(item);
+  }
+
+  @Transactional
+  public void deleteChecklist(Integer checklistId) {
+    Checklist checklist =
+        checklistRepository
+            .findById(checklistId)
+            .orElseThrow(() -> new RuntimeException("Checklist not found"));
+
+    Card card = checklist.getCard();
+    Integer userId = authService.getCurrentUserId();
+
+    roleBoardService.checkRoleBoard(card.getList().getBoard().getSlug(), userId, Const.DELETE_MODE);
+
+    checklistRepository.delete(checklist);
+
+    activityService.logDeleteChecklist(card, userRepository.getReferenceById(userId), checklist);
   }
 }

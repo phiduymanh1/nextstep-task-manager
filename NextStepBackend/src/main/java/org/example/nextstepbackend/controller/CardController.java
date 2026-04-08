@@ -16,7 +16,9 @@ import org.example.nextstepbackend.services.ActivityService;
 import org.example.nextstepbackend.services.card.CardService;
 import org.example.nextstepbackend.services.comment.CommentService;
 import org.example.nextstepbackend.utils.ApiResponseUtil;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -112,8 +114,7 @@ public class CardController extends BaseController {
       @PathVariable Integer id,
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "10") int size) {
-
-    Pageable pageable = Pageable.ofSize(size).withPage(page);
+    Pageable pageable = PageRequest.of(page, size, Sort.by("audit.createdAt").descending());
     PageResponse<ActivityResponse> response = activityService.getActivities(id, pageable);
     return ResponseEntity.ok(success(null, response));
   }
