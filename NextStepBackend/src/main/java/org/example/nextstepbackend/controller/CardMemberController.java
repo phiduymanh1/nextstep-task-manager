@@ -23,7 +23,7 @@ public class CardMemberController extends BaseController {
   }
 
   // Api assign member to card
-  @PatchMapping("card/{cardId}/assign")
+  @PatchMapping("cards/{cardId}/assign")
   public ResponseEntity<ApiResponse<Void>> assignMemberToCard(
       @PathVariable Integer cardId, @RequestParam Integer userId) {
     cardMemberService.assignMember(cardId, userId);
@@ -31,7 +31,7 @@ public class CardMemberController extends BaseController {
   }
 
   // Api unassign member from card
-  @PatchMapping("card/{cardId}/unassign")
+  @PatchMapping("cards/{cardId}/unassign")
   public ResponseEntity<ApiResponse<Void>> unassignMemberFromCard(
       @PathVariable Integer cardId, @RequestParam Integer userId) {
 
