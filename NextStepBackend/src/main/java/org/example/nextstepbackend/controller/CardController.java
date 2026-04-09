@@ -125,6 +125,4 @@ public class CardController extends BaseController {
     cardService.moveCardToList(cardId, listId);
     return ResponseEntity.ok(success(MessageConst.CARD_MOVE_SUCCESS, null));
   }
-
-  // TODO: Api get member of card
 }
