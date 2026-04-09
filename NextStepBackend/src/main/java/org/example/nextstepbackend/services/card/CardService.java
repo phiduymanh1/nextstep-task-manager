@@ -405,4 +405,20 @@ public class CardService {
         checklistRes,
         attachmentRes);
   }
+
+  @Transactional
+  public void moveCardToList(Integer cardId, Integer listId) {
+    Card card = cardRepository.findById(cardId).orElseThrow(() -> new ResourceNotFoundException("Card not found"));
+    ListEntity list = listsRepository.findById(listId).orElseThrow(() -> new ResourceNotFoundException("List not found"));
+
+    Integer userId = authService.getCurrentUserId();
+    roleBoardService.checkRoleBoard(list.getBoard().getSlug(), userId, Const.UPDATE_MODE);
+    String fromList = card.getList().getName();
+    String toList = list.getName();
+    
+    card.setList(list);
+    Card saved = cardRepository.save(card);
+
+    activityService.logMoveCard(saved, userRepository.getReferenceById(userId), fromList, toList);
+  }
 }

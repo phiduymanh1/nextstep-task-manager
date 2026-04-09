@@ -118,4 +118,12 @@ public class CardController extends BaseController {
     PageResponse<ActivityResponse> response = activityService.getActivities(id, pageable);
     return ResponseEntity.ok(success(null, response));
   }
+
+  @PatchMapping("/{cardId}/list")
+  public ResponseEntity<ApiResponse<Void>> moveCardToList(
+      @PathVariable Integer cardId,
+      @RequestParam Integer listId) {
+    cardService.moveCardToList(cardId, listId);
+    return ResponseEntity.ok(success(MessageConst.CARD_MOVE_SUCCESS, null));
+  }
 }
