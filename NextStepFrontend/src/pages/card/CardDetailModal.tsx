@@ -39,6 +39,8 @@ import {
   deleteAttachment,
   uploadAttachment,
 } from '@/services/attachment.service';
+import { getBoardMembers } from '@/services/boardmember.service';
+import { toggleCardMember } from '@/services/cardmember.service';
 
 // ============================================================
 // 1. TYPES
@@ -53,6 +55,13 @@ interface ChecklistItem {
   id: string;
   content: string;
   isCompleted: boolean;
+}
+
+interface BoardMember {
+  userId: number;
+  fullName: string;
+  avatarUrl?: string;
+  role: string;
 }
 
 interface Checklist {
@@ -77,6 +86,13 @@ interface Activity {
   createdAt?: string;
 }
 
+// Yêu cầu 2: CardMemberResponse từ API card detail
+interface CardMember {
+  id: number;
+  fullName: string;
+  avatarUrl?: string;
+}
+
 interface CardData {
   id: string;
   title: string;
@@ -90,15 +106,15 @@ interface CardData {
   };
   checklists: Checklist[];
   attachments: Attachment[];
+  // Yêu cầu 2: members trả về từ getCardDetail
+  members?: CardMember[];
 }
 
 interface Props {
   cardId: string;
   onClose: () => void;
   onToggleComplete: (cardId: string, isCompleted: boolean) => void;
-  /** Yêu cầu 3: callback trả về card state mới nhất khi đóng modal */
   onCardUpdated?: (cardId: string, updatedCard: Partial<CardData>) => void;
-  /** Yêu cầu 4: callback khi card bị xóa */
   onCardDeleted?: (cardId: string) => void;
 }
 
@@ -140,8 +156,6 @@ function SortableChecklistItem({
         onChange={() => onToggle(item.id)}
       />
       <span className={item.isCompleted ? 'done' : ''}>{item.content}</span>
-
-      {/* Yêu cầu 1: nút xóa checklist item */}
       <button
         className="cdm-checklist-item-delete"
         title="Xóa mục"
@@ -505,9 +519,237 @@ function AttachmentModal({
 }
 
 // ============================================================
-// 8. ADD BUTTON MODAL
+// 8. MEMBER MODAL (YÊU CẦU 3 + 4)
 // ============================================================
-type AddModalType = 'label' | 'date' | 'checklist' | 'attachment' | null;
+function MemberModal({
+  cardId,
+  boardId,
+  cardMembers,
+  onClose,
+  onMembersChanged,
+}: {
+  cardId: string;
+  boardId: string;
+  cardMembers: CardMember[];
+  onClose: () => void;
+  onMembersChanged: (members: CardMember[]) => void;
+}) {
+  const [boardMembers, setBoardMembers] = useState<BoardMember[]>([]);
+  const [loadingBoard, setLoadingBoard] = useState(true);
+  const [togglingId, setTogglingId] = useState<number | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Yêu cầu 3: Load tất cả members của board
+  useEffect(() => {
+    const fetchBoardMembers = async () => {
+      try {
+        setLoadingBoard(true);
+
+        const data = await getBoardMembers(boardId);
+        setBoardMembers(data);
+      } catch (err) {
+        console.error('Fetch board members error:', err);
+      } finally {
+        setLoadingBoard(false);
+      }
+    };
+
+    fetchBoardMembers();
+  }, [boardId]);
+
+  const isAssigned = (userId: number) =>
+    cardMembers.some((m) => m.id === userId);
+
+  // Yêu cầu 4: Toggle assign / unassign member
+  const handleToggleMember = async (member: BoardMember) => {
+    setTogglingId(member.userId);
+
+    const assigned = isAssigned(member.userId);
+
+    try {
+      await toggleCardMember(cardId, member.userId, assigned);
+
+      const updated: CardMember[] = assigned
+        ? cardMembers.filter((m) => m.id !== member.userId)
+        : [
+            ...cardMembers,
+            {
+              id: member.userId,
+              fullName: member.fullName,
+              avatarUrl: member.avatarUrl,
+            },
+          ];
+
+      onMembersChanged(updated); 
+    } catch (err) {
+      console.error('Toggle member error:', err);
+    } finally {
+      setTogglingId(null);
+    }
+  };
+
+  const filtered = boardMembers.filter((m) =>
+    m.fullName.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const getInitials = (name: string) =>
+    name
+      .split(' ')
+      .map((w) => w[0])
+      .slice(-2)
+      .join('')
+      .toUpperCase();
+
+  const avatarColors = [
+    '#579dff',
+    '#f87168',
+    '#4ade80',
+    '#facc15',
+    '#c084fc',
+    '#38bdf8',
+    '#fb923c',
+    '#a3e635',
+  ];
+  const colorForId = (id: number) => avatarColors[id % avatarColors.length];
+
+  return (
+    <ModalOverlay onClose={onClose}>
+      <div className="cdm-inner-modal-header">
+        <span>Thành viên</span>
+        <button className="cdm-icon-btn" onClick={onClose}>
+          ✕
+        </button>
+      </div>
+      <div className="cdm-inner-modal-body" style={{ gap: '10px' }}>
+        {/* Search box */}
+        <input
+          className="cdm-inner-input"
+          placeholder="Tìm thành viên..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          autoFocus
+        />
+
+        {/* Assigned members section */}
+        {cardMembers.length > 0 && (
+          <div>
+            <p className="cdm-field-label" style={{ marginBottom: '6px' }}>
+              Đã giao
+            </p>
+            <div
+              style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}
+            >
+              {cardMembers.map((m) => (
+                <div
+                  key={m.id}
+                  className="cdm-member-option cdm-member-option--assigned"
+                >
+                  <div
+                    className="cdm-member-avatar"
+                    style={{
+                      background: m.avatarUrl
+                        ? 'transparent'
+                        : colorForId(m.id),
+                    }}
+                  >
+                    {m.avatarUrl ? (
+                      <img src={m.avatarUrl} alt={m.fullName} />
+                    ) : (
+                      getInitials(m.fullName)
+                    )}
+                  </div>
+                  <span className="cdm-member-name">{m.fullName}</span>
+                  <button
+                    className="cdm-member-remove-btn"
+                    disabled={togglingId === m.id}
+                    onClick={() => {
+                      const bm = boardMembers.find((b) => b.userId === m.id);
+                      if (bm) handleToggleMember(bm);
+                    }}
+                    title="Xóa khỏi thẻ"
+                  >
+                    {togglingId === m.id ? '...' : '✕'}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Board members list */}
+        <div>
+          <p className="cdm-field-label" style={{ marginBottom: '6px' }}>
+            Thành viên bảng
+          </p>
+          {loadingBoard ? (
+            <div
+              style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}
+            >
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="cdm-member-skeleton" />
+              ))}
+            </div>
+          ) : filtered.length === 0 ? (
+            <p className="cdm-empty-hint">Không tìm thấy thành viên</p>
+          ) : (
+            <div
+              style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}
+            >
+              {filtered.map((m) => {
+                const assigned = isAssigned(m.userId);
+                const toggling = togglingId === m.userId;
+                return (
+                  <div
+                    key={m.userId}
+                    className={`cdm-member-option ${assigned ? 'cdm-member-option--active' : ''}`}
+                    onClick={() => !toggling && handleToggleMember(m)}
+                  >
+                    <div
+                      className="cdm-member-avatar"
+                      style={{
+                        background: m.avatarUrl
+                          ? 'transparent'
+                          : colorForId(m.userId),
+                      }}
+                    >
+                      {m.avatarUrl ? (
+                        <img src={m.avatarUrl} alt={m.fullName} />
+                      ) : (
+                        getInitials(m.fullName)
+                      )}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <span className="cdm-member-name">{m.fullName}</span>
+                      <span className="cdm-member-role">{m.role}</span>
+                    </div>
+                    <div className="cdm-member-check">
+                      {toggling ? (
+                        <span className="cdm-member-spinner" />
+                      ) : assigned ? (
+                        <span className="cdm-member-check-icon">✓</span>
+                      ) : null}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+    </ModalOverlay>
+  );
+}
+
+// ============================================================
+// 9. ADD BUTTON MODAL
+// ============================================================
+type AddModalType =
+  | 'label'
+  | 'date'
+  | 'checklist'
+  | 'attachment'
+  | 'member'
+  | null;
 
 function AddMenuModal({
   onSelect,
@@ -517,6 +759,7 @@ function AddMenuModal({
   onClose: () => void;
 }) {
   const items = [
+    { type: 'member' as AddModalType, icon: '👤', label: 'Thành viên' },
     { type: 'label' as AddModalType, icon: '🏷', label: 'Nhãn' },
     { type: 'date' as AddModalType, icon: '🕐', label: 'Ngày' },
     { type: 'checklist' as AddModalType, icon: '☑', label: 'Việc cần làm' },
@@ -548,7 +791,73 @@ function AddMenuModal({
 }
 
 // ============================================================
-// 9. MAIN COMPONENT
+// 10. MEMBER AVATAR STACK (hiển thị inline trên card)
+// ============================================================
+function MemberAvatarStack({
+  members,
+  onClick,
+}: {
+  members: CardMember[];
+  onClick: () => void;
+}) {
+  const MAX_SHOW = 4;
+  const shown = members.slice(0, MAX_SHOW);
+  const rest = members.length - MAX_SHOW;
+
+  const avatarColors = [
+    '#579dff',
+    '#f87168',
+    '#4ade80',
+    '#facc15',
+    '#c084fc',
+    '#38bdf8',
+    '#fb923c',
+    '#a3e635',
+  ];
+  const colorForId = (id: number) => avatarColors[id % avatarColors.length];
+  const getInitials = (name: string) =>
+    name
+      .split(' ')
+      .map((w) => w[0])
+      .slice(-2)
+      .join('')
+      .toUpperCase();
+
+  return (
+    <div
+      className="cdm-member-stack"
+      onClick={onClick}
+      title="Chỉnh sửa thành viên"
+    >
+      {shown.map((m, idx) => (
+        <div
+          key={m.id}
+          className="cdm-member-stack-avatar"
+          style={{
+            background: m.avatarUrl ? 'transparent' : colorForId(m.id),
+            zIndex: shown.length - idx,
+          }}
+          title={m.fullName}
+        >
+          {m.avatarUrl ? (
+            <img src={m.avatarUrl} alt={m.fullName} />
+          ) : (
+            getInitials(m.fullName)
+          )}
+        </div>
+      ))}
+      {rest > 0 && (
+        <div className="cdm-member-stack-avatar cdm-member-stack-rest">
+          +{rest}
+        </div>
+      )}
+      <span className="cdm-member-stack-edit">✏</span>
+    </div>
+  );
+}
+
+// ============================================================
+// 11. MAIN COMPONENT
 // ============================================================
 export default function CardDetailModal({
   cardId,
@@ -581,6 +890,10 @@ export default function CardDetailModal({
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
   );
 
+  // Lấy boardId từ boardSlug (điều chỉnh theo cách app lưu)
+  // Giả sử boardSlug là boardId, hoặc bạn có thể map từ context
+  const boardId = boardSlug ?? '';
+
   // ===== Load data =====
   useEffect(() => {
     setComments([]);
@@ -595,7 +908,6 @@ export default function CardDetailModal({
       try {
         const detail = await getCardDetail(cardId);
         setCard(detail);
-
         await Promise.all([loadComments(0), loadActivities(0)]);
       } catch (error) {
         console.error('Lỗi load card:', error);
@@ -610,16 +922,12 @@ export default function CardDetailModal({
   const loadActivities = async (page = 0) => {
     try {
       const res = await getActivities(cardId, { page, size: 10 });
-
       setActivities((prev) => {
         if (page === 0) return res.items;
-
         const ids = new Set(prev.map((i) => i.id));
         const newItems = res.items.filter((i) => !ids.has(i.id));
-
         return [...prev, ...newItems];
       });
-
       setActivityPage(res.page);
       setActivityHasMore(res.page < res.totalPages - 1);
     } catch (err) {
@@ -630,17 +938,12 @@ export default function CardDetailModal({
   const loadComments = async (page = 0) => {
     try {
       const res = await getComments(cardId, { page, size: 10 });
-
       setComments((prev) => {
         if (page === 0) return res.items;
-
-        // tránh duplicate
         const ids = new Set(prev.map((i) => i.id));
         const newItems = res.items.filter((i) => !ids.has(i.id));
-
         return [...prev, ...newItems];
       });
-
       setCommentPage(res.page);
       setCommentHasMore(res.page < res.totalPages - 1);
     } catch (err) {
@@ -651,7 +954,6 @@ export default function CardDetailModal({
   const closeModal = () => setActiveModal(null);
   const openModal = (type: AddModalType | 'addMenu') => setActiveModal(type);
 
-  // ===== Yêu cầu 3: đóng modal và trả state mới nhất ra ngoài =====
   const handleClose = () => {
     if (card) {
       onCardUpdated?.(cardId, {
@@ -663,6 +965,7 @@ export default function CardDetailModal({
         labels: card.labels,
         checklists: card.checklists,
         attachments: card.attachments,
+        members: card.members,
       });
     }
     onClose();
@@ -695,20 +998,17 @@ export default function CardDetailModal({
     onToggleComplete(cardId, newVal);
   };
 
-  // Label toggle
   const handleToggleLabel = async (labelId: string) => {
     if (!card) return;
     const isSelected = card.labels.selectedLabelIds.includes(labelId);
     const updated = isSelected
       ? card.labels.selectedLabelIds.filter((id) => id !== labelId)
       : [...card.labels.selectedLabelIds, labelId];
-
     setCard((prev) =>
       prev
         ? { ...prev, labels: { ...prev.labels, selectedLabelIds: updated } }
         : null
     );
-
     try {
       await toggleCardLabel({
         cardId: Number(cardId),
@@ -734,7 +1034,6 @@ export default function CardDetailModal({
     }
   };
 
-  // Date save
   const handleSaveDate = async (date: string | null, reminder: boolean) => {
     await updateCard(cardId, { dueDate: date, dueReminder: reminder });
     setCard((prev) =>
@@ -742,7 +1041,6 @@ export default function CardDetailModal({
     );
   };
 
-  // Toggle checklist item
   const handleToggleChecklistItem = async (clId: string, itemId: string) => {
     const isCompleted = card?.checklists
       .find((cl) => cl.id === clId)
@@ -766,7 +1064,6 @@ export default function CardDetailModal({
         ),
       };
     });
-
     try {
       await toggleChecklistItem(Number(itemId));
       loadActivities();
@@ -793,12 +1090,8 @@ export default function CardDetailModal({
     }
   };
 
-  // ===== Yêu cầu 1: xóa checklist item =====
   const handleDeleteChecklistItem = async (clId: string, itemId: string) => {
-    // snapshot để rollback
     const snapshot = card?.checklists ?? [];
-
-    // optimistic UI
     setCard((prev) => {
       if (!prev) return null;
       return {
@@ -810,18 +1103,15 @@ export default function CardDetailModal({
         ),
       };
     });
-
     try {
       await deleteChecklistItem(Number(itemId));
       loadActivities();
     } catch (err) {
       console.error('Delete checklist item failed', err);
-      // rollback
       setCard((prev) => (prev ? { ...prev, checklists: snapshot } : null));
     }
   };
 
-  // Add checklist item inline
   const handleAddChecklistItem = async (clId: string, content: string) => {
     try {
       const res = await createChecklistItem(Number(clId), {
@@ -831,13 +1121,11 @@ export default function CardDetailModal({
         afterId: null,
         beforeId: null,
       });
-
       const newItem: ChecklistItem = {
         id: String(res.id),
         content: res.content,
         isCompleted: res.isDone,
       };
-
       setCard((prev) => {
         if (!prev) return null;
         return {
@@ -852,11 +1140,8 @@ export default function CardDetailModal({
     }
   };
 
-  // ===== Yêu cầu 2: xóa checklist — gọi API =====
   const handleDeleteChecklist = async (clId: string) => {
     const snapshot = card?.checklists ?? [];
-
-    // optimistic UI
     setCard((prev) =>
       prev
         ? {
@@ -865,18 +1150,15 @@ export default function CardDetailModal({
           }
         : null
     );
-
     try {
       await deleteChecklist(Number(clId));
-      loadActivities(); // Yêu cầu 5
+      loadActivities();
     } catch (err) {
       console.error('Delete checklist failed', err);
-      // rollback
       setCard((prev) => (prev ? { ...prev, checklists: snapshot } : null));
     }
   };
 
-  // Drag end for checklist items
   const handleChecklistItemDragEnd = (clId: string, event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
@@ -895,7 +1177,6 @@ export default function CardDetailModal({
     });
   };
 
-  // Attachment
   const handleAttach = async (file: File) => {
     try {
       const res = await uploadAttachment(Number(cardId), file);
@@ -936,7 +1217,6 @@ export default function CardDetailModal({
     }
   };
 
-  // ===== Yêu cầu 4: xóa card =====
   const handleDeleteCard = async () => {
     setDeletingCard(true);
     try {
@@ -949,7 +1229,6 @@ export default function CardDetailModal({
     }
   };
 
-  // Comment submit
   const handleCommentSubmit = async () => {
     if (!commentInput.trim() || submittingComment) return;
     setSubmittingComment(true);
@@ -975,6 +1254,12 @@ export default function CardDetailModal({
     }
   };
 
+  // Yêu cầu 4: callback khi member list thay đổi
+  const handleMembersChanged = (updated: CardMember[]) => {
+    setCard((prev) => (prev ? { ...prev, members: updated } : null));
+    loadActivities();
+  };
+
   // ===== Render =====
   if (loading || !card) return null;
 
@@ -987,6 +1272,7 @@ export default function CardDetailModal({
     labels,
     checklists,
     attachments,
+    members = [],
   } = card;
 
   const checklistProgress = (cl: Checklist) => {
@@ -1061,6 +1347,17 @@ export default function CardDetailModal({
         );
       case 'attachment':
         return <AttachmentModal onAttach={handleAttach} onClose={closeModal} />;
+
+      case 'member':
+        return (
+          <MemberModal
+            cardId={cardId}
+            boardId={boardId}
+            cardMembers={members}
+            onClose={closeModal}
+            onMembersChanged={handleMembersChanged}
+          />
+        );
       default:
         return null;
     }
@@ -1119,6 +1416,14 @@ export default function CardDetailModal({
           <div className="cdm-left">
             {/* Action bar */}
             <div className="cdm-actions-row">
+              {members.length === 0 && (
+                <button
+                  className="cdm-action-btn cdm-action-btn--add"
+                  onClick={() => openModal('member')}
+                >
+                  + Thành viên
+                </button>
+              )}
               {labels.selectedLabelIds.length === 0 && (
                 <button
                   className="cdm-action-btn cdm-action-btn--add"
@@ -1143,11 +1448,19 @@ export default function CardDetailModal({
               </button>
             </div>
 
-            {/* LABELS & DUE DATE meta */}
+            {/* MEMBERS & LABELS & DUE DATE meta */}
             <div
               className="cdm-header-meta"
               style={{ paddingLeft: 0, marginBottom: '20px' }}
             >
+              {/* Yêu cầu 2: Hiển thị member avatars stack */}
+              {members.length > 0 && (
+                <MemberAvatarStack
+                  members={members}
+                  onClick={() => openModal('member')}
+                />
+              )}
+
               {labels.selectedLabelIds.length > 0 && (
                 <div
                   className="cdm-meta-labels"
@@ -1223,7 +1536,6 @@ export default function CardDetailModal({
                       }}
                     >
                       <span className="cdm-checklist-pct">{pct}%</span>
-                      {/* Yêu cầu 2: nút Xóa checklist giờ gọi API */}
                       <button
                         className="cdm-action-btn"
                         onClick={() => handleDeleteChecklist(cl.id)}
@@ -1260,7 +1572,6 @@ export default function CardDetailModal({
                             onToggle={(itemId) =>
                               handleToggleChecklistItem(cl.id, itemId)
                             }
-                            /* Yêu cầu 1: truyền handler xóa item */
                             onDelete={(itemId) =>
                               handleDeleteChecklistItem(cl.id, itemId)
                             }
@@ -1432,6 +1743,13 @@ export default function CardDetailModal({
           {/* RIGHT SIDEBAR */}
           <div className="cdm-right">
             <h4 className="cdm-sidebar-label">Thêm vào thẻ</h4>
+            {/* Yêu cầu 3: Button Thành viên trong sidebar */}
+            <button
+              className="cdm-sidebar-btn"
+              onClick={() => openModal('member')}
+            >
+              👤 Thành viên
+            </button>
             <button
               className="cdm-sidebar-btn"
               onClick={() => openModal('label')}
@@ -1477,7 +1795,6 @@ export default function CardDetailModal({
                 <div className="archive-card-modal">
                   <h3>Bạn có chắc?</h3>
                   <p>Thẻ này sẽ được lưu trữ.</p>
-
                   <div className="archive-card-modal-actions">
                     <button
                       className="cdm-btn"
@@ -1486,7 +1803,6 @@ export default function CardDetailModal({
                     >
                       Hủy
                     </button>
-
                     <button
                       className="cdm-btn cdm-btn--danger"
                       onClick={handleDeleteCard}
@@ -1509,7 +1825,7 @@ export default function CardDetailModal({
 }
 
 // ============================================================
-// 10. ADD CHECKLIST ITEM INLINE
+// 12. ADD CHECKLIST ITEM INLINE
 // ============================================================
 function AddChecklistItemInline({
   onAdd,

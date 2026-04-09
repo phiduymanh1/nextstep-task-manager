@@ -282,7 +282,7 @@
   padding-top: 2px;
 }
 
-/* ── Action row (quick add buttons) ──────────────────────────────────────── */
+/* ── Action row ──────────────────────────────────────────────────────────── */
 .cdm-actions-row {
   display: flex;
   flex-wrap: wrap;
@@ -512,7 +512,6 @@
   border-radius: 6px;
   cursor: pointer;
   transition: background 0.1s;
-  /* chừa chỗ để nút ✕ hiện khi hover */
   position: relative;
 }
 
@@ -533,7 +532,6 @@
   color: rgba(255, 255, 255, 0.32);
 }
 
-/* ── Checklist item delete button (Yêu cầu 1) ────────────────────────────── */
 .cdm-checklist-item-delete {
   margin-left: auto;
   flex-shrink: 0;
@@ -563,7 +561,6 @@
   color: #f87168;
 }
 
-/* Drag handle */
 .cdm-drag-handle {
   color: rgba(255, 255, 255, 0.2);
   font-size: 14px;
@@ -583,7 +580,6 @@
   color: rgba(255, 255, 255, 0.45);
 }
 
-/* Inline add */
 .cdm-add-inline-btn {
   width: 100%;
   background: rgba(255, 255, 255, 0.06);
@@ -1067,58 +1063,17 @@
   animation: shimmer 1.4s infinite linear;
 }
 
-/* ── Responsive ───────────────────────────────────────────────────────────── */
-@media (max-width: 640px) {
-  .cdm-backdrop {
-    padding: 0;
-    align-items: flex-end;
-  }
-
-  .cdm-modal {
-    max-width: 100%;
-    border-radius: 16px 16px 0 0;
-    max-height: 92dvh;
-    overflow-y: auto;
-  }
-
-  .cdm-body {
-    flex-direction: column;
-    padding: 12px 14px 20px;
-  }
-
-  .cdm-left {
-    padding-right: 0;
-  }
-
-  .cdm-right {
-    width: 100%;
-    flex-direction: row;
-    flex-wrap: wrap;
-  }
-
-  .cdm-sidebar-btn {
-    flex: 1;
-    min-width: 120px;
-  }
-
-  .cdm-sidebar-label {
-    width: 100%;
-  }
-}
-/* Load more button */
+/* ── Load more ────────────────────────────────────────────────────────────── */
 .cdm-load-more {
   width: 100%;
   padding: 8px 12px;
   margin-top: 10px;
-
   background: rgba(255, 255, 255, 0.06);
   border: none;
   border-radius: 6px;
-
   color: #9fadbc;
   font-size: 13px;
   cursor: pointer;
-
   transition: all 0.2s ease;
 }
 
@@ -1131,12 +1086,12 @@
   transform: scale(0.98);
 }
 
-/* Disabled state */
 .cdm-load-more:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
+/* ── Archive card modal ───────────────────────────────────────────────────── */
 .archive-card-modal {
   background: #ffffff;
   padding: 20px 24px;
@@ -1144,6 +1099,7 @@
   width: 360px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
   font-family: system-ui, sans-serif;
+  animation: fadeInScale 0.2s ease;
 }
 
 .archive-card-modal h3 {
@@ -1198,9 +1154,6 @@
   justify-content: center;
   z-index: 999;
 }
-.archive-card-modal {
-  animation: fadeInScale 0.2s ease;
-}
 
 @keyframes fadeInScale {
   from {
@@ -1212,4 +1165,264 @@
     opacity: 1;
     transform: scale(1);
   }
+}
+
+/* ── Responsive ───────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .cdm-backdrop {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .cdm-modal {
+    max-width: 100%;
+    border-radius: 16px 16px 0 0;
+    max-height: 92dvh;
+    overflow-y: auto;
+  }
+
+  .cdm-body {
+    flex-direction: column;
+    padding: 12px 14px 20px;
+  }
+
+  .cdm-left {
+    padding-right: 0;
+  }
+
+  .cdm-right {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .cdm-sidebar-btn {
+    flex: 1;
+    min-width: 120px;
+  }
+
+  .cdm-sidebar-label {
+    width: 100%;
+  }
+}
+
+/* ============================================================
+   MEMBER STYLES (NEW)
+   ============================================================ */
+
+/* ── Member avatar stack (inline display on card) ─────────────────────────── */
+.cdm-member-stack {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  cursor: pointer;
+  padding: 2px 4px 2px 0;
+  border-radius: 6px;
+  transition: background 0.12s;
+}
+
+.cdm-member-stack:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.cdm-member-stack-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid #1d2125;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: #fff;
+  overflow: hidden;
+  flex-shrink: 0;
+  margin-left: -6px;
+  transition: transform 0.15s;
+  user-select: none;
+}
+
+.cdm-member-stack-avatar:first-child {
+  margin-left: 0;
+}
+
+.cdm-member-stack:hover .cdm-member-stack-avatar {
+  transform: translateY(-1px);
+}
+
+.cdm-member-stack-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cdm-member-stack-rest {
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: #9fadbc;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.cdm-member-stack-edit {
+  margin-left: 6px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.3);
+  transition: color 0.12s;
+}
+
+.cdm-member-stack:hover .cdm-member-stack-edit {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* ── Member option row (inside modal list) ────────────────────────────────── */
+.cdm-member-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 8px;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: background 0.12s;
+  user-select: none;
+}
+
+.cdm-member-option:hover {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.cdm-member-option--active {
+  background: rgba(87, 157, 255, 0.1);
+  border: 1px solid rgba(87, 157, 255, 0.2);
+}
+
+.cdm-member-option--active:hover {
+  background: rgba(87, 157, 255, 0.15);
+}
+
+/* Already assigned row (top section) */
+.cdm-member-option--assigned {
+  background: rgba(74, 222, 128, 0.06);
+  border: 1px solid rgba(74, 222, 128, 0.15);
+  cursor: default;
+}
+
+.cdm-member-option--assigned:hover {
+  background: rgba(74, 222, 128, 0.1);
+}
+
+/* ── Member avatar (inside modal) ────────────────────────────────────────── */
+.cdm-member-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+  overflow: hidden;
+  user-select: none;
+}
+
+.cdm-member-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ── Member name & role ───────────────────────────────────────────────────── */
+.cdm-member-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #dfe4ea;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cdm-member-role {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.35);
+  display: block;
+  text-transform: capitalize;
+  margin-top: 1px;
+}
+
+/* ── Check icon when assigned ─────────────────────────────────────────────── */
+.cdm-member-check {
+  margin-left: auto;
+  flex-shrink: 0;
+  width: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cdm-member-check-icon {
+  font-size: 13px;
+  font-weight: 700;
+  color: #579dff;
+}
+
+/* ── Remove button (assigned section) ────────────────────────────────────── */
+.cdm-member-remove-btn {
+  margin-left: auto;
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.25);
+  font-size: 11px;
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.12s, color 0.12s;
+  padding: 0;
+  line-height: 1;
+}
+
+.cdm-member-remove-btn:hover {
+  background: rgba(248, 113, 104, 0.18);
+  color: #f87168;
+}
+
+.cdm-member-remove-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Spinner while toggling ───────────────────────────────────────────────── */
+.cdm-member-spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(87, 157, 255, 0.3);
+  border-top-color: #579dff;
+  border-radius: 50%;
+  animation: cdm-spin 0.6s linear infinite;
+}
+
+@keyframes cdm-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── Member skeleton loader ───────────────────────────────────────────────── */
+.cdm-member-skeleton {
+  height: 46px;
+  border-radius: 7px;
+  background: linear-gradient(90deg,
+      rgba(255, 255, 255, 0.04) 25%,
+      rgba(255, 255, 255, 0.09) 50%,
+      rgba(255, 255, 255, 0.04) 75%);
+  background-size: 300px 100%;
+  animation: shimmer 1.2s infinite linear;
 }
