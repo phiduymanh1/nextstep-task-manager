@@ -1,4 +1,5 @@
 import api from '@/api';
+import type { ApiResponse } from '@/types/api.type';
 
 const baseUserUrl = '/checklists';
 
@@ -58,5 +59,19 @@ export const createChecklistItem = async (
 
 export const toggleChecklistItem = async (checklistItemId: number) => {
   const res = await api.post(`${baseUserUrl}/${checklistItemId}/toggle`);
+  return res.data;
+};
+
+export const deleteChecklistItem = async (checklistItemId: number) => {
+  const res = await api.delete<ApiResponse<null>>(
+    `${baseUserUrl}/checklist-items/${checklistItemId}`
+  );
+  return res.data;
+};
+
+export const deleteChecklist = async (checklistId: number) => {
+  const res = await api.delete<ApiResponse<null>>(
+    `${baseUserUrl}/checklists/${checklistId}`
+  );
   return res.data;
 };

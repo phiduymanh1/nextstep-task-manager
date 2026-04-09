@@ -9,10 +9,14 @@ export interface Activity {
   createdAt?: string;
 }
 
-export const getActivities = async (cardId: string): Promise<Activity[]> => {
+export const getActivities = async (
+  cardId: string,
+  params: { page: number; size: number }
+): Promise<PageResponse<Activity>> => {
   const res = await api.get<ApiResponse<PageResponse<Activity>>>(
-    `${baseUrl}/${cardId}/activities`
+    `${baseUrl}/${cardId}/activities`,
+    { params }
   );
 
-  return res.data.data.items;
+  return res.data.data;
 };

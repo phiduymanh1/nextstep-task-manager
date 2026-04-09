@@ -180,29 +180,6 @@ public class ActivityService {
     create(activity);
   }
 
-  // 7, add check list item
-  public void logAddChecklistItem(Card card, User user, ChecklistItem item) {
-
-    String message = user.getFullName() + " đã thêm mục checklist " + item.getContent();
-
-    Map<String, Object> metadata =
-        Map.of(
-            CART_TITLE, card.getTitle(), "itemId", item.getId(), "itemContent", item.getContent());
-
-    Activity activity =
-        buildActivity(
-            card,
-            card.getList().getBoard(),
-            user,
-            ActionType.ADD_CHECKLIST_ITEM,
-            EntityType.CHECKLIST_ITEM,
-            item.getId(),
-            message,
-            metadata);
-
-    create(activity);
-  }
-
   // 8. log complete checklist
   public void logCompleteChecklistItem(Card card, User user, ChecklistItem item) {
 
@@ -372,6 +349,8 @@ public class ActivityService {
     create(activity);
   }
 
+
+
   private boolean isImportant(ActionType actionType) {
     return switch (actionType) {
       case CREATE_CARD,
@@ -390,5 +369,12 @@ public class ActivityService {
           true;
       default -> false;
     };
+  }
+
+  public void deleteCompleteChecklistItemActivity(Integer itemId) {
+    activityRepository.deleteByEntityIdAndActionType(
+            itemId,
+            ActionType.COMPLETE_CHECKLIST_ITEM
+    );
   }
 }

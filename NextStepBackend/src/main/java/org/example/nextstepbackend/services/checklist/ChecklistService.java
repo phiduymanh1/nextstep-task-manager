@@ -188,9 +188,6 @@ public class ChecklistService {
     BigDecimal position = resolvePosition(checklist, prev, next);
 
     ChecklistItem saved = saveChecklistItem(checklist, request, position);
-    User user = userRepository.getReferenceById(authService.getCurrentUserId());
-
-    activityService.logAddChecklistItem(saved.getChecklist().getCard(), user, saved);
 
     return mapToResponse(saved);
   }
@@ -327,7 +324,11 @@ public class ChecklistService {
     ChecklistItem saved = checklistItemRepository.save(item);
     User user = userRepository.getReferenceById(authService.getCurrentUserId());
 
-    activityService.logCompleteChecklistItem(saved.getChecklist().getCard(), user, saved);
+    if (item.getIsCompleted()){
+      activityService.logCompleteChecklistItem(saved.getChecklist().getCard(), user, saved);
+    }else {
+      activityService.deleteCompleteChecklistItemActivity(item.getId());
+    }
 
     return mapToResponse(saved);
   }
@@ -340,9 +341,10 @@ public class ChecklistService {
             .orElseThrow(() -> new RuntimeException("Checklist item not found"));
 
     Card card = item.getChecklist().getCard();
+    Integer userId = authService.getCurrentUserId();
 
     roleBoardService.checkRoleBoard(
-        card.getList().getBoard().getSlug(), authService.getCurrentUserId(), Const.DELETE_MODE);
+        card.getList().getBoard().getSlug(), userId, Const.DELETE_MODE);
 
     checklistItemRepository.delete(item);
   }

@@ -50,3 +50,8 @@ export const updateCard = async (
   );
   return res.data.data;
 };
+
+export const archiveCard = async (cardId: number) => {
+  const res = await api.delete<ApiResponse<null>>(`${baseUserUrl}/${cardId}`);
+  return res.data;
+};

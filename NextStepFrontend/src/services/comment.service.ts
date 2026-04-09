@@ -24,12 +24,16 @@ export interface CommentResponse {
   createdAt?: string;
 }
 
-export const getComments = async (cardId: string) => {
+export const getComments = async (
+  cardId: string,
+  params: { page: number; size: number }
+): Promise<PageResponse<Comment>> => {
   const res = await api.get<ApiResponse<PageResponse<Comment>>>(
-    `${baseUrl}/${cardId}/comments`
+    `${baseUrl}/${cardId}/comments`,
+    { params }
   );
 
-  return res.data.data.items;
+  return res.data.data;
 };
 
 export const createComment = async (

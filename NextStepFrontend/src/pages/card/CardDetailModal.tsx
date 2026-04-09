@@ -561,10 +561,17 @@ export default function CardDetailModal({
   const [loading, setLoading] = useState(true);
   const [card, setCard] = useState<CardData | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
+  const [commentPage, setCommentPage] = useState(0);
+  const [commentHasMore, setCommentHasMore] = useState(true);
+
   const [activities, setActivities] = useState<Activity[]>([]);
+  const [activityPage, setActivityPage] = useState(0);
+  const [activityHasMore, setActivityHasMore] = useState(true);
+
   const [commentInput, setCommentInput] = useState('');
   const [submittingComment, setSubmittingComment] = useState(false);
   const [deletingCard, setDeletingCard] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const [activeModal, setActiveModal] = useState<AddModalType | 'addMenu'>(
     null
@@ -576,31 +583,68 @@ export default function CardDetailModal({
 
   // ===== Load data =====
   useEffect(() => {
+    setComments([]);
+    setActivities([]);
+    setCommentPage(0);
+    setActivityPage(0);
+    setCommentHasMore(true);
+    setActivityHasMore(true);
+
     const loadData = async () => {
       setLoading(true);
       try {
-        const [detail, cmt] = await Promise.all([
-          getCardDetail(cardId),
-          getComments(cardId),
-        ]);
+        const detail = await getCardDetail(cardId);
         setCard(detail);
-        setComments(cmt);
-        await loadActivities();
+
+        await Promise.all([loadComments(0), loadActivities(0)]);
       } catch (error) {
         console.error('Lỗi load card:', error);
       } finally {
         setLoading(false);
       }
     };
+
     loadData();
   }, [cardId]);
 
-  const loadActivities = async () => {
+  const loadActivities = async (page = 0) => {
     try {
-      const act = await getActivities(cardId);
-      setActivities(act);
+      const res = await getActivities(cardId, { page, size: 10 });
+
+      setActivities((prev) => {
+        if (page === 0) return res.items;
+
+        const ids = new Set(prev.map((i) => i.id));
+        const newItems = res.items.filter((i) => !ids.has(i.id));
+
+        return [...prev, ...newItems];
+      });
+
+      setActivityPage(res.page);
+      setActivityHasMore(res.page < res.totalPages - 1);
     } catch (err) {
       console.error('Load activities error', err);
+    }
+  };
+
+  const loadComments = async (page = 0) => {
+    try {
+      const res = await getComments(cardId, { page, size: 10 });
+
+      setComments((prev) => {
+        if (page === 0) return res.items;
+
+        // tránh duplicate
+        const ids = new Set(prev.map((i) => i.id));
+        const newItems = res.items.filter((i) => !ids.has(i.id));
+
+        return [...prev, ...newItems];
+      });
+
+      setCommentPage(res.page);
+      setCommentHasMore(res.page < res.totalPages - 1);
+    } catch (err) {
+      console.error('Load comments error', err);
     }
   };
 
@@ -803,7 +847,6 @@ export default function CardDetailModal({
           ),
         };
       });
-      loadActivities();
     } catch (err) {
       console.error('Create checklist item error:', err);
     }
@@ -895,7 +938,6 @@ export default function CardDetailModal({
 
   // ===== Yêu cầu 4: xóa card =====
   const handleDeleteCard = async () => {
-    if (!window.confirm('Bạn có chắc muốn lưu trữ thẻ này không?')) return;
     setDeletingCard(true);
     try {
       await archiveCard(Number(cardId));
@@ -1352,6 +1394,14 @@ export default function CardDetailModal({
                     </div>
                   </div>
                 ))}
+                {commentHasMore && (
+                  <button
+                    className="cdm-load-more"
+                    onClick={() => loadComments(commentPage + 1)}
+                  >
+                    Xem thêm bình luận
+                  </button>
+                )}
 
                 {activities.map((a) => (
                   <div key={a.id} className="cdm-activity-item">
@@ -1367,6 +1417,14 @@ export default function CardDetailModal({
                     </div>
                   </div>
                 ))}
+                {activityHasMore && (
+                  <button
+                    className="cdm-load-more"
+                    onClick={() => loadActivities(activityPage + 1)}
+                  >
+                    Xem thêm hoạt động
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -1406,14 +1464,40 @@ export default function CardDetailModal({
             <button className="cdm-sidebar-btn">❐ Sao chép</button>
             <div className="cdm-sidebar-divider"></div>
 
-            {/* Yêu cầu 4: nút Lưu trữ gọi deleteCard */}
             <button
               className="cdm-sidebar-btn cdm-sidebar-btn--danger"
-              onClick={handleDeleteCard}
+              onClick={() => setShowDeleteModal(true)}
               disabled={deletingCard}
             >
               {deletingCard ? '⏳ Đang xóa...' : '☒ Lưu trữ'}
             </button>
+
+            {showDeleteModal && (
+              <div className="archive-card-modal-overlay">
+                <div className="archive-card-modal">
+                  <h3>Bạn có chắc?</h3>
+                  <p>Thẻ này sẽ được lưu trữ.</p>
+
+                  <div className="archive-card-modal-actions">
+                    <button
+                      className="cdm-btn"
+                      onClick={() => setShowDeleteModal(false)}
+                      disabled={deletingCard}
+                    >
+                      Hủy
+                    </button>
+
+                    <button
+                      className="cdm-btn cdm-btn--danger"
+                      onClick={handleDeleteCard}
+                      disabled={deletingCard}
+                    >
+                      {deletingCard ? '⏳ Đang xử lý...' : 'Xác nhận'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

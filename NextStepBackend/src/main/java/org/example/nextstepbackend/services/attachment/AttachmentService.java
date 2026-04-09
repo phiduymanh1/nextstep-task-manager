@@ -16,6 +16,7 @@ import org.example.nextstepbackend.services.auth.AuthService;
 import org.example.nextstepbackend.services.cloudinary.CloudinaryService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
@@ -24,12 +25,12 @@ public class AttachmentService {
 
   private final CardRepository cardRepository;
   private final AuthService authService;
-  private final FileStorageService fileStorageService;
   private final AttachmentRepository attachmentRepository;
   private final CloudinaryService cloudinaryService;
   private final ActivityService activityService;
   private final UserRepository userRepository;
 
+  @Transactional
   public AttachmentResponse upload(Integer cardId, MultipartFile file) {
 
     if (file.isEmpty()) {
@@ -65,6 +66,7 @@ public class AttachmentService {
     return mapToResponse(attachment);
   }
 
+  @Transactional
   public void delete(Integer id) {
 
     Attachment attachment =

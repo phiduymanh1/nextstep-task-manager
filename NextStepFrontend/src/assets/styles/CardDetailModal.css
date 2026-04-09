@@ -320,7 +320,6 @@
   color: #82b8ff;
 }
 
-/* "Thêm" button — distinct style */
 .cdm-action-btn--more {
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -340,7 +339,7 @@
   border-color: rgba(255, 255, 255, 0.35);
 }
 
-/* ── Inner overlay modal (used for label/date/checklist/attachment) ────────── */
+/* ── Inner overlay modal ──────────────────────────────────────────────────── */
 .cdm-inner-overlay {
   position: absolute;
   inset: 0;
@@ -385,7 +384,6 @@
   gap: 8px;
 }
 
-/* Shared field label */
 .cdm-field-label {
   font-size: 11px;
   font-weight: 700;
@@ -395,7 +393,6 @@
   margin: 0 0 4px;
 }
 
-/* Shared text input */
 .cdm-inner-input {
   width: 100%;
   box-sizing: border-box;
@@ -515,6 +512,8 @@
   border-radius: 6px;
   cursor: pointer;
   transition: background 0.1s;
+  /* chừa chỗ để nút ✕ hiện khi hover */
+  position: relative;
 }
 
 .cdm-checklist-item:hover {
@@ -532,6 +531,36 @@
 .cdm-checklist-item span.done {
   text-decoration: line-through;
   color: rgba(255, 255, 255, 0.32);
+}
+
+/* ── Checklist item delete button (Yêu cầu 1) ────────────────────────────── */
+.cdm-checklist-item-delete {
+  margin-left: auto;
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.25);
+  font-size: 12px;
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.12s, background 0.12s, color 0.12s;
+  padding: 0;
+  line-height: 1;
+}
+
+.cdm-checklist-item:hover .cdm-checklist-item-delete {
+  opacity: 1;
+}
+
+.cdm-checklist-item-delete:hover {
+  background: rgba(248, 113, 104, 0.18);
+  color: #f87168;
 }
 
 /* Drag handle */
@@ -887,20 +916,25 @@
   font-size: 13px;
   cursor: pointer;
   text-align: left;
-  transition: background 0.12s, color 0.12s;
+  transition: background 0.12s, color 0.12s, opacity 0.12s;
   font-family: inherit;
 }
 
-.cdm-sidebar-btn:hover {
+.cdm-sidebar-btn:hover:not(:disabled) {
   background: rgba(255, 255, 255, 0.13);
   color: #fff;
+}
+
+.cdm-sidebar-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .cdm-sidebar-btn--danger {
   color: #f87168;
 }
 
-.cdm-sidebar-btn--danger:hover {
+.cdm-sidebar-btn--danger:hover:not(:disabled) {
   background: rgba(248, 113, 104, 0.14);
   color: #fca5a5;
 }
@@ -1069,5 +1103,113 @@
 
   .cdm-sidebar-label {
     width: 100%;
+  }
+}
+/* Load more button */
+.cdm-load-more {
+  width: 100%;
+  padding: 8px 12px;
+  margin-top: 10px;
+
+  background: rgba(255, 255, 255, 0.06);
+  border: none;
+  border-radius: 6px;
+
+  color: #9fadbc;
+  font-size: 13px;
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+}
+
+.cdm-load-more:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+.cdm-load-more:active {
+  transform: scale(0.98);
+}
+
+/* Disabled state */
+.cdm-load-more:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.archive-card-modal {
+  background: #ffffff;
+  padding: 20px 24px;
+  border-radius: 10px;
+  width: 360px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  font-family: system-ui, sans-serif;
+}
+
+.archive-card-modal h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #172b4d;
+}
+
+.archive-card-modal p {
+  margin: 8px 0 0;
+  font-size: 14px;
+  color: #5e6c84;
+}
+
+.archive-card-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.cdm-btn {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: none;
+  background: #f1f2f4;
+  color: #172b4d;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.cdm-btn:hover {
+  background: #dcdfe4;
+}
+
+.cdm-btn--danger {
+  background: #c9372c;
+  color: white;
+}
+
+.cdm-btn--danger:hover {
+  background: #a62a21;
+}
+
+.archive-card-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(9, 30, 66, 0.54);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+.archive-card-modal {
+  animation: fadeInScale 0.2s ease;
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
 }
