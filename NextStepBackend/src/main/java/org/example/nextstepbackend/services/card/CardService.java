@@ -69,6 +69,8 @@ public class CardService {
   private final ChecklistMapper checklistMapper;
   private final AttachmentMapper attachmentMapper;
   private final ActivityService activityService;
+  
+  private static final String LIST_NOT_FOUND = "List not found";
 
   @Transactional
   public CardResponse createCard(Integer listId, CardRequest request) {
@@ -78,7 +80,7 @@ public class CardService {
     ListEntity list =
         listsRepository
             .findById(listId)
-            .orElseThrow(() -> new ResourceNotFoundException("List not found"));
+            .orElseThrow(() -> new ResourceNotFoundException(LIST_NOT_FOUND));
 
     roleBoardService.checkRoleBoard(list.getBoard().getSlug(), userId, Const.CREATE_MODE);
 
@@ -297,7 +299,7 @@ public class CardService {
     ListEntity targetList =
         listsRepository
             .findById(request.listId())
-            .orElseThrow(() -> new ResourceNotFoundException("List not found"));
+            .orElseThrow(() -> new ResourceNotFoundException(LIST_NOT_FOUND));
 
     // 3. Permission (qua board)
     roleBoardService.checkRoleBoard(targetList.getBoard().getSlug(), userId, Const.UPDATE_MODE);
@@ -408,14 +410,20 @@ public class CardService {
 
   @Transactional
   public void moveCardToList(Integer cardId, Integer listId) {
-    Card card = cardRepository.findById(cardId).orElseThrow(() -> new ResourceNotFoundException("Card not found"));
-    ListEntity list = listsRepository.findById(listId).orElseThrow(() -> new ResourceNotFoundException("List not found"));
+    Card card =
+        cardRepository
+            .findById(cardId)
+            .orElseThrow(() -> new ResourceNotFoundException("Card not found"));
+    ListEntity list =
+        listsRepository
+            .findById(listId)
+            .orElseThrow(() -> new ResourceNotFoundException(LIST_NOT_FOUND));
 
     Integer userId = authService.getCurrentUserId();
     roleBoardService.checkRoleBoard(list.getBoard().getSlug(), userId, Const.UPDATE_MODE);
     String fromList = card.getList().getName();
     String toList = list.getName();
-    
+
     card.setList(list);
     Card saved = cardRepository.save(card);
 

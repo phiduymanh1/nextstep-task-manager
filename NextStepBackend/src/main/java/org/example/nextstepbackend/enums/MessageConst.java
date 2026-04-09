@@ -38,6 +38,8 @@ public enum MessageConst {
   CARD_ARCHIVE_SUCCESS("I-CARD-002", HttpStatus.OK),
   CARD_UPDATE_SUCCESS("I-CARD-003", HttpStatus.OK),
   CARD_MOVE_SUCCESS("I-CARD-004", HttpStatus.OK),
+  CARD_ASSIGN_MEMBER_SUCCESS("I-CARD-005", HttpStatus.OK),
+  CARD_UNASSIGN_MEMBER_SUCCESS("I-CARD-006", HttpStatus.OK),
 
   // Label - info message
   LABEL_CREATE_SUCCESS("I-LABEL-001", HttpStatus.OK),

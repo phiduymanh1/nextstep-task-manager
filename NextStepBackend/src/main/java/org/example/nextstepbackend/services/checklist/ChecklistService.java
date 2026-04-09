@@ -324,9 +324,9 @@ public class ChecklistService {
     ChecklistItem saved = checklistItemRepository.save(item);
     User user = userRepository.getReferenceById(authService.getCurrentUserId());
 
-    if (item.getIsCompleted()){
+    if (Boolean.TRUE.equals(item.getIsCompleted())) {
       activityService.logCompleteChecklistItem(saved.getChecklist().getCard(), user, saved);
-    }else {
+    } else {
       activityService.deleteCompleteChecklistItemActivity(item.getId());
     }
 
@@ -343,8 +343,7 @@ public class ChecklistService {
     Card card = item.getChecklist().getCard();
     Integer userId = authService.getCurrentUserId();
 
-    roleBoardService.checkRoleBoard(
-        card.getList().getBoard().getSlug(), userId, Const.DELETE_MODE);
+    roleBoardService.checkRoleBoard(card.getList().getBoard().getSlug(), userId, Const.DELETE_MODE);
 
     checklistItemRepository.delete(item);
   }

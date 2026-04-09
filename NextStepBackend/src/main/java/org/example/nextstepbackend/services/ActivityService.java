@@ -349,7 +349,34 @@ public class ActivityService {
     create(activity);
   }
 
+  // 14. add member to card
+  public void logAddMemberToCard(Card card, User user, User member) {
 
+    String message =
+        user.getFullName() + " đã thêm " + member.getFullName() + " vào card " + card.getTitle();
+
+    Map<String, Object> metadata =
+        Map.of(
+            CART_TITLE,
+            card.getTitle(),
+            "memberId",
+            member.getId(),
+            "memberName",
+            member.getFullName());
+
+    Activity activity =
+        buildActivity(
+            card,
+            card.getList().getBoard(),
+            user,
+            ActionType.ADD_MEMBER_TO_CARD,
+            EntityType.USER,
+            member.getId(),
+            message,
+            metadata);
+
+    create(activity);
+  }
 
   private boolean isImportant(ActionType actionType) {
     return switch (actionType) {
@@ -365,16 +392,14 @@ public class ActivityService {
               ADD_ATTACHMENT,
               DELETE_ATTACHMENT,
               ADD_LABEL_TO_CARD,
-              REMOVE_LABEL_FROM_CARD ->
+              REMOVE_LABEL_FROM_CARD,
+              ADD_MEMBER_TO_CARD ->
           true;
       default -> false;
     };
   }
 
   public void deleteCompleteChecklistItemActivity(Integer itemId) {
-    activityRepository.deleteByEntityIdAndActionType(
-            itemId,
-            ActionType.COMPLETE_CHECKLIST_ITEM
-    );
+    activityRepository.deleteByEntityIdAndActionType(itemId, ActionType.COMPLETE_CHECKLIST_ITEM);
   }
 }

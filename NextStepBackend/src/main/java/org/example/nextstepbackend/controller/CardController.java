@@ -121,9 +121,10 @@ public class CardController extends BaseController {
 
   @PatchMapping("/{cardId}/list")
   public ResponseEntity<ApiResponse<Void>> moveCardToList(
-      @PathVariable Integer cardId,
-      @RequestParam Integer listId) {
+      @PathVariable Integer cardId, @RequestParam Integer listId) {
     cardService.moveCardToList(cardId, listId);
     return ResponseEntity.ok(success(MessageConst.CARD_MOVE_SUCCESS, null));
   }
+
+  // TODO: Api get member of card
 }

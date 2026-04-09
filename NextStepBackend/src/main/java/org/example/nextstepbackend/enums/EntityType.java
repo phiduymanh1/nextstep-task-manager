@@ -6,5 +6,6 @@ public enum EntityType {
   CHECKLIST_ITEM,
   COMMENT,
   LABEL,
-  ATTACHMENT
+  ATTACHMENT,
+  USER
 }
