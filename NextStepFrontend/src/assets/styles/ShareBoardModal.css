@@ -1,0 +1,436 @@
+/* ============================================================
+   ShareBoardModal.css
+   ============================================================ */
+
+.sbm-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1100;
+    background: rgba(0, 0, 0, 0.72);
+    backdrop-filter: blur(3px);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 60px 16px 40px;
+    overflow-y: auto;
+    animation: sbm-fade-in 0.15s ease;
+}
+
+@keyframes sbm-fade-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* ---- Modal box ---- */
+.sbm-modal {
+    width: 100%;
+    max-width: 520px;
+    background: #1e2329;
+    border-radius: 16px;
+    color: #b6c2cf;
+    border: 0.5px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.7);
+    overflow: hidden;
+    animation: sbm-slide-up 0.18s ease;
+}
+
+@keyframes sbm-slide-up {
+    from {
+        transform: translateY(16px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* ---- Header ---- */
+.sbm-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 20px 14px;
+}
+
+.sbm-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.sbm-close-btn {
+    background: none;
+    border: none;
+    color: #9fadbc;
+    font-size: 16px;
+    cursor: pointer;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.12s, color 0.12s;
+    padding: 0;
+}
+
+.sbm-close-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+/* ---- Search ---- */
+.sbm-search-row {
+    padding: 0 20px 14px;
+}
+
+.sbm-search-input {
+    width: 100%;
+    box-sizing: border-box;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    color: #ffffff;
+    padding: 8px 12px;
+    font-size: 13px;
+    outline: none;
+    font-family: inherit;
+    transition: border-color 0.15s, background 0.15s;
+}
+
+.sbm-search-input::placeholder {
+    color: rgba(255, 255, 255, 0.28);
+}
+
+.sbm-search-input:focus {
+    border-color: rgba(87, 157, 255, 0.7);
+    background: rgba(255, 255, 255, 0.09);
+}
+
+/* ---- Tabs ---- */
+.sbm-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 0 20px;
+    margin-bottom: 4px;
+}
+
+.sbm-tab {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: #9fadbc;
+    font-size: 13px;
+    font-family: inherit;
+    padding: 6px 0 10px;
+    margin-right: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.12s, border-color 0.12s;
+}
+
+.sbm-tab.active {
+    color: #579dff;
+    border-bottom-color: #579dff;
+    font-weight: 500;
+}
+
+.sbm-tab-badge {
+    background: rgba(87, 157, 255, 0.18);
+    color: #579dff;
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-size: 11px;
+}
+
+/* ---- Member list ---- */
+.sbm-list {
+    max-height: 360px;
+    overflow-y: auto;
+    padding: 4px 12px 16px;
+}
+
+.sbm-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sbm-list::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+}
+
+/* ---- States ---- */
+.sbm-loading,
+.sbm-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 28px 0;
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 13px;
+}
+
+/* ---- Member row ---- */
+.sbm-member-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 8px;
+    border-radius: 8px;
+    transition: background 0.12s;
+}
+
+.sbm-member-row:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* ---- Avatar ---- */
+.sbm-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+    text-transform: uppercase;
+}
+
+/* ---- Info ---- */
+.sbm-member-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.sbm-member-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: #e2e8f0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sbm-member-sub {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.35);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ---- Actions ---- */
+.sbm-member-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.sbm-role-badge {
+    background: rgba(255, 255, 255, 0.08);
+    color: #9fadbc;
+    border-radius: 5px;
+    padding: 3px 8px;
+    font-size: 11px;
+    white-space: nowrap;
+}
+
+.sbm-role-badge.admin {
+    background: rgba(87, 157, 255, 0.15);
+    color: #579dff;
+}
+
+/* ---- Buttons ---- */
+.sbm-btn {
+    border: none;
+    border-radius: 6px;
+    padding: 5px 14px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 60px;
+    height: 28px;
+    transition: background 0.12s, opacity 0.12s;
+    white-space: nowrap;
+}
+
+.sbm-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.sbm-btn--add {
+    background: #579dff;
+    color: #fff;
+}
+
+.sbm-btn--add:hover:not(:disabled) {
+    background: #4a8de8;
+}
+
+.sbm-btn--remove {
+    background: rgba(248, 113, 104, 0.15);
+    border: 1px solid rgba(248, 113, 104, 0.3);
+    color: #f87168;
+}
+
+.sbm-btn--remove:hover:not(:disabled) {
+    background: rgba(248, 113, 104, 0.28);
+}
+
+/* ---- Button spinner ---- */
+.sbm-btn-spinner,
+.sbm-spinner {
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-top-color: #fff;
+    animation: sbm-spin 0.7s linear infinite;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.sbm-spinner {
+    width: 15px;
+    height: 15px;
+    border-top-color: #579dff;
+}
+
+@keyframes sbm-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 600px) {
+    .sbm-backdrop {
+        padding: 0;
+        align-items: flex-end;
+    }
+
+    .sbm-modal {
+        max-width: 100%;
+        border-radius: 16px 16px 0 0;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .sbm-role-badge {
+        display: none;
+    }
+}
+
+.sbm-role-select {
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid #d0d4da;
+    font-size: 13px;
+    background: #fff;
+    color: #172b4d;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.sbm-role-select:hover {
+    border-color: #999;
+}
+
+.sbm-role-select:focus {
+    border-color: #3a86ff;
+    box-shadow: 0 0 0 2px rgba(58, 134, 255, 0.15);
+}
+
+/* ===== Actions layout ===== */
+.sbm-member-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* ===== Button add ===== */
+.sbm-btn--add {
+    background: #0c66e4;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.sbm-btn--add:hover {
+    background: #0052cc;
+}
+
+/* ===== Button remove ===== */
+.sbm-btn--remove {
+    background: transparent;
+    color: #c9372c;
+    border: none;
+    padding: 6px 8px;
+    font-size: 13px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.sbm-btn--remove:hover {
+    background: rgba(201, 55, 44, 0.1);
+}
+
+/* ===== Role badge ===== */
+.sbm-role-badge {
+    background: #e9f2ff;
+    color: #0c66e4;
+    padding: 4px 8px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.sbm-role-badge.admin {
+    background: #fdecea;
+    color: #c9372c;
+}
+
+/* ===== Spinner button nhỏ ===== */
+.sbm-btn-spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid #ccc;
+    border-top-color: #0c66e4;
+    border-radius: 50%;
+    animation: sbm-spin 0.8s linear infinite;
+}
+
+@keyframes sbm-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

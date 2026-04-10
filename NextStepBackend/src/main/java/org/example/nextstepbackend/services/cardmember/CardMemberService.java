@@ -62,8 +62,8 @@ public class CardMemberService {
   public void unAssignMember(Integer cardId, Integer userId) {
 
     userRepository
-            .findById(userId)
-            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        .findById(userId)
+        .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     Card card =
         cardRepository
             .findById(cardId)

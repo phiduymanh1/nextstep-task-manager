@@ -1,7 +1,5 @@
 package org.example.nextstepbackend.dto.request;
 
-import org.example.nextstepbackend.dto.response.user.UserResponse;
-
 import java.time.LocalDateTime;
 import java.util.List;
 

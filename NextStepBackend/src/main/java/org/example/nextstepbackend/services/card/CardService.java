@@ -11,9 +11,15 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.example.nextstepbackend.comm.constants.Const;
-import org.example.nextstepbackend.dto.request.*;
+import org.example.nextstepbackend.dto.request.AttachmentResponse;
+import org.example.nextstepbackend.dto.request.CardDetailResponse;
+import org.example.nextstepbackend.dto.request.CardMemberResponse;
+import org.example.nextstepbackend.dto.request.CardPositionRequest;
+import org.example.nextstepbackend.dto.request.CardRequest;
+import org.example.nextstepbackend.dto.request.CardUpdateRequest;
+import org.example.nextstepbackend.dto.request.ChecklistResponse;
+import org.example.nextstepbackend.dto.request.LabelGroupResponse;
 import org.example.nextstepbackend.dto.response.card.CardResponse;
-import org.example.nextstepbackend.dto.response.user.UserResponse;
 import org.example.nextstepbackend.entity.Attachment;
 import org.example.nextstepbackend.entity.Card;
 import org.example.nextstepbackend.entity.CardLabel;
@@ -29,7 +35,15 @@ import org.example.nextstepbackend.mappers.AttachmentMapper;
 import org.example.nextstepbackend.mappers.CardMapper;
 import org.example.nextstepbackend.mappers.ChecklistMapper;
 import org.example.nextstepbackend.mappers.LabelGroupMapper;
-import org.example.nextstepbackend.repository.*;
+import org.example.nextstepbackend.repository.AttachmentRepository;
+import org.example.nextstepbackend.repository.CardLabelRepository;
+import org.example.nextstepbackend.repository.CardMemberRepository;
+import org.example.nextstepbackend.repository.CardRepository;
+import org.example.nextstepbackend.repository.ChecklistItemRepository;
+import org.example.nextstepbackend.repository.ChecklistRepository;
+import org.example.nextstepbackend.repository.LabelRepository;
+import org.example.nextstepbackend.repository.ListsRepository;
+import org.example.nextstepbackend.repository.UserRepository;
 import org.example.nextstepbackend.services.ActivityService;
 import org.example.nextstepbackend.services.auth.AuthService;
 import org.example.nextstepbackend.services.board.RoleBoardService;
@@ -58,7 +72,7 @@ public class CardService {
   private final AttachmentMapper attachmentMapper;
   private final ActivityService activityService;
   private final CardMemberRepository cardMemberRepository;
-  
+
   private static final String LIST_NOT_FOUND = "List not found";
 
   @Transactional
@@ -383,16 +397,16 @@ public class CardService {
       List<Checklist> checklists,
       List<ChecklistItem> items,
       List<Attachment> attachments,
-      List<CardMember> members ) {
+      List<CardMember> members) {
     LabelGroupResponse labels = labelGroupMapper.map(boardLabels, cardLabels);
     List<ChecklistResponse> checklistRes = checklistMapper.map(checklists, items);
     List<AttachmentResponse> attachmentRes = attachmentMapper.toList(attachments);
-    List<CardMemberResponse> memberResponses = members.stream()
-            .map(u -> new CardMemberResponse(
-                    u.getId(),
-                    u.getUser().getFullName(),
-                    u.getUser().getAvatarUrl()
-            ))
+    List<CardMemberResponse> memberResponses =
+        members.stream()
+            .map(
+                u ->
+                    new CardMemberResponse(
+                        u.getId(), u.getUser().getFullName(), u.getUser().getAvatarUrl()))
             .toList();
 
     return new CardDetailResponse(
@@ -405,7 +419,7 @@ public class CardService {
         labels,
         checklistRes,
         attachmentRes,
-            memberResponses );
+        memberResponses);
   }
 
   @Transactional

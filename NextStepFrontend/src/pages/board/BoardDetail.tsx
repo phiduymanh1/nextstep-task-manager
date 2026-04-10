@@ -46,12 +46,17 @@ import toast from 'react-hot-toast';
 import type { ApiResponse } from '@/types/api.type';
 import axios from 'axios';
 import CardDetailModal from '../card/CardDetailModal';
+import ShareBoardModal from '../share/ShareBoardModal';
 
 // ============================================================
 export default function BoardDetail() {
-  const { boardSlug } = useParams<{ boardSlug: string }>();
+  const { slug, boardSlug } = useParams<{
+    slug: string;
+    boardSlug: string;
+  }>();
 
   const [columns, setColumns] = useState<Column[]>([]);
+  const [showShareModal, setShowShareModal] = useState(false);
   const [board, setBoard] = useState<BoardState>({
     name: '',
     visibility: 'PRIVATE',
@@ -418,7 +423,12 @@ export default function BoardDetail() {
           </div>
 
           <div className="board-header-right">
-            <button className="header-btn header-btn--share">⊕ Chia sẻ</button>
+            <button
+              className="header-btn header-btn--share"
+              onClick={() => setShowShareModal(true)}
+            >
+              ⊕ Chia sẻ
+            </button>
             <BoardMenu
               visibility={board.visibility}
               onVisibilityChange={(v) => patchBoard({ visibility: v })}
@@ -490,6 +500,13 @@ export default function BoardDetail() {
             cardId={selectedCardId}
             onClose={() => setSelectedCardId(null)}
             onToggleComplete={handleToggleCardComplete}
+          />
+        )}
+        {showShareModal && boardSlug && (
+          <ShareBoardModal
+            boardSlug={boardSlug}
+          workspaceSlug={slug!}
+            onClose={() => setShowShareModal(false)}
           />
         )}
       </div>

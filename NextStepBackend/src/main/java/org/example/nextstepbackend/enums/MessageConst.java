@@ -27,6 +27,8 @@ public enum MessageConst {
   BOARD_CREATE_SUCCESS("I-BOARD-001", HttpStatus.OK),
   BOARD_DELETE_SUCCESS("I-BOARD-002", HttpStatus.OK),
   BOARD_UPDATE_SUCCESS("I-BOARD-003", HttpStatus.OK),
+  BOARD_ADD_MEMBER_SUCCESS("I-BOARD-004", HttpStatus.OK),
+  BOARD__REMOVE_MEMBER_SUCCESS("I-BOARD-005", HttpStatus.OK),
 
   // List - info messages
   LIST_CREATE_SUCCESS("I-LIST-001", HttpStatus.OK),
