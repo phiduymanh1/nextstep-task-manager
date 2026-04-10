@@ -77,7 +77,7 @@ public class WorkSpaceService {
 
   /** Get current user's workspace info */
   public List<WorkspaceResponse> getWorkspaceMe(String email) {
-    List<Workspace> workspaces = workSpaceRepository.findByCreatedBy_Email(email);
+    List<Workspace> workspaces = workSpaceRepository.findWorkspacesByUserEmail(email);
 
     return workSpaceMapper.toWorkspaceResponseList(workspaces);
   }

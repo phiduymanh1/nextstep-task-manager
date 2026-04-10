@@ -13,7 +13,12 @@ public interface WorkSpaceRepository extends JpaRepository<Workspace, Integer> {
   Workspace findBySlug(String slug);
 
   @EntityGraph(attributePaths = {"createdBy"})
-  List<Workspace> findByCreatedBy_Email(String email);
+  @Query("""
+    SELECT wm.workspace
+    FROM WorkspaceMember wm
+    WHERE wm.user.email = :email
+""")
+  List<Workspace> findWorkspacesByUserEmail(String email);
 
   @EntityGraph(attributePaths = {"createdBy"})
   Optional<Workspace> findBySlugAndCreatedBy_Email(String slug, String email);
