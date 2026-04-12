@@ -233,6 +233,7 @@ CREATE TABLE attachments (
                              uploaded_by INT NOT NULL,
                              file_name VARCHAR(255) NOT NULL,
                              file_url VARCHAR(500) NOT NULL,
+                             public_id VARCHAR(255),
                              file_size BIGINT, -- bytes
                              mime_type VARCHAR(100),
                              is_cover BOOLEAN DEFAULT FALSE, -- Đặt làm ảnh bìa

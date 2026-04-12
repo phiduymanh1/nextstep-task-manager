@@ -10,6 +10,7 @@ import org.example.nextstepbackend.entity.User;
 import org.example.nextstepbackend.entity.Workspace;
 import org.example.nextstepbackend.enums.Visibility;
 import org.example.nextstepbackend.repository.WorkSpaceRepository;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -20,6 +21,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+@Disabled
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")

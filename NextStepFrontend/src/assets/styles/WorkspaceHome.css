@@ -173,3 +173,274 @@
 .load-more-btn:hover {
   color: #111;
 }
+
+/* Thêm vào file WorkspaceHome.css hiện có */
+
+/* Members button in header */
+.members-button {
+  margin-left: auto;
+  padding: 8px 16px;
+  background: transparent;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #4b5563;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  white-space: nowrap;
+}
+
+.members-button:hover {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: #9ca3af;
+  color: #111;
+}
+
+/* Modal overlay */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-box {
+  background: #fff;
+  border-radius: 12px;
+  width: 480px;
+  max-width: 95vw;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e5e7eb;
+  flex-shrink: 0;
+}
+
+.modal-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.modal-close {
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  line-height: 1;
+}
+
+.modal-close:hover {
+  background: #f3f4f6;
+  color: #111;
+}
+
+/* Search */
+.member-search-wrapper {
+  padding: 12px 20px;
+  border-bottom: 1px solid #f3f4f6;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.member-search-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #111827;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease;
+}
+
+.member-search-input:focus {
+  border-color: #6b7280;
+}
+
+.member-search-hint {
+  font-size: 12px;
+  color: #9ca3af;
+  margin-top: 4px;
+  display: block;
+}
+
+/* Sections */
+.member-section {
+  padding: 12px 20px;
+  overflow-y: auto;
+}
+
+.member-section+.member-section {
+  border-top: 1px solid #f3f4f6;
+}
+
+.member-section-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 10px;
+}
+
+.member-loading,
+.member-empty {
+  font-size: 14px;
+  color: #9ca3af;
+  margin: 0;
+}
+
+/* Member row */
+.member-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+}
+
+.member-row+.member-row {
+  border-top: 1px solid #f9fafb;
+}
+
+.member-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #897e8b, #4c484f);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: #c5c261;
+  flex-shrink: 0;
+}
+
+.member-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.member-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #111827;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.member-email {
+  font-size: 12px;
+  color: #9ca3af;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.member-action-btn {
+  flex-shrink: 0;
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  border: 1px solid;
+  transition: background 0.2s ease, opacity 0.2s ease;
+}
+
+.member-action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.add-btn {
+  border-color: #6366f1;
+  color: #6366f1;
+  background: transparent;
+}
+
+.add-btn:hover:not(:disabled) {
+  background: #eef2ff;
+}
+
+.remove-btn {
+  border-color: #ef4444;
+  color: #ef4444;
+  background: transparent;
+}
+
+.remove-btn:hover:not(:disabled) {
+  background: #fef2f2;
+}
+
+.member-role-badge {
+  flex-shrink: 0;
+  font-size: 12px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #f3f4f6;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+/* Role select dropdown */
+.role-select {
+  padding: 5px 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #374151;
+  background: #fff;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.role-select:focus {
+  border-color: #6b7280;
+}
+
+.role-select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Owner badge variant */
+.owner-badge {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+/* Self tag inline */
+.member-self-tag {
+  font-size: 12px;
+  color: #9ca3af;
+  font-weight: 400;
+}
+
+/* Scrollable member list */
+.member-section-scroll {
+  overflow-y: auto;
+  max-height: 280px;
+}

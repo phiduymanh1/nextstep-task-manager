@@ -5,21 +5,26 @@ import { handleLogout } from '@/utils/auth';
 import CreateWorkspaceModal from '@/pages/workspace/CreateWorkspaceModal';
 
 export default function Navbar() {
-  const [open, setOpen] = useState(false);
   const navigate = useNavigate();
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [openUser, setOpenUser] = useState(false);
+  const [openCreate, setOpenCreate] = useState(false);
   const [openWorkspaceModal, setOpenWorkspaceModal] = useState(false);
+
+  const userRef = useRef<HTMLDivElement>(null);
+  const createRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
+      if (userRef.current && !userRef.current.contains(event.target as Node)) {
+        setOpenUser(false);
+      }
       if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
+        createRef.current &&
+        !createRef.current.contains(event.target as Node)
       ) {
-        setOpen(false);
+        setOpenCreate(false);
       }
     }
-
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
@@ -29,36 +34,60 @@ export default function Navbar() {
       <div className="navbar">
         <input placeholder="Tìm kiếm" className="navbar-search" />
 
-        <div className="navbar-right" ref={dropdownRef}>
-          <button className="navbar-button">Tạo mới</button>
+        {/* navbar-right KHÔNG có position:relative */}
+        <div className="navbar-right">
+          {/* CREATE — wrapper có position:relative */}
+          <div className="navbar-create" ref={createRef}>
+            <button
+              className="navbar-button"
+              onClick={() => setOpenCreate((prev) => !prev)}
+            >
+              Tạo mới
+            </button>
 
-          <div className="navbar-avatar" onClick={() => setOpen(!open)}>
-            M
+            {openCreate && (
+              <div className="navbar-dropdown">
+                <button
+                  onClick={() => {
+                    setOpenWorkspaceModal(true);
+                    setOpenCreate(false);
+                  }}
+                >
+                  🏢 Tạo Workspace
+                </button>
+              </div>
+            )}
           </div>
 
-          {open && (
-            <div className="navbar-dropdown">
-              <button
-                onClick={() => {
-                  navigate('/profile');
-                  setOpen(false);
-                }}
-              >
-                Profile
-              </button>
-              <button
-                onClick={() => {
-                  setOpenWorkspaceModal(true);
-                  setOpen(false);
-                }}
-              >
-                Create Workspace
-              </button>
-              <button onClick={handleLogout}>Logout</button>
-            </div>
-          )}
+          {/* AVATAR — wrapper có position:relative */}
+          <div className="navbar-avatar" ref={userRef}>
+            <div onClick={() => setOpenUser((prev) => !prev)}>M</div>
+
+            {openUser && (
+              <div className="navbar-dropdown">
+                <button
+                  onClick={() => {
+                    navigate('/profile');
+                    setOpenUser(false);
+                  }}
+                >
+                  Profile
+                </button>
+                <button
+                  onClick={() => {
+                    setOpenWorkspaceModal(true);
+                    setOpenUser(false);
+                  }}
+                >
+                  Create Workspace
+                </button>
+                <button onClick={handleLogout}>Logout</button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
+
       <CreateWorkspaceModal
         open={openWorkspaceModal}
         onClose={() => setOpenWorkspaceModal(false)}

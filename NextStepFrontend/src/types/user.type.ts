@@ -15,3 +15,10 @@ export interface User {
   role: UserRole;
   audit: AuditRecord;
 }
+
+export interface UserSearchResponse {
+  id: number;
+  name: string;
+  email?: string;
+  avatar?: string;
+}

@@ -107,6 +107,7 @@
 
 .sidebar.collapsed .sidebar-item {
     justify-content: center;
+    position: relative;
 }
 
 .sidebar.collapsed .sidebar-section-title {
@@ -117,16 +118,33 @@
     content: attr(data-label);
     position: absolute;
     left: 70px;
+    top: 50%;
+    transform: translateY(-50%);
     background: #111827;
     color: white;
     padding: 6px 10px;
     border-radius: 6px;
     font-size: 12px;
+    white-space: nowrap;
+    z-index: 1000;
 }
 
 /* RESPONSIVE */
 @media (max-width: 768px) {
     .sidebar {
         width: 70px;
+    }
+
+    .sidebar-item span {
+        display: none;
+    }
+
+    .sidebar-section-title {
+        display: none;
+    }
+
+    .sidebar-item {
+        justify-content: center;
+        position: relative;
     }
 }

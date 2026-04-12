@@ -86,13 +86,4 @@ public class Workspace {
       m.setWorkspace(this);
     }
   }
-
-  public void addBoard(Board b) {
-    if (b == null) return;
-
-    this.boards.add(b);
-    if (b.getWorkspace() != this) {
-      b.setWorkspace(this);
-    }
-  }
 }

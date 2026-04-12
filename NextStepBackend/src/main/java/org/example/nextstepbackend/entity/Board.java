@@ -24,7 +24,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.example.nextstepbackend.entity.embedded.FullAudit;
 import org.example.nextstepbackend.enums.Visibility;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
+@SuppressWarnings("deprecation")
 @Entity
 @Table(
     name = "boards",
@@ -38,6 +41,8 @@ import org.example.nextstepbackend.enums.Visibility;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@SQLDelete(sql = "UPDATE boards SET is_closed = true WHERE id = ?")
+@Where(clause = "is_closed = false")
 public class Board {
 
   @Id
@@ -68,13 +73,13 @@ public class Board {
   @Builder.Default
   private Visibility visibility = Visibility.WORKSPACE;
 
-  @Column(name = "is_closed")
-  @Builder.Default
-  private Boolean isClosed = false;
-
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "created_by", nullable = false)
   private User createdBy;
+
+  @Column(name = "is_closed")
+  @Builder.Default
+  private Boolean isClosed = false;
 
   @Embedded private FullAudit audit;
 
@@ -102,4 +107,14 @@ public class Board {
   @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   @Builder.Default
   private Set<Label> labels = new HashSet<>();
+
+  public void addMember(BoardMember member) {
+    members.add(member);
+    member.setBoard(this);
+  }
+
+  public void addList(ListEntity list) {
+    lists.add(list);
+    list.setBoard(this);
+  }
 }

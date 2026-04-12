@@ -51,7 +51,7 @@ export default function CreateBoardModal({
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // ✅ reset khi mở modal
+  // reset khi mở modal
   useEffect(() => {
     if (open) {
       setForm(initialForm);

@@ -38,7 +38,7 @@ export default function Sidebar() {
         <div className="sidebar-menu">
           {workspaces.map((ws) => (
             <NavLink
-              key={ws.id}
+            key={ws.id}
               to={`/workspace/${ws.slug}/home`}
               data-label={ws.name}
               className={`sidebar-item ${

@@ -1,0 +1,1428 @@
+/* ============================================================
+   CardDetailModal.css  –  Full rewrite matching board design
+   ============================================================ */
+
+/* ── Backdrop ─────────────────────────────────────────────────────────────── */
+.cdm-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.76);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 32px 16px 48px;
+  overflow-y: auto;
+  animation: cdm-fade-in 0.15s ease;
+}
+
+@keyframes cdm-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* ── Modal box ────────────────────────────────────────────────────────────── */
+.cdm-modal {
+  position: relative;
+  width: 100%;
+  max-width: 780px;
+  background: #1d2125;
+  border-radius: 16px;
+  color: #b6c2cf;
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.75);
+  animation: cdm-slide-up 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes cdm-slide-up {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* ── Header ───────────────────────────────────────────────────────────────── */
+.cdm-header {
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  flex-shrink: 0;
+}
+
+.cdm-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+  gap: 4px;
+}
+
+.cdm-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cdm-icon-btn {
+  background: rgba(255, 255, 255, 0.07);
+  border: none;
+  color: #9fadbc;
+  border-radius: 6px;
+  width: 30px;
+  height: 30px;
+  font-size: 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.12s, color 0.12s;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.cdm-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: #dfe4ea;
+}
+
+.cdm-close-btn:hover {
+  background: rgba(220, 38, 38, 0.22);
+  color: #fca5a5;
+}
+
+/* ── Title row ────────────────────────────────────────────────────────────── */
+.cdm-title-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.cdm-complete-btn {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.28);
+  background: transparent;
+  color: transparent;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 5px;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+  padding: 0;
+  line-height: 1;
+}
+
+.cdm-complete-btn:hover {
+  border-color: #4ade80;
+  color: rgba(74, 222, 128, 0.55);
+}
+
+.cdm-complete-btn.is-done {
+  border-color: #4ade80;
+  background: #4ade80;
+  color: #fff;
+}
+
+.cdm-complete-btn.is-saving {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cdm-card-title {
+  flex: 1;
+  font-size: 19px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.35;
+  outline: none;
+  border-radius: 6px;
+  padding: 2px 6px;
+  margin: 0;
+  word-break: break-word;
+  min-height: 30px;
+  cursor: text;
+  transition: background 0.12s;
+}
+
+.cdm-card-title:focus {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.cdm-card-title.is-completed {
+  text-decoration: line-through;
+  color: rgba(255, 255, 255, 0.38);
+}
+
+/* ── Header meta row ──────────────────────────────────────────────────────── */
+.cdm-header-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding-left: 34px;
+  margin-top: 4px;
+}
+
+.cdm-meta-labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.cdm-label {
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  user-select: none;
+  transition: opacity 0.12s;
+}
+
+.cdm-label:hover {
+  opacity: 0.85;
+}
+
+.cdm-label--edit {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 11px;
+}
+
+.cdm-meta-due {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.cdm-due-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #b6c2cf;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.12s;
+  white-space: nowrap;
+}
+
+.cdm-due-badge:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+}
+
+.cdm-due-badge.done {
+  border-color: #4ade80;
+  color: #4ade80;
+}
+
+.cdm-reminder-check {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  color: #9fadbc;
+  cursor: pointer;
+  user-select: none;
+}
+
+.cdm-reminder-check input[type="checkbox"] {
+  accent-color: #579dff;
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+}
+
+/* ── Body ─────────────────────────────────────────────────────────────────── */
+.cdm-body {
+  display: flex;
+  gap: 0;
+  padding: 14px 20px 22px;
+  min-height: 0;
+}
+
+.cdm-left {
+  flex: 1;
+  min-width: 0;
+  padding-right: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.cdm-right {
+  flex-shrink: 0;
+  width: 176px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding-top: 2px;
+}
+
+/* ── Action row ──────────────────────────────────────────────────────────── */
+.cdm-actions-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.cdm-action-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #b6c2cf;
+  border-radius: 6px;
+  padding: 5px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+  white-space: nowrap;
+  font-family: inherit;
+}
+
+.cdm-action-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+
+.cdm-action-btn--add {
+  background: rgba(87, 157, 255, 0.15);
+  border-color: rgba(87, 157, 255, 0.3);
+  color: #579dff;
+  font-weight: 600;
+}
+
+.cdm-action-btn--add:hover {
+  background: rgba(87, 157, 255, 0.25);
+  color: #82b8ff;
+}
+
+.cdm-action-btn--more {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #dfe4ea;
+  font-weight: 600;
+  border-radius: 6px;
+  padding: 5px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+  font-family: inherit;
+}
+
+.cdm-action-btn--more:hover {
+  background: rgba(255, 255, 255, 0.17);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+/* ── Inner overlay modal ──────────────────────────────────────────────────── */
+.cdm-inner-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.55);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: cdm-fade-in 0.1s ease;
+}
+
+.cdm-inner-modal {
+  background: #282e33;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  width: 300px;
+  max-height: 70vh;
+  overflow-y: auto;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.65);
+  display: flex;
+  flex-direction: column;
+  animation: cdm-slide-up 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.cdm-inner-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 14px 11px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #b6c2cf;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+}
+
+.cdm-inner-modal-body {
+  padding: 12px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cdm-field-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.38);
+  margin: 0 0 4px;
+}
+
+.cdm-inner-input {
+  width: 100%;
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1.5px solid rgba(255, 255, 255, 0.14);
+  border-radius: 7px;
+  color: #b6c2cf;
+  font-size: 13px;
+  padding: 8px 10px;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+
+.cdm-inner-input:focus {
+  border-color: rgba(87, 157, 255, 0.55);
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+/* ── Sections ─────────────────────────────────────────────────────────────── */
+.cdm-section {
+  margin-bottom: 18px;
+}
+
+.cdm-section-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.38);
+  margin: 0 0 8px;
+}
+
+/* ── Description ──────────────────────────────────────────────────────────── */
+.cdm-description {
+  width: 100%;
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #b6c2cf;
+  font-size: 13.5px;
+  padding: 10px 12px;
+  outline: none;
+  resize: vertical;
+  font-family: inherit;
+  line-height: 1.55;
+  min-height: 72px;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.cdm-description:focus {
+  border-color: rgba(87, 157, 255, 0.55);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.cdm-description::placeholder {
+  color: rgba(255, 255, 255, 0.22);
+}
+
+/* ── Checklist ────────────────────────────────────────────────────────────── */
+.cdm-checklist {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 9px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+}
+
+.cdm-checklist-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.cdm-checklist-title {
+  font-weight: 700;
+  font-size: 14px;
+  color: #dfe4ea;
+}
+
+.cdm-checklist-pct {
+  font-size: 12px;
+  font-weight: 600;
+  color: #579dff;
+}
+
+.cdm-progress-bar {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 99px;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+
+.cdm-progress-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.35s ease, background 0.35s ease;
+}
+
+.cdm-checklist-items {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cdm-checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 13.5px;
+  padding: 5px 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.1s;
+  position: relative;
+}
+
+.cdm-checklist-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.cdm-checklist-item input[type="checkbox"] {
+  accent-color: #579dff;
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.cdm-checklist-item span.done {
+  text-decoration: line-through;
+  color: rgba(255, 255, 255, 0.32);
+}
+
+.cdm-checklist-item-delete {
+  margin-left: auto;
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.25);
+  font-size: 12px;
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.12s, background 0.12s, color 0.12s;
+  padding: 0;
+  line-height: 1;
+}
+
+.cdm-checklist-item:hover .cdm-checklist-item-delete {
+  opacity: 1;
+}
+
+.cdm-checklist-item-delete:hover {
+  background: rgba(248, 113, 104, 0.18);
+  color: #f87168;
+}
+
+.cdm-drag-handle {
+  color: rgba(255, 255, 255, 0.2);
+  font-size: 14px;
+  cursor: grab;
+  user-select: none;
+  padding: 0 2px;
+  flex-shrink: 0;
+  transition: color 0.12s;
+  line-height: 1;
+}
+
+.cdm-drag-handle:active {
+  cursor: grabbing;
+}
+
+.cdm-checklist-item:hover .cdm-drag-handle {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.cdm-add-inline-btn {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px dashed rgba(255, 255, 255, 0.15);
+  border-radius: 7px;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 13px;
+  padding: 7px 12px;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+
+.cdm-add-inline-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.75);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+/* ── Attachments ──────────────────────────────────────────────────────────── */
+.cdm-attachments {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cdm-attachment {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 8px;
+  padding: 8px 12px;
+  transition: border-color 0.12s;
+}
+
+.cdm-attachment:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.cdm-attachment-thumb {
+  width: 50px;
+  height: 38px;
+  border-radius: 5px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cdm-attachment-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cdm-attachment-icon {
+  font-size: 20px;
+}
+
+.cdm-attachment-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cdm-attachment-name {
+  color: #579dff;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cdm-attachment-name:hover {
+  text-decoration: underline;
+}
+
+.cdm-attachment-date {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.32);
+}
+
+.cdm-cover-badge {
+  display: inline-block;
+  background: rgba(87, 157, 255, 0.2);
+  color: #579dff;
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* ── Dropzone ─────────────────────────────────────────────────────────────── */
+.cdm-dropzone {
+  border: 2px dashed rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  padding: 28px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.45);
+  text-align: center;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+
+.cdm-dropzone:hover,
+.cdm-dropzone.dragging {
+  border-color: #579dff;
+  background: rgba(87, 157, 255, 0.07);
+  color: #579dff;
+}
+
+.cdm-dropzone-icon {
+  font-size: 26px;
+}
+
+/* ── Add menu items ───────────────────────────────────────────────────────── */
+.cdm-add-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  background: transparent;
+  border: none;
+  color: #b6c2cf;
+  font-size: 13px;
+  cursor: pointer;
+  border-radius: 8px;
+  text-align: left;
+  font-family: inherit;
+  transition: background 0.12s, color 0.12s;
+}
+
+.cdm-add-menu-item:hover {
+  background: rgba(255, 255, 255, 0.09);
+  color: #fff;
+}
+
+/* ── Comments ─────────────────────────────────────────────────────────────── */
+.cdm-comment-input-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+
+.cdm-comment-input-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cdm-comment-input {
+  width: 100%;
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  color: #b6c2cf;
+  font-size: 13px;
+  padding: 8px 11px;
+  outline: none;
+  resize: none;
+  font-family: inherit;
+  line-height: 1.45;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.cdm-comment-input:focus {
+  border-color: rgba(87, 157, 255, 0.55);
+  background: rgba(255, 255, 255, 0.09);
+  color: #fff;
+}
+
+.cdm-comment-input::placeholder {
+  color: rgba(255, 255, 255, 0.22);
+}
+
+.cdm-comment-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.cdm-comment-submit {
+  background: #579dff;
+  border: none;
+  color: #fff;
+  border-radius: 5px;
+  padding: 5px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.12s, opacity 0.12s;
+  font-family: inherit;
+}
+
+.cdm-comment-submit:hover:not(:disabled) {
+  background: #4a8de8;
+}
+
+.cdm-comment-submit:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.cdm-comment-cancel {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.42);
+  border-radius: 5px;
+  padding: 5px 8px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+  font-family: inherit;
+}
+
+.cdm-comment-cancel:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: #fff;
+}
+
+.cdm-comment-bubble {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 8px;
+  padding: 8px 11px;
+  margin-bottom: 4px;
+}
+
+.cdm-comment-text {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: #b6c2cf;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+/* ── Activity ─────────────────────────────────────────────────────────────── */
+.cdm-activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cdm-activity-item {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.cdm-activity-content {
+  flex: 1;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.cdm-activity-author {
+  font-weight: 700;
+  color: #b6c2cf;
+}
+
+.cdm-activity-text {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.cdm-activity-time {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.3);
+  margin-top: 3px;
+  display: block;
+}
+
+/* ── Avatar ───────────────────────────────────────────────────────────────── */
+.cdm-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+  user-select: none;
+  overflow: hidden;
+}
+
+.cdm-avatar--sm {
+  width: 26px;
+  height: 26px;
+  font-size: 10px;
+}
+
+/* ── Right sidebar ────────────────────────────────────────────────────────── */
+.cdm-sidebar-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.32);
+  margin: 0 0 2px;
+}
+
+.cdm-sidebar-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #b6c2cf;
+  border-radius: 6px;
+  padding: 7px 11px;
+  font-size: 13px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.12s, color 0.12s, opacity 0.12s;
+  font-family: inherit;
+}
+
+.cdm-sidebar-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.13);
+  color: #fff;
+}
+
+.cdm-sidebar-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cdm-sidebar-btn--danger {
+  color: #f87168;
+}
+
+.cdm-sidebar-btn--danger:hover:not(:disabled) {
+  background: rgba(248, 113, 104, 0.14);
+  color: #fca5a5;
+}
+
+.cdm-sidebar-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.07);
+  margin: 4px 0;
+}
+
+/* ── Date picker ──────────────────────────────────────────────────────────── */
+.cdm-datepicker-input {
+  width: 100%;
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1.5px solid rgba(87, 157, 255, 0.45);
+  border-radius: 7px;
+  color: #b6c2cf;
+  font-size: 13px;
+  padding: 8px 10px;
+  outline: none;
+  font-family: inherit;
+  color-scheme: dark;
+  transition: border-color 0.15s;
+}
+
+.cdm-datepicker-input:focus {
+  border-color: #579dff;
+  color: #fff;
+}
+
+.cdm-datepicker-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
+.cdm-datepicker-clear {
+  background: rgba(248, 113, 104, 0.14);
+  border: 1px solid rgba(248, 113, 104, 0.3);
+  color: #f87168;
+  border-radius: 5px;
+  padding: 5px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.12s;
+}
+
+.cdm-datepicker-clear:hover {
+  background: rgba(248, 113, 104, 0.25);
+}
+
+.cdm-datepicker-confirm {
+  background: #579dff;
+  border: none;
+  color: #fff;
+  border-radius: 5px;
+  padding: 5px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.12s;
+}
+
+.cdm-datepicker-confirm:hover {
+  background: #4a8de8;
+}
+
+/* ── Label option ─────────────────────────────────────────────────────────── */
+.cdm-label-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  cursor: pointer;
+  padding: 3px 0;
+}
+
+.cdm-label-color-pill {
+  flex: 1;
+  padding: 5px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  display: block;
+  transition: opacity 0.12s;
+}
+
+.cdm-label-option:hover .cdm-label-color-pill {
+  opacity: 0.85;
+}
+
+.cdm-label-checkbox {
+  accent-color: #579dff;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.cdm-empty-hint {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.35);
+  text-align: center;
+  margin: 8px 0;
+}
+
+/* ── Loading skeleton ─────────────────────────────────────────────────────── */
+@keyframes shimmer {
+  0% {
+    background-position: -600px 0;
+  }
+
+  100% {
+    background-position: 600px 0;
+  }
+}
+
+.cdm-skeleton {
+  border-radius: 7px;
+  background: linear-gradient(90deg,
+      rgba(255, 255, 255, 0.05) 25%,
+      rgba(255, 255, 255, 0.11) 50%,
+      rgba(255, 255, 255, 0.05) 75%);
+  background-size: 600px 100%;
+  animation: shimmer 1.4s infinite linear;
+}
+
+/* ── Load more ────────────────────────────────────────────────────────────── */
+.cdm-load-more {
+  width: 100%;
+  padding: 8px 12px;
+  margin-top: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  border: none;
+  border-radius: 6px;
+  color: #9fadbc;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cdm-load-more:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+.cdm-load-more:active {
+  transform: scale(0.98);
+}
+
+.cdm-load-more:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Archive card modal ───────────────────────────────────────────────────── */
+.archive-card-modal {
+  background: #ffffff;
+  padding: 20px 24px;
+  border-radius: 10px;
+  width: 360px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  font-family: system-ui, sans-serif;
+  animation: fadeInScale 0.2s ease;
+}
+
+.archive-card-modal h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #172b4d;
+}
+
+.archive-card-modal p {
+  margin: 8px 0 0;
+  font-size: 14px;
+  color: #5e6c84;
+}
+
+.archive-card-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.cdm-btn {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: none;
+  background: #f1f2f4;
+  color: #172b4d;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.cdm-btn:hover {
+  background: #dcdfe4;
+}
+
+.cdm-btn--danger {
+  background: #c9372c;
+  color: white;
+}
+
+.cdm-btn--danger:hover {
+  background: #a62a21;
+}
+
+.archive-card-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(9, 30, 66, 0.54);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ── Responsive ───────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .cdm-backdrop {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .cdm-modal {
+    max-width: 100%;
+    border-radius: 16px 16px 0 0;
+    max-height: 92dvh;
+    overflow-y: auto;
+  }
+
+  .cdm-body {
+    flex-direction: column;
+    padding: 12px 14px 20px;
+  }
+
+  .cdm-left {
+    padding-right: 0;
+  }
+
+  .cdm-right {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .cdm-sidebar-btn {
+    flex: 1;
+    min-width: 120px;
+  }
+
+  .cdm-sidebar-label {
+    width: 100%;
+  }
+}
+
+/* ============================================================
+   MEMBER STYLES (NEW)
+   ============================================================ */
+
+/* ── Member avatar stack (inline display on card) ─────────────────────────── */
+.cdm-member-stack {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  cursor: pointer;
+  padding: 2px 4px 2px 0;
+  border-radius: 6px;
+  transition: background 0.12s;
+}
+
+.cdm-member-stack:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.cdm-member-stack-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid #1d2125;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: #fff;
+  overflow: hidden;
+  flex-shrink: 0;
+  margin-left: -6px;
+  transition: transform 0.15s;
+  user-select: none;
+}
+
+.cdm-member-stack-avatar:first-child {
+  margin-left: 0;
+}
+
+.cdm-member-stack:hover .cdm-member-stack-avatar {
+  transform: translateY(-1px);
+}
+
+.cdm-member-stack-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cdm-member-stack-rest {
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: #9fadbc;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.cdm-member-stack-edit {
+  margin-left: 6px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.3);
+  transition: color 0.12s;
+}
+
+.cdm-member-stack:hover .cdm-member-stack-edit {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* ── Member option row (inside modal list) ────────────────────────────────── */
+.cdm-member-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 8px;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: background 0.12s;
+  user-select: none;
+}
+
+.cdm-member-option:hover {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.cdm-member-option--active {
+  background: rgba(87, 157, 255, 0.1);
+  border: 1px solid rgba(87, 157, 255, 0.2);
+}
+
+.cdm-member-option--active:hover {
+  background: rgba(87, 157, 255, 0.15);
+}
+
+/* Already assigned row (top section) */
+.cdm-member-option--assigned {
+  background: rgba(74, 222, 128, 0.06);
+  border: 1px solid rgba(74, 222, 128, 0.15);
+  cursor: default;
+}
+
+.cdm-member-option--assigned:hover {
+  background: rgba(74, 222, 128, 0.1);
+}
+
+/* ── Member avatar (inside modal) ────────────────────────────────────────── */
+.cdm-member-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+  overflow: hidden;
+  user-select: none;
+}
+
+.cdm-member-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ── Member name & role ───────────────────────────────────────────────────── */
+.cdm-member-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #dfe4ea;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cdm-member-role {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.35);
+  display: block;
+  text-transform: capitalize;
+  margin-top: 1px;
+}
+
+/* ── Check icon when assigned ─────────────────────────────────────────────── */
+.cdm-member-check {
+  margin-left: auto;
+  flex-shrink: 0;
+  width: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cdm-member-check-icon {
+  font-size: 13px;
+  font-weight: 700;
+  color: #579dff;
+}
+
+/* ── Remove button (assigned section) ────────────────────────────────────── */
+.cdm-member-remove-btn {
+  margin-left: auto;
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.25);
+  font-size: 11px;
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.12s, color 0.12s;
+  padding: 0;
+  line-height: 1;
+}
+
+.cdm-member-remove-btn:hover {
+  background: rgba(248, 113, 104, 0.18);
+  color: #f87168;
+}
+
+.cdm-member-remove-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Spinner while toggling ───────────────────────────────────────────────── */
+.cdm-member-spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(87, 157, 255, 0.3);
+  border-top-color: #579dff;
+  border-radius: 50%;
+  animation: cdm-spin 0.6s linear infinite;
+}
+
+@keyframes cdm-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── Member skeleton loader ───────────────────────────────────────────────── */
+.cdm-member-skeleton {
+  height: 46px;
+  border-radius: 7px;
+  background: linear-gradient(90deg,
+      rgba(255, 255, 255, 0.04) 25%,
+      rgba(255, 255, 255, 0.09) 50%,
+      rgba(255, 255, 255, 0.04) 75%);
+  background-size: 300px 100%;
+  animation: shimmer 1.2s infinite linear;
+}

@@ -47,6 +47,9 @@ public class Attachment {
   @Column(name = "file_size")
   private Long fileSize;
 
+  @Column(name = "public_id")
+  private String publicId;
+
   @Column(name = "mime_type", length = 100)
   private String mimeType;
 

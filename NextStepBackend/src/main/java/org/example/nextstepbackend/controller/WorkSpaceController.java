@@ -59,24 +59,15 @@ public class WorkSpaceController extends BaseController {
   /** Api to update workspace info by slug for user */
   @PatchMapping("/me/{slug}")
   public ResponseEntity<ApiResponse<Void>> updateWorkSpace(
-      @PathVariable("slug") String slug,
-      @Valid @RequestBody WorkSpaceUpdateRequest request,
-      @AuthenticationPrincipal UserDetails userDetails) {
-    if (userDetails == null) {
-      throw new InvalidInputException("Unauthenticated");
-    }
-    workSpaceService.updateWorkspace(slug, userDetails.getUsername(), request);
+      @PathVariable("slug") String slug, @Valid @RequestBody WorkSpaceUpdateRequest request) {
+    workSpaceService.updateWorkspace(slug, request);
     return ResponseEntity.ok(success(MessageConst.WORK_SPACE_UPDATE_SUCCESS, null));
   }
 
   /** Api to delete workspace by slug for user */
   @DeleteMapping("/me/{slug}")
-  public ResponseEntity<ApiResponse<Void>> deleteWorkSpace(
-      @PathVariable("slug") String slug, @AuthenticationPrincipal UserDetails userDetails) {
-    if (userDetails == null) {
-      throw new InvalidInputException("Unauthenticated");
-    }
-    workSpaceService.deleteWorkspace(slug, userDetails.getUsername());
+  public ResponseEntity<ApiResponse<Void>> deleteWorkSpace(@PathVariable("slug") String slug) {
+    workSpaceService.deleteWorkspace(slug);
     return ResponseEntity.ok(success(MessageConst.WORK_SPACE_DELETE_SUCCESS, null));
   }
 

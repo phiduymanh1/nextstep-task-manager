@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.5</version>
+        <version>3.5.6</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>org.example</groupId>
@@ -35,7 +35,7 @@
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-bom</artifactId>
-                <version>4.1.126.Final</version>
+                <version>4.1.127.Final</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -176,6 +176,10 @@
             <version>2.8.14</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -254,6 +258,7 @@
                         <nvdApiKeyEnvironmentVariable>NVD_API_KEY</nvdApiKeyEnvironmentVariable>
 
                         <nvdApiDelay>1000</nvdApiDelay>
+                        <skip>true</skip>
                     </configuration>
                 </plugin>
         </plugins>

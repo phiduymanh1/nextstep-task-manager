@@ -6,6 +6,7 @@ import { Toaster } from 'react-hot-toast';
 import ProfilePage from './pages/profile/ProfilePage';
 import DashboardLayout from './pages/dashboard/DashboardLayout';
 import WorkspaceHome from './pages/workspace/WorkspaceHome';
+import BoardDetail from './pages/board/BoardDetail';
 
 function App() {
   return (
@@ -30,6 +31,10 @@ function App() {
         <Route path="/" element={<DashboardLayout />}>
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="workspace/:slug/home" element={<WorkspaceHome />} />
+          <Route
+            path="workspace/:slug/board/:boardSlug"
+            element={<BoardDetail />}
+          />
         </Route>
       </Routes>
     </>

@@ -21,12 +21,15 @@ import org.example.nextstepbackend.mappers.BoardMapper;
 import org.example.nextstepbackend.mappers.WorkSpaceMapper;
 import org.example.nextstepbackend.repository.BoardRepository;
 import org.example.nextstepbackend.repository.WorkSpaceRepository;
+import org.example.nextstepbackend.repository.WorkspaceMemberRepository;
 import org.example.nextstepbackend.services.auth.AuthService;
+import org.example.nextstepbackend.services.list.PermissionService;
 import org.example.nextstepbackend.utils.SlugUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,6 +42,8 @@ public class WorkSpaceService {
   private final WorkSpaceRepository workSpaceRepository;
   private final BoardRepository boardRepository;
   private final BoardMapper boardMapper;
+  private final PermissionService permissionService;
+  private final WorkspaceMemberRepository workspaceMemberRepository;
 
   /** Create a new workspace */
   @Transactional
@@ -72,15 +77,18 @@ public class WorkSpaceService {
 
   /** Get current user's workspace info */
   public List<WorkspaceResponse> getWorkspaceMe(String email) {
-    List<Workspace> workspaces = workSpaceRepository.findByCreatedBy_Email(email);
+    List<Workspace> workspaces = workSpaceRepository.findWorkspacesByUserEmail(email);
 
     return workSpaceMapper.toWorkspaceResponseList(workspaces);
   }
 
   /** Update workspace info by slug or current user */
-  public void updateWorkspace(String slug, String email, WorkSpaceUpdateRequest request) {
+  public void updateWorkspace(String slug, WorkSpaceUpdateRequest request) {
     // Find workspace by slug and current user's email
-    Workspace workspace = getWorkspaceBySlugAndCurrentUser(slug, email);
+    Workspace workspace = getWorkspaceBySlugAndCurrentUser(slug);
+
+    WorkspaceMember member = getWorkspaceMember(workspace.getId(), authService.getCurrentUserId());
+    permissionService.checkCanUpdateWorkspace(member.getRole());
 
     if (request.name() != null) {
       workspace.setName(request.name());
@@ -99,15 +107,17 @@ public class WorkSpaceService {
   }
 
   /** Delete workspace by slug and current user's email */
-  public void deleteWorkspace(String slug, String email) {
-    Workspace workspace = getWorkspaceBySlugAndCurrentUser(slug, email);
+  public void deleteWorkspace(String slug) {
+    Workspace workspace = getWorkspaceBySlugAndCurrentUser(slug);
+    WorkspaceMember member = getWorkspaceMember(workspace.getId(), authService.getCurrentUserId());
+    permissionService.checkCanDeleteWorkspace(member.getRole());
     workSpaceRepository.delete(workspace);
   }
 
   /** get workspace by slug and current user's email */
-  public Workspace getWorkspaceBySlugAndCurrentUser(String slug, String email) {
+  public Workspace getWorkspaceBySlugAndCurrentUser(String slug) {
     return workSpaceRepository
-        .findBySlugAndCreatedBy_Email(slug, email)
+        .findWsBySlug(slug)
         .orElseThrow(() -> new ResourceNotFoundException("Workspace not found"));
   }
 
@@ -115,14 +125,16 @@ public class WorkSpaceService {
   public WorkspaceDetailResponse getWorkspaceDetail(String slug, String email, int page, int size) {
     size = Math.min(size, 50);
 
+    List<WorkspaceRole> roles =
+        List.of(WorkspaceRole.OWNER, WorkspaceRole.ADMIN, WorkspaceRole.MEMBER);
     Workspace workspace =
         workSpaceRepository
-            .findBySlugAndCreatedBy_Email(slug, email)
+            .findWorkspaceAccessible(slug, email, roles)
             .orElseThrow(() -> new ResourceNotFoundException("Workspace not found"));
 
     Pageable pageable = PageRequest.of(page, size, Sort.by("audit.createdAt").descending());
 
-    Page<Board> boardPage = boardRepository.findByWorkspaceSlug(slug, pageable);
+    Page<Board> boardPage = boardRepository.findByWorkspaceSlug(slug, email, pageable);
 
     PageResponse<BoardResponse> boards = toPageResponse(boardPage.map(boardMapper::toResponse));
 
@@ -142,5 +154,11 @@ public class WorkSpaceService {
         page.getSize(),
         page.getTotalElements(),
         page.getTotalPages());
+  }
+
+  private WorkspaceMember getWorkspaceMember(Integer workspaceId, Integer userId) {
+    return workspaceMemberRepository
+        .findByWorkspace_IdAndUser_Id(workspaceId, userId)
+        .orElseThrow(() -> new AccessDeniedException("You are not in this workspace"));
   }
 }
