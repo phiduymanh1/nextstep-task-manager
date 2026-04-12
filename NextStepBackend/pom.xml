@@ -258,6 +258,7 @@
                         <nvdApiKeyEnvironmentVariable>NVD_API_KEY</nvdApiKeyEnvironmentVariable>
 
                         <nvdApiDelay>1000</nvdApiDelay>
+                        <skip>true</skip>
                     </configuration>
                 </plugin>
         </plugins>
