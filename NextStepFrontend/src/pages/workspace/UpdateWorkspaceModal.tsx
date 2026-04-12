@@ -3,7 +3,6 @@ import type { Visibility } from '@/types/workspace.type';
 import '@/assets/styles/CreateWorkspace.css';
 import { workspaceSchema } from '@/schema/workspace.schema';
 import { ZodError } from 'zod';
-import toast from 'react-hot-toast';
 
 type Props = {
   open: boolean;
