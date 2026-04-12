@@ -4,10 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.example.nextstepbackend.comm.constants.Const;
 import org.example.nextstepbackend.entity.BoardMember;
 import org.example.nextstepbackend.entity.WorkspaceMember;
+import org.example.nextstepbackend.exceptions.InvalidInputException;
+import org.example.nextstepbackend.exceptions.NotPermissionException;
 import org.example.nextstepbackend.repository.BoardMemberRepository;
 import org.example.nextstepbackend.repository.WorkspaceMemberRepository;
 import org.example.nextstepbackend.services.list.PermissionService;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,19 +37,19 @@ public class RoleBoardService {
       case Const.CREATE_MODE ->
           permissionService.checkCanUpdateWorkspace(workspaceMember.getRole());
 
-      default -> throw new IllegalArgumentException("Invalid mode: " + mode);
+      default -> throw new InvalidInputException("Invalid mode: " + mode);
     }
   }
 
   private BoardMember getBoardMember(String slug, Integer userId) {
     return boardMemberRepository
         .findByBoard_SlugAndUser_Id(slug, userId)
-        .orElseThrow(() -> new AccessDeniedException("You are not in this board"));
+        .orElseThrow(() -> new NotPermissionException("You are not in this board"));
   }
 
   public WorkspaceMember getWorkspaceMember(Integer workspaceId, Integer userId) {
     return workspaceMemberRepository
         .findByWorkspace_IdAndUser_Id(workspaceId, userId)
-        .orElseThrow(() -> new AccessDeniedException("You are not in this workspace"));
+        .orElseThrow(() -> new NotPermissionException("You are not in this workspace"));
   }
 }

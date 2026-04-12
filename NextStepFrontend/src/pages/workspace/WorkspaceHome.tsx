@@ -8,19 +8,20 @@ import type {
 } from '@/types/workspace.type';
 
 import { useCallback, useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom'; // 👈 THÊM
+import { useParams, useNavigate } from 'react-router-dom';
 
 import '@/assets/styles/WorkspaceHome.css';
 
 import UpdateWorkspaceModal from './UpdateWorkspaceModal';
 import CreateBoardModal from '../board/CreateBoardModal';
 import type { BoardResponse } from '@/types/board.type';
+import WorkspaceMembersModal from '@/pages/workspace/Workspacemembersmodal';
 
 const PAGE_SIZE = 5;
 
 export default function WorkspaceHome() {
   const { slug } = useParams();
-  const navigate = useNavigate(); // 👈 THÊM
+  const navigate = useNavigate();
 
   const [data, setData] = useState<WorkspaceDetailResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -31,6 +32,7 @@ export default function WorkspaceHome() {
 
   const [openEdit, setOpenEdit] = useState(false);
   const [openCreateBoard, setOpenCreateBoard] = useState(false);
+  const [openMembers, setOpenMembers] = useState(false);
 
   const fetchBoards = useCallback(
     async (pageNumber: number) => {
@@ -120,6 +122,11 @@ export default function WorkspaceHome() {
             {getVisibilityInfo(data.visibility).label}
           </div>
         </div>
+
+        {/* Members button */}
+        <button className="members-button" onClick={() => setOpenMembers(true)}>
+          👥 Thành viên
+        </button>
       </div>
 
       {/* Boards */}
@@ -142,10 +149,10 @@ export default function WorkspaceHome() {
               <div
                 key={board.id}
                 className="board-card"
-                onClick={
-                  () => navigate(`/workspace/${slug}/board/${board.slug}`) // 👈 THÊM
+                onClick={() =>
+                  navigate(`/workspace/${slug}/board/${board.slug}`)
                 }
-                style={{ cursor: 'pointer' }} // 👈 OPTIONAL
+                style={{ cursor: 'pointer' }}
               >
                 <div
                   className="board-bg"
@@ -211,6 +218,12 @@ export default function WorkspaceHome() {
           setPage(0);
           await fetchBoards(0);
         }}
+      />
+
+      <WorkspaceMembersModal
+        open={openMembers}
+        onClose={() => setOpenMembers(false)}
+        workspaceSlug={slug!}
       />
     </div>
   );

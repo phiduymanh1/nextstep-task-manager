@@ -188,8 +188,6 @@ export default function BoardDetail() {
             errors.forEach((err) => toast.error(err));
             return;
           }
-
-          toast.error(meta?.message || 'Lỗi hệ thống');
         } else {
           toast.error('Unexpected error');
         }
@@ -343,9 +341,10 @@ export default function BoardDetail() {
         const newIdx = prev.findIndex((c) => c.id === overId);
         if (oldIdx === -1 || newIdx === -1) return prev;
         const reordered = arrayMove(prev, oldIdx, newIdx);
-        const beforeId =
-          newIdx > 0 ? parseInt(reordered[newIdx - 1].id, 10) : null;
         const afterId =
+          newIdx > 0 ? parseInt(reordered[newIdx - 1].id, 10) : null;
+
+        const beforeId =
           newIdx < reordered.length - 1
             ? parseInt(reordered[newIdx + 1].id, 10)
             : null;
@@ -375,9 +374,10 @@ export default function BoardDetail() {
         if (oldIdx === -1 || newIdx === -1) return prev;
 
         const reordered = arrayMove(col.cards, oldIdx, newIdx);
-        const beforeId =
-          newIdx > 0 ? parseInt(reordered[newIdx - 1].id, 10) : null;
         const afterId =
+          newIdx > 0 ? parseInt(reordered[newIdx - 1].id, 10) : null;
+
+        const beforeId =
           newIdx < reordered.length - 1
             ? parseInt(reordered[newIdx + 1].id, 10)
             : null;
@@ -505,7 +505,7 @@ export default function BoardDetail() {
         {showShareModal && boardSlug && (
           <ShareBoardModal
             boardSlug={boardSlug}
-          workspaceSlug={slug!}
+            workspaceSlug={slug!}
             onClose={() => setShowShareModal(false)}
           />
         )}

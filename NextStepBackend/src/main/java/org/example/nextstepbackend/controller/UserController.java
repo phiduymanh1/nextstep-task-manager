@@ -1,7 +1,9 @@
 package org.example.nextstepbackend.controller;
 
 import jakarta.validation.Valid;
+import java.util.List;
 import org.example.nextstepbackend.controller.base.BaseController;
+import org.example.nextstepbackend.dto.request.UserSearchResponse;
 import org.example.nextstepbackend.dto.request.UserUpdateRequest;
 import org.example.nextstepbackend.dto.response.common.ApiResponse;
 import org.example.nextstepbackend.dto.response.user.UserResponse;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -67,5 +70,11 @@ public class UserController extends BaseController {
 
     userService.updateAvatar(file);
     return ResponseEntity.ok(success(MessageConst.USER_AVATAR_UPDATE_SUCCESS, null));
+  }
+
+  @GetMapping("/search")
+  public ResponseEntity<ApiResponse<List<UserSearchResponse>>> searchUser(
+      @RequestParam String keyword, @RequestParam String workspaceSlug) {
+    return ResponseEntity.ok(success(null, userService.searchUser(keyword, workspaceSlug)));
   }
 }

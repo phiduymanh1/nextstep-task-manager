@@ -243,7 +243,7 @@ export default function ShareBoardModal({
                     <span className="sbm-member-name">{m.fullName}</span>
                     <span className="sbm-member-sub">
                       {m.username} ·{' '}
-                      {m.workspaceRole ?? 'Khách Không gian làm việc'}
+                      {m.role ?? 'Khách Không gian làm việc'}
                     </span>
                   </div>
 

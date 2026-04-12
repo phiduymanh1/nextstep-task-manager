@@ -83,9 +83,9 @@ public class WorkSpaceService {
   }
 
   /** Update workspace info by slug or current user */
-  public void updateWorkspace(String slug, String email, WorkSpaceUpdateRequest request) {
+  public void updateWorkspace(String slug, WorkSpaceUpdateRequest request) {
     // Find workspace by slug and current user's email
-    Workspace workspace = getWorkspaceBySlugAndCurrentUser(slug, email);
+    Workspace workspace = getWorkspaceBySlugAndCurrentUser(slug);
 
     WorkspaceMember member = getWorkspaceMember(workspace.getId(), authService.getCurrentUserId());
     permissionService.checkCanUpdateWorkspace(member.getRole());
@@ -107,17 +107,17 @@ public class WorkSpaceService {
   }
 
   /** Delete workspace by slug and current user's email */
-  public void deleteWorkspace(String slug, String email) {
-    Workspace workspace = getWorkspaceBySlugAndCurrentUser(slug, email);
+  public void deleteWorkspace(String slug) {
+    Workspace workspace = getWorkspaceBySlugAndCurrentUser(slug);
     WorkspaceMember member = getWorkspaceMember(workspace.getId(), authService.getCurrentUserId());
     permissionService.checkCanDeleteWorkspace(member.getRole());
     workSpaceRepository.delete(workspace);
   }
 
   /** get workspace by slug and current user's email */
-  public Workspace getWorkspaceBySlugAndCurrentUser(String slug, String email) {
+  public Workspace getWorkspaceBySlugAndCurrentUser(String slug) {
     return workSpaceRepository
-        .findBySlugAndCreatedBy_Email(slug, email)
+        .findWsBySlug(slug)
         .orElseThrow(() -> new ResourceNotFoundException("Workspace not found"));
   }
 
@@ -125,14 +125,16 @@ public class WorkSpaceService {
   public WorkspaceDetailResponse getWorkspaceDetail(String slug, String email, int page, int size) {
     size = Math.min(size, 50);
 
+    List<WorkspaceRole> roles =
+        List.of(WorkspaceRole.OWNER, WorkspaceRole.ADMIN, WorkspaceRole.MEMBER);
     Workspace workspace =
         workSpaceRepository
-            .findWorkspaceDetail(slug, email)
+            .findWorkspaceAccessible(slug, email, roles)
             .orElseThrow(() -> new ResourceNotFoundException("Workspace not found"));
 
     Pageable pageable = PageRequest.of(page, size, Sort.by("audit.createdAt").descending());
 
-    Page<Board> boardPage = boardRepository.findByWorkspaceSlug(slug, pageable);
+    Page<Board> boardPage = boardRepository.findByWorkspaceSlug(slug, email, pageable);
 
     PageResponse<BoardResponse> boards = toPageResponse(boardPage.map(boardMapper::toResponse));
 

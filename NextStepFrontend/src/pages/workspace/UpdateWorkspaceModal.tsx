@@ -65,9 +65,7 @@ export default function UpdateWorkspaceModal({
       onClose();
     } catch (err) {
       if (err instanceof ZodError) {
-        setError(err.issues[0].message); // giống create
-      } else {
-        toast.error('Update failed');
+        setError(err.issues[0].message);
       }
     } finally {
       setLoading(false);

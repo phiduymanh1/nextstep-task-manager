@@ -1,6 +1,8 @@
 package org.example.nextstepbackend.services.user;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.example.nextstepbackend.dto.request.UserSearchResponse;
 import org.example.nextstepbackend.dto.request.UserUpdateRequest;
 import org.example.nextstepbackend.dto.response.cloud.UploadResult;
 import org.example.nextstepbackend.dto.response.user.UserResponse;
@@ -93,5 +95,9 @@ public class UserService {
     user.setAvatarPublicId(uploadResult.publicId());
 
     userRepository.save(user);
+  }
+
+  public List<UserSearchResponse> searchUser(String keyword, String workspaceSlug) {
+    return userRepository.searchUser(keyword, workspaceSlug);
   }
 }

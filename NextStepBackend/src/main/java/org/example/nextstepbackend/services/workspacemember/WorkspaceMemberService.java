@@ -44,7 +44,7 @@ public class WorkspaceMemberService {
   }
 
   @Transactional
-  public void addMember(String slug, Integer userId) {
+  public void addMember(String slug, Integer userId, WorkspaceRole role) {
     Workspace workspace = getWorkspaceOrThrow(slug);
     User user = getUserOrThrow(userId);
 
@@ -55,12 +55,10 @@ public class WorkspaceMemberService {
       throw new IllegalStateException("User already in workspace");
     }
 
+    WorkspaceRole finalRole = (role != null) ? role : WorkspaceRole.MEMBER;
+
     WorkspaceMember wm =
-        WorkspaceMember.builder()
-            .workspace(workspace)
-            .user(user)
-            .role(WorkspaceRole.MEMBER)
-            .build();
+        WorkspaceMember.builder().workspace(workspace).user(user).role(finalRole).build();
 
     workspaceMemberRepository.save(wm);
   }
@@ -103,5 +101,34 @@ public class WorkspaceMemberService {
 
   private WorkspaceMember getCurrentMemberOrThrow(Workspace workspace) {
     return getWorkspaceMember(workspace.getId(), authService.getCurrentUserId());
+  }
+
+  @Transactional
+  public void updateMemberRole(String slug, Integer userId, WorkspaceRole role) {
+    Workspace workspace = getWorkspaceOrThrow(slug);
+    User user = getUserOrThrow(userId);
+
+    WorkspaceMember currentMember = getCurrentMemberOrThrow(workspace);
+    WorkspaceMember targetMember =
+        workspaceMemberRepository
+            .findByWorkspaceAndUser(workspace, user)
+            .orElseThrow(() -> new ResourceNotFoundException("Member not found"));
+
+    if (currentMember.getUser().getId().equals(userId)) {
+      throw new IllegalStateException("Cannot change your own role");
+    }
+
+    permissionService.checkCanUpdateWorkspace(currentMember.getRole());
+
+    if (role == WorkspaceRole.ADMIN && currentMember.getRole() != WorkspaceRole.OWNER) {
+      throw new IllegalStateException("Only OWNER can assign ADMIN role");
+    }
+
+    if (targetMember.getRole() == WorkspaceRole.OWNER) {
+      throw new IllegalStateException("Cannot change OWNER role");
+    }
+
+    targetMember.setRole(role);
+    workspaceMemberRepository.save(targetMember);
   }
 }

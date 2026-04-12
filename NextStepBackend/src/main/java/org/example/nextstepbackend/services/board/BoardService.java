@@ -128,7 +128,7 @@ public class BoardService {
 
     Board board =
         boardRepository
-            .findBoardBySlugAndMember(boardSlug, email)
+            .findBoardAccessible(boardSlug, email)
             .orElseThrow(() -> new ResourceNotFoundException(BOARD_FOUND));
 
     Pageable pageable = PageRequest.of(page, size, Sort.by("position").ascending());
