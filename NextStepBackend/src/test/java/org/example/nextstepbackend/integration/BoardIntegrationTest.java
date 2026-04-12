@@ -19,7 +19,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
-//@SpringBootTest
+// @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 class BoardIntegrationTest {
