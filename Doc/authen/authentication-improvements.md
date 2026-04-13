@@ -1,126 +1,170 @@
-# Authentication Improvements & Roadmap
+# 🔐 Authentication Improvements & Roadmap
 
-## 1. Mục tiêu
+## 1. 🎯 Mục tiêu cải thiện hệ thống
 
-Cải thiện hệ thống authentication hiện tại để:
+Hệ thống authentication hiện tại cần được nâng cấp để:
 
-- Tăng bảo mật
-- Đạt mức production-ready
-- Hỗ trợ phân quyền (RBAC)
+- Tăng cường bảo mật
 - Quản lý token hiệu quả
+- Kiểm soát session tốt hơn
+- Đạt mức production-ready
 
 ---
 
-## 2. Token Management
+## 2. 🔍 Các vấn đề hiện tại (AS-IS)
 
-### 2.1 Token Blacklist
+### 2.1 Token Management
 
-- Lưu token vào database hoặc Redis
-- Khi logout → đưa token vào blacklist
-- JwtFilter cần check blacklist
-
----
-
-### 2.2 Revoke Token
-
-- Hỗ trợ revoke token trước khi hết hạn
-- Áp dụng cho:
-  - Logout
-  - Reset password
-  - Security event
+- Chưa có cơ chế **blacklist token**
+- Không thể **revoke token trước khi hết hạn**
+- Token sau logout vẫn còn hiệu lực
 
 ---
 
-## 3. Access Token & Refresh Token
+### 2.2 Access & Refresh Token
 
-### 3.1 Tách token
-
-- Access Token:
-  - Short-lived (15–30 phút)
-- Refresh Token:
-  - Long-lived (7–30 ngày)
-
----
-
-### 3.2 Lưu Refresh Token
-
-- Lưu trong DB
-- Gắn với user
-- Có expiration riêng
+- Chưa tách rõ:
+  - Access Token
+  - Refresh Token
+- Không có cơ chế:
+  - Rotate refresh token
+  - Quản lý session theo thiết bị
 
 ---
 
-### 3.3 Rotate Refresh Token
+### 2.3 JWT Payload
 
-- Mỗi lần refresh → cấp token mới
-- Token cũ bị invalid
+- Payload còn đơn giản
+- Thiếu:
+  - `jti` (token id)
+  - `iss`, `aud`
+- Khó kiểm soát và trace token
 
 ---
 
-## 4. JWT Payload Improvement
+### 2.4 Security
 
-- Thêm:
+- Chưa có:
+  - Rate limiting khi login
+  - Lock account khi nhập sai nhiều lần
+- Dễ bị brute-force attack
+
+---
+
+### 2.5 Input Validation
+
+- Validate chưa chặt:
+  - Email format
+  - Password strength
+
+---
+
+### 2.6 Email Verification
+
+- Chưa có xác thực email khi đăng ký
+- Có thể dẫn đến spam account
+
+---
+
+### 2.7 Password Reset
+
+- Cơ chế reset password chưa hoàn chỉnh:
+  - Token chưa rõ expiration
+  - Chưa đảm bảo one-time use
+- Chưa revoke session sau khi đổi mật khẩu
+
+---
+
+### 2.8 Session & Audit
+
+- Chưa có:
+  - Quản lý session theo thiết bị
+  - Lịch sử đăng nhập
+- Khó kiểm soát hoạt động bất thường
+
+---
+
+## 3. 🚀 Mục tiêu cải thiện (TO-BE)
+
+### 3.1 Token Management
+
+- Thêm **token blacklist (Redis)**
+- Hỗ trợ **revoke token chủ động**
+- Đảm bảo token bị vô hiệu ngay khi logout
+
+---
+
+### 3.2 Access & Refresh Token
+
+- Tách rõ:
+  - Access Token (short-lived)
+  - Refresh Token (long-lived)
+- Lưu refresh token vào DB
+- Hỗ trợ:
+  - Rotate refresh token
+  - Multi-device session
+
+---
+
+### 3.3 JWT Payload
+
+- Bổ sung:
   - `userId`
   - `role`
-- Có thể bổ sung:
-  - `iss` (issuer)
-  - `aud` (audience)
-  - `jti` (token id)
+  - `jti`
+  - `iss`, `aud`
+- Tăng khả năng kiểm soát và trace
 
 ---
 
-## 5. Authorization (RBAC)
+### 3.4 Security Hardening
 
-- Áp dụng role-based access control:
-  - OWNER
-  - ADMIN
-  - MEMBER
-  - GUEST
-
-- Sử dụng:
-  - `@PreAuthorize`
-  - hoặc check trong service
+- Thêm:
+  - Rate limiting (Redis)
+  - Account lock khi login sai nhiều lần
+- Giảm nguy cơ brute-force
 
 ---
 
-## 6. Security Hardening
+### 3.5 Input Validation
 
-### 6.1 Login Protection
-
-- Rate limiting
-- Account lock khi login sai nhiều lần
-
----
-
-### 6.2 Input Validation
-
-- Validate email format
-- Validate password strength
+- Validate chặt:
+  - Email đúng chuẩn
+  - Password đủ mạnh
 
 ---
 
-### 6.3 Email Verification
+### 3.6 Email Verification
 
-- Xác thực email khi đăng ký
-
----
-
-## 7. Password Reset
-
-- Tạo token reset riêng
-- Có expiration
-- Validate token khi reset
+- Thêm flow xác thực email
+- Chỉ activate account sau khi verify
 
 ---
 
-## 8. Future Enhancements
+### 3.7 Password Reset
 
-- OAuth2 (Google login)
-- Multi-device session management
-- Audit log (login history)
+- Token reset:
+  - Có expiration
+  - One-time use
+- Revoke toàn bộ session sau khi reset
 
 ---
 
-## 9. Notes
+### 3.8 Session & Audit
 
-Tài liệu này mô tả các hướng cải tiến từ hệ thống hiện tại (AS-IS) lên mức production-ready (TO-BE).
+- Quản lý session theo:
+  - Device
+  - IP
+- Lưu login history
+- Hỗ trợ audit & security monitoring
+
+---
+
+## 4. 📌 Kết luận
+
+Sau khi cải thiện, hệ thống sẽ:
+
+- Bảo mật hơn
+- Kiểm soát tốt vòng đời token
+- Hỗ trợ multi-device
+- Sẵn sàng cho production và scale
