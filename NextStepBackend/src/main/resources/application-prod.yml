@@ -1,10 +1,9 @@
 spring:
-
   # Redis Cache cho PROD
   cache:
     type: redis
     redis:
-      time-to-live: 1800000  # 30 minutes
+      time-to-live: 1800000 # 30 minutes
       cache-null-values: false
 
   datasource:
@@ -13,8 +12,8 @@ spring:
     password: ${DB_PASSWORD_PROD}
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
-      maximum-pool-size: 20
-      minimum-idle: 5
+      maximum-pool-size: 8
+      minimum-idle: 3
       connection-timeout: 30000
       idle-timeout: 300000
       max-lifetime: 600000
@@ -47,9 +46,13 @@ spring:
           batch_size: 20
         order_inserts: true
         order_updates: true
+        properties:
+        query:
+          plan_cache_max_size: 64
+          plan_parameter_metadata_max_size: 32
+          in_clause_parameter_padding: true
   flyway:
     enabled: true
-
 
 server:
   port: ${SERVER_PORT:8080}
@@ -76,7 +79,7 @@ app:
   jwt:
     secret: ${JWT_SECRET}
     access-token-expiration: 3600000
-    refresh-token-expiration: 259200000  # 3 days
+    refresh-token-expiration: 259200000 # 3 days
 
   notification:
     email:
