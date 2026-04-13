@@ -10,7 +10,8 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface BoardRepository extends JpaRepository<Board, Integer> {
 
-  @Query("""
+  @Query(
+      """
   SELECT DISTINCT b FROM Board b
   LEFT JOIN b.members bm
   LEFT JOIN bm.user u
@@ -51,6 +52,7 @@ public interface BoardRepository extends JpaRepository<Board, Integer> {
   )
   """)
   Page<Board> findByWorkspaceSlug(String slug, String email, Pageable pageable);
+
   boolean existsByWorkspaceAndSlug(Workspace workspace, String slug);
 
   Optional<Board> findByWorkspace_SlugAndSlug(String workspaceSlug, String boardSlug);
