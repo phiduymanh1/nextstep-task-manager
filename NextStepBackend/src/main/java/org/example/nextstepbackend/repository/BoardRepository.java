@@ -17,9 +17,9 @@ public interface BoardRepository extends JpaRepository<Board, Integer> {
   LEFT JOIN bm.user u
   WHERE b.workspace.slug = :slug
   AND (
-      b.visibility = org.example.nextstepbackend.enums.BoardVisibility.PUBLIC
+      b.visibility = org.example.nextstepbackend.enums.Visibility.PUBLIC
       OR (
-          b.visibility = org.example.nextstepbackend.enums.BoardVisibility.WORKSPACE
+          b.visibility = org.example.nextstepbackend.enums.Visibility.WORKSPACE
           AND (
               b.createdBy.email = :email
               OR (
@@ -33,7 +33,7 @@ public interface BoardRepository extends JpaRepository<Board, Integer> {
           )
       )
       OR (
-          b.visibility = org.example.nextstepbackend.enums.BoardVisibility.PRIVATE
+          b.visibility = org.example.nextstepbackend.enums.Visibility.PRIVATE
           AND (
               b.createdBy.email = :email
               OR EXISTS (
