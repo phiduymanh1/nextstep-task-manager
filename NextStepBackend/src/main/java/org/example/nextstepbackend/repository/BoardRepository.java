@@ -12,46 +12,37 @@ public interface BoardRepository extends JpaRepository<Board, Integer> {
 
   @Query(
       """
-  SELECT DISTINCT b FROM Board b
-  LEFT JOIN b.members bm
-  LEFT JOIN bm.user u
-  WHERE b.workspace.slug = :slug
-  AND (
-      b.visibility = org.example.nextstepbackend.enums.Visibility.PUBLIC
-      OR (
-          b.visibility = org.example.nextstepbackend.enums.Visibility.WORKSPACE
-          AND (
-              b.createdBy.email = :email
-              OR (
-                  u.email = :email
-                  AND bm.role IN (
-                      org.example.nextstepbackend.enums.BoardRole.OBSERVER,
-                      org.example.nextstepbackend.enums.BoardRole.ADMIN,
-                      org.example.nextstepbackend.enums.BoardRole.MEMBER
-                  )
-              )
+        SELECT DISTINCT b FROM Board b
+        LEFT JOIN FETCH b.members bm
+        LEFT JOIN FETCH bm.user u
+        WHERE b.workspace.slug = :slug
+          AND b.visibility IN (
+              org.example.nextstepbackend.enums.Visibility.PUBLIC,
+              org.example.nextstepbackend.enums.Visibility.WORKSPACE
           )
-      )
-      OR (
-          b.visibility = org.example.nextstepbackend.enums.Visibility.PRIVATE
+    """)
+  Page<Board> findPublicAndWorkspaceBoards(String slug, Pageable pageable);
+
+  @Query(
+      """
+        SELECT DISTINCT b FROM Board b
+        WHERE b.workspace.slug = :slug
+          AND b.visibility = org.example.nextstepbackend.enums.Visibility.PRIVATE
           AND (
               b.createdBy.email = :email
               OR EXISTS (
                   SELECT 1 FROM BoardMember bm2
-                  JOIN bm2.user u2
-                  WHERE bm2.board.id = b.id
-                  AND u2.email = :email
-                  AND bm2.role IN (
-                      org.example.nextstepbackend.enums.BoardRole.OBSERVER,
-                      org.example.nextstepbackend.enums.BoardRole.ADMIN,
-                      org.example.nextstepbackend.enums.BoardRole.MEMBER
-                  )
+                  WHERE bm2.board = b
+                    AND bm2.user.email = :email
+                    AND bm2.role IN (
+                        org.example.nextstepbackend.enums.BoardRole.OBSERVER,
+                        org.example.nextstepbackend.enums.BoardRole.ADMIN,
+                        org.example.nextstepbackend.enums.BoardRole.MEMBER
+                    )
               )
           )
-      )
-  )
-  """)
-  Page<Board> findByWorkspaceSlug(String slug, String email, Pageable pageable);
+    """)
+  Page<Board> findPrivateBoards(String slug, String email, Pageable pageable);
 
   boolean existsByWorkspaceAndSlug(Workspace workspace, String slug);
 

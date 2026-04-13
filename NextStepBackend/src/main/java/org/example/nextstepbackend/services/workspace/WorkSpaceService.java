@@ -1,5 +1,6 @@
 package org.example.nextstepbackend.services.workspace;
 
+import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.example.nextstepbackend.comm.constants.Const;
@@ -26,6 +27,7 @@ import org.example.nextstepbackend.services.auth.AuthService;
 import org.example.nextstepbackend.services.list.PermissionService;
 import org.example.nextstepbackend.utils.SlugUtils;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -125,8 +127,10 @@ public class WorkSpaceService {
   public WorkspaceDetailResponse getWorkspaceDetail(String slug, String email, int page, int size) {
     size = Math.min(size, 50);
 
+    // Kiểm tra quyền truy cập workspace
     List<WorkspaceRole> roles =
         List.of(WorkspaceRole.OWNER, WorkspaceRole.ADMIN, WorkspaceRole.MEMBER);
+
     Workspace workspace =
         workSpaceRepository
             .findWorkspaceAccessible(slug, email, roles)
@@ -134,7 +138,21 @@ public class WorkSpaceService {
 
     Pageable pageable = PageRequest.of(page, size, Sort.by("audit.createdAt").descending());
 
-    Page<Board> boardPage = boardRepository.findByWorkspaceSlug(slug, email, pageable);
+    // Lấy 2 loại board riêng biệt
+    Page<Board> publicAndWorkspaceBoards =
+        boardRepository.findPublicAndWorkspaceBoards(slug, pageable);
+    Page<Board> privateBoards = boardRepository.findPrivateBoards(slug, email, pageable);
+
+    // Combine hai Page thành một List (vì phân trang chung)
+    List<Board> combinedBoards = new ArrayList<>();
+    combinedBoards.addAll(publicAndWorkspaceBoards.getContent());
+    combinedBoards.addAll(privateBoards.getContent());
+
+    // Loại bỏ trùng lặp (nếu có)
+    List<Board> distinctBoards = combinedBoards.stream().distinct().toList();
+
+    // Tạo Page mới từ List đã combine
+    Page<Board> boardPage = new PageImpl<>(distinctBoards, pageable, distinctBoards.size());
 
     PageResponse<BoardResponse> boards = toPageResponse(boardPage.map(boardMapper::toResponse));
 
